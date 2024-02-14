@@ -1,3 +1,3 @@
-fn main() {
-    println!("Hello, world!");
-}
+pub mod wire_format;
+
+fn main() {}

@@ -59,6 +59,23 @@
             pkgs.rustup
           ];
 
+          commands = [
+            {
+              command = "${pkgs.buf}/bin/buf lint";
+              name = "buflint";
+              help = "lint proto files";
+            }
+            {
+              package = config.treefmt.build.wrapper;
+              name = "treefmt";
+            }
+            {
+              command = "${pkgs.rustup}/bin/cargo clippy --all-features";
+              name = "clippy";
+              help = "lint rust files";
+            }
+          ];
+
           devshell.startup.pre-commit.text = config.pre-commit.installationScript;
         };
 
@@ -68,12 +85,30 @@
             alejandra.enable = true;
             rustfmt.enable = true;
           };
+
+          settings.formatter.buf = {
+            command = pkgs.writeShellScriptBin "buf.sh" ''
+              for f in $@; do
+                ${pkgs.buf}/bin/buf format --exit-code > /dev/null "$f" || ${pkgs.buf}/bin/buf format -w "$f"
+              done
+            '';
+            includes = ["*.proto"];
+          };
+
           flakeCheck = false;
         };
 
         pre-commit = {
           settings = {
             hooks.treefmt.enable = true;
+
+            hooks.buf-lint = {
+              enable = true;
+              name = "Buf Lint";
+              entry = "${pkgs.buf}/bin/buf lint";
+              types = ["proto"];
+              pass_filenames = false;
+            };
           };
         };
       };

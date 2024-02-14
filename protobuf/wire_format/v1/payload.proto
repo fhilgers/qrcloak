@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package wire_format.v1;
+
+message Payload {
+  oneof inner {
+    NormalPayload normal_payload = 1;
+    EncryptedPayload encrypted_payload = 2;
+    MultiPayload multi_payload = 3;
+  }
+}
+
+message MultiPayload {
+  uint32 id = 1;
+  uint32 number = 2;
+  uint32 total = 3;
+
+  oneof inner {
+    NormalPayload normal_payload = 4;
+    EncryptedPayload encrypted_payload = 5;
+  }
+}
+
+message NormalPayload {
+  bytes data = 1;
+}
+
+message EncryptedPayload {
+  message AgeSpec {}
+
+  bytes data = 1;
+
+  oneof spec {
+    AgeSpec age = 2;
+  }
+}

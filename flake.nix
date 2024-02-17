@@ -86,13 +86,27 @@
             rustfmt.enable = true;
           };
 
-          settings.formatter.buf = {
-            command = pkgs.writeShellScriptBin "buf.sh" ''
-              for f in $@; do
-                ${pkgs.buf}/bin/buf format --exit-code > /dev/null "$f" || ${pkgs.buf}/bin/buf format -w "$f"
-              done
-            '';
-            includes = ["*.proto"];
+          settings.formatter = {
+            buf = {
+              command = pkgs.writeShellScriptBin "buf.sh" ''
+                for f in $@; do
+                  ${pkgs.buf}/bin/buf format --exit-code > /dev/null "$f" || ${pkgs.buf}/bin/buf format -w "$f"
+                done
+              '';
+              includes = ["*.proto"];
+            };
+
+            taplo = {
+              command = "${pkgs.taplo}/bin/taplo";
+              options = [
+                "fmt"
+                "-o"
+                "reorder_keys=true"
+                "-o"
+                "reorder_arrays=true"
+              ];
+              includes = ["*.toml"];
+            };
           };
 
           flakeCheck = false;

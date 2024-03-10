@@ -1,13 +1,7 @@
 uniffi::setup_scaffolding!();
 
-use std::{
-    any::Any,
-    collections::btree_map::VacantEntry,
-    fmt::Debug,
-    sync::{Arc, Mutex},
-};
+use std::{fmt::Debug, sync::Mutex};
 
-use futures::{SinkExt, StreamExt};
 use qrypt_core::*;
 use quircs::{Code, DecodeError, ExtractError, Quirc};
 
@@ -138,6 +132,12 @@ impl From<quircs::Point> for Point {
     }
 }
 
+impl Default for Decoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[uniffi::export]
 impl Decoder {
     #[uniffi::constructor]
@@ -175,7 +175,7 @@ pub fn qr_encode(data: &str) -> Result<EncodedQrCode, MyError> {
 
     for y in 0..qrcode.size() {
         for x in 0..qrcode.size() {
-            if qrcode.get_module(x as i32, y as i32) {
+            if qrcode.get_module(x, y) {
                 raw_data.push(1u8)
             } else {
                 raw_data.push(0u8)

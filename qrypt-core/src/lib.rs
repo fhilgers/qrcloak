@@ -7,7 +7,7 @@ use image::{codecs::png::PngEncoder, ImageError, Rgba, RgbaImage};
 #[cfg(feature = "miette")]
 use miette::Diagnostic;
 
-use qrcodegen::{DataTooLong, QrCode};
+use qrcodegen::QrCode;
 use thiserror::Error;
 
 pub fn encrypt(input: &str, password: &str) -> Result<Vec<u8>, EncryptError> {
@@ -48,7 +48,7 @@ pub fn b64_decode(input: &str) -> Result<Vec<u8>, DecodeError> {
 }
 
 pub fn qr_encode(input: &str) -> Result<QrCode, MyLibError> {
-    Ok(QrCode::encode_text(&input, qrcodegen::QrCodeEcc::Low)?)
+    Ok(QrCode::encode_text(input, qrcodegen::QrCodeEcc::Low)?)
 }
 
 pub fn to_png(qr: &QrCode) -> Result<Vec<u8>, ImageError> {
@@ -91,7 +91,7 @@ pub enum MyLibError {
     DecodeError(#[from] base64::DecodeError),
 }
 
-const IDENTIFIER: &'static [u8; 16] = b"PWEncrypt001\0\0\0\0";
+const IDENTIFIER: &[u8; 16] = b"PWEncrypt001\0\0\0\0";
 
 pub fn is_payload(input: &str) -> bool {
     if let Ok(decoded) = b64_decode(input) {
@@ -128,11 +128,11 @@ pub fn encrypt_to_b64png(input: &str, password: &str) -> Result<String, MyLibErr
 pub fn decrypt_b64payload(input: &str, password: &str) -> Result<String, MyLibError> {
     let mut decoded = &b64_decode(input)?[..];
 
-    if let Some(remaining) = strip_identifier(&decoded) {
+    if let Some(remaining) = strip_identifier(decoded) {
         decoded = remaining
     }
 
-    let decrypted = decrypt(&decoded, password)?;
+    let decrypted = decrypt(decoded, password)?;
 
     Ok(decrypted)
 }

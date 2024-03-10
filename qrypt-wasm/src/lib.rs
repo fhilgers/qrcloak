@@ -1,7 +1,4 @@
-mod utils;
-
-use qrypt_core::{b64_encode, encrypt, qr_encode, to_png};
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::prelude::{wasm_bindgen, JsError};
 
 #[wasm_bindgen]
 extern "C" {

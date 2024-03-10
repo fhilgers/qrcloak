@@ -57,6 +57,9 @@
 
           packages = [
             pkgs.rustup
+            pkgs.nodePackages.pnpm
+            pkgs.nodejs
+            pkgs.ktlint
           ];
 
           commands = [
@@ -84,6 +87,9 @@
           programs = {
             alejandra.enable = true;
             rustfmt.enable = true;
+            prettier = {
+              enable = true;
+            };
           };
 
           settings.formatter = {

@@ -1,0 +1,11 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "./qrypt-wasm/Cargo.toml",
+    "./qrypt-wasm/Cargo.toml",
+    "./qrypt-uniffi/Cargo.toml",
+    "./qrypt-uniffi/Cargo.toml",
+    "./qrypt-uniffi/Cargo.toml",
+    "./qrypt-uniffi/Cargo.toml",
+    "./qrypt-uniffi/Cargo.toml"
+  ]
+}

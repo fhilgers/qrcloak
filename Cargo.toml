@@ -1,21 +1,11 @@
-[package]
-name = "qrypt"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = ["qrypt-core", "qrypt-uniffi", "qrypt-wasm"]
+resolver = "2"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace.package]
+version = "0.0.1"
 
-[dependencies]
-prost = "0.12"
-
-[build-dependencies]
-prost-build = { version = "0.12" }
-protox = { version = "0.6" }
-miette = { version = "7.0.0", features = [ "fancy" ] }
-
-[dev-dependencies]
-insta = { version = "1.34.0", features = ["yaml"] }
-
-[profile.dev.package]
-insta.opt-level = 3
-similar.opt-level = 3
+[workspace.dependencies]
+qrypt-core = { path = "./qrypt-core" }
+qrypt-uniffi = { path = "./qrypt-uniffi" }
+qrypt-wasm = { path = "./qrypt-wasm" }

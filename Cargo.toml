@@ -9,3 +9,7 @@ version = "0.0.1"
 qrypt-core = { path = "./qrypt-core" }
 qrypt-uniffi = { path = "./qrypt-uniffi" }
 qrypt-wasm = { path = "./qrypt-wasm" }
+
+
+[patch.crates-io]
+uniffi = { path = "./uniffi-rs/uniffi" }

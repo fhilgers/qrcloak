@@ -14,7 +14,26 @@ name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
 [dependencies]
+const_format = "0.2.32"
+dyn-clone = "1.0.17"
+futures = "0.3.30"
+futures-signals = "0.3.33"
+log = "0.4.21"
+paste = "1.0.14"
+pin-project = "1.1.5"
 qrypt-core = { workspace = true }
 quircs = "0.10.2"
 thiserror = "1.0.57"
 uniffi = { version = "0.26.1", features = ["cli"] }
+
+[dev-dependencies]
+paste = "1.0.14"
+tokio = { version = "1.36.0", features = [
+  "macros",
+  "test-util",
+  "tokio-macros",
+] }
+
+
+[patch.crates-io]
+uniffi = { path = "../uniffi-rs/uniffi" }

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+nix-alien -- "/home/flyxi/Android/Sdk/ndk/26.2.11394342/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" --target=aarch64-linux-android26 "$@"

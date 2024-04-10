@@ -1,6 +1,7 @@
 [workspace]
-members = ["qrcloak-core"]
+members = ["qrcloak-core", "qrcodegen"]
 resolver = "2"
 
 [workspace.package]
+edition = "2021"
 version = "0.0.1"

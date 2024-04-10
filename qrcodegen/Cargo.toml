@@ -1,0 +1,8 @@
+[package]
+edition.workspace = true
+name = "qrcodegen"
+version.workspace = true
+
+[lib]
+
+[dependencies]

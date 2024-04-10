@@ -121,6 +121,11 @@ impl QrCode {
         QrCode::encode_segments(&segs, ecl)
     }
 
+    pub fn encode_text_optimally(text: &str, ecl: QrCodeEcc) -> Result<Self, DataTooLong> {
+        let segs = QrSegment::make_segments_optimally(text, ecl, Version::MIN, Version::MAX)?;
+        QrCode::encode_segments_advanced(&segs, ecl, Version::MIN, Version::MAX, None, true)
+    }
+
     /// Returns a QR Code representing the given binary data at the given error correction level.
     ///
     /// This function always encodes using the binary segment mode, not any text mode. The maximum number of
@@ -1024,6 +1029,173 @@ impl QrSegment {
         }
     }
 
+    fn compute_character_modes(text: &str, version: Version) -> Vec<QrSegmentMode> {
+        let mut char_modes = vec![vec![None; 3]; text.chars().count()];
+
+        let mode_types = [
+            QrSegmentMode::Byte,
+            QrSegmentMode::Alphanumeric,
+            QrSegmentMode::Numeric,
+        ];
+
+        let num_modes = mode_types.len();
+
+        // TODO kanji and eci
+        let head_costs = mode_types
+            .iter()
+            .map(|t| t.header_cost(version) as usize)
+            .collect::<Vec<_>>();
+
+        let mut prev_costs = head_costs.clone();
+
+        for (i, c) in text.char_indices() {
+            let mut current_costs = vec![None; num_modes];
+
+            let current_char_mode = &mut char_modes[i];
+
+            current_costs[0] = Some(prev_costs[0] + c.len_utf8() * 8 * 6);
+            current_char_mode[0] = Some(QrSegmentMode::Byte);
+
+            if QrSegment::is_alphanumeric_chars([c]) {
+                current_costs[1] = Some(prev_costs[1] + 33);
+                current_char_mode[1] = Some(QrSegmentMode::Alphanumeric);
+            }
+
+            if QrSegment::is_numeric_chars([c]) {
+                current_costs[2] = Some(prev_costs[2] + 20);
+                current_char_mode[2] = Some(QrSegmentMode::Numeric);
+            }
+
+            for j in 0..num_modes {
+                // To mode
+                for k in 0..num_modes {
+                    // From mode
+
+                    if let Some(_) = current_char_mode[k] {
+                        let new_cost = (current_costs[k].unwrap() + 5) / 6 * 6 + head_costs[j];
+
+                        if current_char_mode[j].is_none() || new_cost < current_costs[j].unwrap() {
+                            current_costs[j] = Some(new_cost);
+                            current_char_mode[j] = Some(mode_types[k]);
+                        }
+                    }
+                }
+            }
+
+            prev_costs = current_costs
+                .into_iter()
+                .map(|cost| cost.unwrap())
+                .inspect(|cost| assert!(*cost <= (4 + 16 + 32) * 6 * 7089))
+                .collect();
+        }
+
+        let mut current_mode = QrSegmentMode::Byte;
+        let mut min_cost = prev_costs[0];
+
+        for i in 0..num_modes {
+            if prev_costs[i] < min_cost {
+                min_cost = prev_costs[i];
+                current_mode = mode_types[i];
+            }
+        }
+
+        let mut result = Vec::with_capacity(char_modes.len());
+
+        for i in (0..char_modes.len()).rev() {
+            for j in 0..num_modes {
+                if mode_types[j] == current_mode {
+                    current_mode = char_modes[i][j].unwrap();
+                    result.push(current_mode);
+                    break;
+                }
+            }
+        }
+
+        result.reverse();
+
+        result
+    }
+
+    fn split_into_segments(text: &str, char_modes: Vec<QrSegmentMode>) -> Vec<QrSegment> {
+        assert!(text.len() > 0);
+
+        let mut current_mode = char_modes[0];
+        let mut start = 0;
+
+        let mut result = vec![];
+
+        let mut append = |mode: QrSegmentMode, slice: &str| match mode {
+            QrSegmentMode::Byte => result.push(QrSegment::make_bytes(slice.as_bytes())),
+            QrSegmentMode::Alphanumeric => result.push(QrSegment::make_alphanumeric(slice)),
+            QrSegmentMode::Numeric => result.push(QrSegment::make_numeric(slice)),
+            _ => panic!("only implemented for byte, alphanumeric and numeric"),
+        };
+
+        let count = text.char_indices().count();
+        for (i, _) in text.char_indices() {
+            if char_modes[i] == current_mode {
+                continue;
+            }
+
+            let slice = &text[start..i];
+
+            append(current_mode, slice);
+
+            current_mode = char_modes[i];
+            start = i;
+        }
+
+        append(current_mode, &text[start..count]);
+
+        result
+    }
+
+    fn make_segments_optimally_for_version(text: &str, version: Version) -> Vec<QrSegment> {
+        Self::split_into_segments(text, Self::compute_character_modes(text, version))
+    }
+
+    pub fn make_segments_optimally(
+        text: &str,
+        ecl: QrCodeEcc,
+        minversion: Version,
+        maxversion: Version,
+    ) -> Result<Vec<QrSegment>, DataTooLong> {
+        assert!(minversion <= maxversion, "Invalid value");
+
+        let mut segs = Self::make_segments_optimally_for_version(text, minversion);
+
+        let mut data_capacity_bits;
+        let mut data_used_bits;
+
+        for version in minversion.value()..=maxversion.value() {
+            let version = Version::new(version);
+
+            if version.value() == 10 || version.value() == 27 {
+                segs = Self::make_segments_optimally_for_version(text, version);
+            }
+
+            data_capacity_bits = QrCode::get_num_data_codewords(version, ecl) * 8;
+            data_used_bits = QrSegment::get_total_bits(&segs, version);
+
+            if let Some(data_used_bits) = data_used_bits {
+                if data_used_bits <= data_capacity_bits {
+                    return Ok(segs);
+                }
+            }
+
+            if version == maxversion {
+                return match data_used_bits {
+                    None => Err(DataTooLong::SegmentTooLong),
+                    Some(data_used) => {
+                        Err(DataTooLong::DataOverCapacity(data_used, data_capacity_bits))
+                    }
+                };
+            }
+        }
+
+        unreachable!()
+    }
+
     /// Returns a segment representing an Extended Channel Interpretation
     /// (ECI) designator with the given assignment value.
     pub fn make_eci(assignval: u32) -> Self {
@@ -1098,7 +1270,11 @@ impl QrSegment {
     ///
     /// A string is encodable iff each character is in the range 0 to 9.
     pub fn is_numeric(text: &str) -> bool {
-        text.chars().all(|c| ('0'..='9').contains(&c))
+        Self::is_numeric_chars(text.chars())
+    }
+
+    fn is_numeric_chars(chars: impl IntoIterator<Item = char>) -> bool {
+        chars.into_iter().all(|c| ('0'..='9').contains(&c))
     }
 
     /// Tests whether the given string can be encoded as a segment in alphanumeric mode.
@@ -1106,7 +1282,11 @@ impl QrSegment {
     /// A string is encodable iff each character is in the following set: 0 to 9, A to Z
     /// (uppercase only), space, dollar, percent, asterisk, plus, hyphen, period, slash, colon.
     pub fn is_alphanumeric(text: &str) -> bool {
-        text.chars().all(|c| ALPHANUMERIC_CHARSET.contains(c))
+        Self::is_alphanumeric_chars(text.chars())
+    }
+
+    fn is_alphanumeric_chars(chars: impl IntoIterator<Item = char>) -> bool {
+        chars.into_iter().all(|c| ALPHANUMERIC_CHARSET.contains(c))
     }
 }
 
@@ -1151,6 +1331,16 @@ impl QrSegmentMode {
             Kanji => [8, 10, 12],
             Eci => [0, 0, 0],
         })[usize::from((ver.value() + 7) / 17)]
+    }
+
+    fn header_cost(self, ver: Version) -> u8 {
+        let bits = self.num_char_count_bits(ver);
+
+        let cost = (4 + bits) * 6;
+
+        assert!(cost <= (4 + 16) * 6);
+
+        cost
     }
 }
 

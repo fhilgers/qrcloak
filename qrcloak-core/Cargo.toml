@@ -15,5 +15,7 @@ serde_json = { version = "1.0.115", optional = true }
 thiserror = "1.0.58"
 
 [features]
-json = ["dep:schemars", "dep:serde_json", "serde"]
-serde = ["dep:serde"]
+json = ["schemars", "serde", "serde_json"]
+
+[dev-dependencies]
+insta = { version = "1.38.0", features = ["json"] }

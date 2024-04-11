@@ -1,32 +1,32 @@
-#[cfg(json)]
+#[cfg(feature = "json")]
 use schemars::JsonSchema;
 
-#[cfg(serde)]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(json, JsonSchema)]
-#[cfg_attr(serde, serde(untagged))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Payload {
     Complete(CompletePayload),
     Partial(PartialPayload),
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompletePayload {
     pub payload_metadata: PayloadMetadata,
 
-    #[cfg_attr(serde, serde(with = "Base45IfHumanReadable"))]
+    #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
     pub data: Vec<u8>,
 }
 
-#[cfg(serde)]
+#[cfg(feature = "serde")]
 struct Base45IfHumanReadable;
 
-#[cfg(serde)]
+#[cfg(feature = "serde")]
 impl Base45IfHumanReadable {
     pub fn serialize<S>(data: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -57,7 +57,7 @@ impl Base45IfHumanReadable {
     }
 }
 
-#[cfg(json)]
+#[cfg(feature = "json")]
 impl JsonSchema for Base45IfHumanReadable {
     fn schema_name() -> String {
         "String".to_string()
@@ -84,24 +84,24 @@ impl JsonSchema for Base45IfHumanReadable {
     }
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PayloadMetadata {
     pub encryption: Option<EncryptionSpec>,
     pub compression: Option<CompressionSpec>,
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PartialPayload {
     pub index_metadata: IndexMetadata,
     pub data: PartialPayloadData,
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IndexMetadata {
     pub id: u32,
@@ -109,9 +109,9 @@ pub struct IndexMetadata {
     pub size: u32,
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(serde, serde(tag = "type"))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EncryptionSpec {
     AgeKey,
@@ -119,19 +119,34 @@ pub enum EncryptionSpec {
     NoEncryption,
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(serde, serde(tag = "type"))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionSpec {
     Gzip,
 }
 
-#[cfg_attr(serde, derive(Serialize, Deserialize))]
-#[cfg_attr(serde, serde(tag = "type"))]
-#[cfg_attr(json, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PartialPayloadData {
     Head(CompletePayload),
-    Tail(#[cfg_attr(serde, serde(with = "Base45IfHumanReadable"))] Vec<u8>),
+    Tail(#[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))] Vec<u8>),
+}
+
+#[cfg(all(test, feature = "json"))]
+mod tests {
+    use insta::assert_json_snapshot;
+    use schemars::schema_for;
+
+    use crate::payload::Payload;
+
+    #[test]
+    fn validate_schema() {
+        let schema = schema_for!(Payload);
+
+        assert_json_snapshot!(schema);
+    }
 }

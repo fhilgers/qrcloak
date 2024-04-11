@@ -1,0 +1,211 @@
+---
+source: qrcloak-core/src/payload/format.rs
+expression: schema
+---
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Payload",
+  "anyOf": [
+    {
+      "$ref": "#/definitions/CompletePayload"
+    },
+    {
+      "$ref": "#/definitions/PartialPayload"
+    }
+  ],
+  "definitions": {
+    "CompletePayload": {
+      "type": "object",
+      "required": [
+        "data",
+        "payload_metadata"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "payload_metadata": {
+          "$ref": "#/definitions/PayloadMetadata"
+        }
+      }
+    },
+    "CompressionSpec": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Gzip"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "EncryptionSpec": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "AgeKey"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "AgePassword"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NoEncryption"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "IndexMetadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "index",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "index": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "size": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "PartialPayload": {
+      "type": "object",
+      "required": [
+        "data",
+        "index_metadata"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PartialPayloadData"
+        },
+        "index_metadata": {
+          "$ref": "#/definitions/IndexMetadata"
+        }
+      }
+    },
+    "PartialPayloadData": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "data",
+            "payload_metadata",
+            "type"
+          ],
+          "properties": {
+            "data": {
+              "type": "string",
+              "format": "base45",
+              "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+            },
+            "payload_metadata": {
+              "$ref": "#/definitions/PayloadMetadata"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "Head"
+              ]
+            }
+          }
+        },
+        {
+          "type": [
+            "object",
+            "string"
+          ],
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Tail"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "PayloadMetadata": {
+      "type": "object",
+      "properties": {
+        "compression": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CompressionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "encryption": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EncryptionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

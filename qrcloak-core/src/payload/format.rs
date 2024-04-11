@@ -17,6 +17,7 @@ pub enum Payload {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompletePayload {
+    #[serde(skip_serializing_if = "PayloadMetadata::is_empty", default)]
     pub payload_metadata: PayloadMetadata,
 
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
@@ -86,10 +87,18 @@ impl JsonSchema for Base45IfHumanReadable {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct PayloadMetadata {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub encryption: Option<EncryptionSpec>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub compression: Option<CompressionSpec>,
+}
+
+impl PayloadMetadata {
+    fn is_empty(&self) -> bool {
+        self.encryption.is_none() && self.compression.is_none()
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -110,7 +119,11 @@ pub struct IndexMetadata {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(
+    feature = "serde",
+    serde(tag = "type"),
+    serde(rename_all = "snake_case")
+)]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EncryptionSpec {
@@ -120,7 +133,11 @@ pub enum EncryptionSpec {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(
+    feature = "serde",
+    serde(tag = "type"),
+    serde(rename_all = "snake_case")
+)]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionSpec {
@@ -128,7 +145,11 @@ pub enum CompressionSpec {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type"))]
+#[cfg_attr(
+    feature = "serde",
+    serde(tag = "type"),
+    serde(rename_all = "snake_case")
+)]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PartialPayloadData {

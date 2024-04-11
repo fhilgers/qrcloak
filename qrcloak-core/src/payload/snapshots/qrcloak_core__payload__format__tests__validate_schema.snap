@@ -17,8 +17,7 @@ expression: schema
     "CompletePayload": {
       "type": "object",
       "required": [
-        "data",
-        "payload_metadata"
+        "data"
       ],
       "properties": {
         "data": {
@@ -42,7 +41,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "Gzip"
+                "gzip"
               ]
             }
           }
@@ -60,7 +59,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "AgeKey"
+                "age_key"
               ]
             }
           }
@@ -74,7 +73,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "AgePassword"
+                "age_password"
               ]
             }
           }
@@ -88,7 +87,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "NoEncryption"
+                "no_encryption"
               ]
             }
           }
@@ -141,7 +140,6 @@ expression: schema
           "type": "object",
           "required": [
             "data",
-            "payload_metadata",
             "type"
           ],
           "properties": {
@@ -156,7 +154,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "Head"
+                "head"
               ]
             }
           }
@@ -176,7 +174,7 @@ expression: schema
             "type": {
               "type": "string",
               "enum": [
-                "Tail"
+                "tail"
               ]
             }
           }

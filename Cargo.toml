@@ -6,6 +6,10 @@ resolver = "2"
 edition = "2021"
 version = "0.0.1"
 
+[workspace.dependencies]
+qrcloak-core = { path = "./qrcloak-core" }
+qrcodegen = { path = "./qrcodegen" }
+
 
 [profile.dev.package.insta]
 opt-level = 3

@@ -101,7 +101,7 @@ pub fn convert_chain(value: Vec<PartialPayload>) -> Result<CompletePayload, Conv
                 panic!("checked pefore");
             }
         } else {
-            if let PartialPayloadData::Tail(tail) = p.data {
+            if let PartialPayloadData::Tail { data: tail } = p.data {
                 data[index] = Some(tail)
             } else {
                 panic!("checked pefore");
@@ -174,7 +174,7 @@ pub fn validate_chain(value: &[PartialPayload]) -> Result<(), ValidationError> {
                     actual: index,
                 })
             }
-            PartialPayloadData::Tail(_) if index == 0 => {
+            PartialPayloadData::Tail { .. } if index == 0 => {
                 return Err(ValidationError::InvalidIndex {
                     expected: 1..size,
                     actual: index,
@@ -269,7 +269,7 @@ impl CompletePayload {
         };
 
         let tail = chunked.map(|(index, chunk)| {
-            let tail = PartialPayloadData::Tail(chunk.into());
+            let tail = PartialPayloadData::Tail { data: chunk.into() };
 
             PartialPayload {
                 index_metadata: IndexMetadata {

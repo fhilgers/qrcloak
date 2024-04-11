@@ -162,16 +162,17 @@ expression: schema
           }
         },
         {
-          "type": [
-            "object",
-            "string"
-          ],
-          "format": "base45",
-          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$",
+          "type": "object",
           "required": [
+            "data",
             "type"
           ],
           "properties": {
+            "data": {
+              "type": "string",
+              "format": "base45",
+              "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+            },
             "type": {
               "type": "string",
               "enum": [

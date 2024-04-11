@@ -133,7 +133,10 @@ pub enum CompressionSpec {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PartialPayloadData {
     Head(CompletePayload),
-    Tail(#[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))] Vec<u8>),
+    Tail {
+        #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
+        data: Vec<u8>,
+    },
 }
 
 #[cfg(all(test, feature = "json"))]

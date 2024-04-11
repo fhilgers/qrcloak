@@ -126,6 +126,18 @@ impl QrCode {
         QrCode::encode_segments_advanced(&segs, ecl, Version::MIN, Version::MAX, None, true)
     }
 
+    pub fn encode_text_optimally_advanced(
+        text: &str,
+        ecl: QrCodeEcc,
+        minversion: Version,
+        maxversion: Version,
+        mask: Option<Mask>,
+        boostecl: bool,
+    ) -> Result<Self, DataTooLong> {
+        let segs = QrSegment::make_segments_optimally(text, ecl, minversion, maxversion)?;
+        QrCode::encode_segments_advanced(&segs, ecl, minversion, maxversion, mask, boostecl)
+    }
+
     /// Returns a QR Code representing the given binary data at the given error correction level.
     ///
     /// This function always encodes using the binary segment mode, not any text mode. The maximum number of

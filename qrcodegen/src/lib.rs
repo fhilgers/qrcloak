@@ -188,6 +188,7 @@ impl QrCode {
             if dataused.map_or(false, |n| n <= datacapacitybits) {
                 break dataused.unwrap(); // This version number is found to be suitable
             } else if version >= maxversion {
+                println!("failed here");
                 // All versions in the range could not fit the given data
                 return Err(match dataused {
                     None => DataTooLong::SegmentTooLong,
@@ -1048,7 +1049,7 @@ impl QrSegment {
 
         let mut prev_costs = head_costs.clone();
 
-        for (i, c) in text.char_indices() {
+        for (i, c) in text.chars().enumerate() {
             let mut current_costs = vec![None; num_modes];
 
             let current_char_mode = &mut char_modes[i];
@@ -1131,21 +1132,20 @@ impl QrSegment {
             _ => panic!("only implemented for byte, alphanumeric and numeric"),
         };
 
-        let count = text.char_indices().count();
-        for (i, _) in text.char_indices() {
-            if char_modes[i] == current_mode {
+        for (char_index, (byte_index, _)) in text.char_indices().enumerate() {
+            if char_modes[char_index] == current_mode {
                 continue;
             }
 
-            let slice = &text[start..i];
+            let slice = &text[start..byte_index];
 
             append(current_mode, slice);
 
-            current_mode = char_modes[i];
-            start = i;
+            current_mode = char_modes[char_index];
+            start = byte_index;
         }
 
-        append(current_mode, &text[start..count]);
+        append(current_mode, &text[start..]);
 
         result
     }
@@ -1447,4 +1447,124 @@ impl Mask {
 // Returns true iff the i'th bit of x is set to 1.
 fn get_bit(x: u32, i: i32) -> bool {
     (x >> i) & 1 != 0
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::from_utf8;
+    use std::sync::Arc;
+
+    use image::Luma;
+    use proptest::arbitrary::Arbitrary;
+    use proptest::prelude::ProptestConfig;
+    use proptest::strategy::{Just, TupleUnion};
+    use proptest::{prelude::prop, prop_oneof, proptest, strategy::Strategy};
+    use quircs::Quirc;
+
+    use crate::{QrCode, QrCodeEcc};
+
+    fn qrcode_to_image(qrcode: &QrCode, scale: u32) -> image::ImageBuffer<Luma<u8>, Vec<u8>> {
+        let size = qrcode.size() as u32;
+
+        let mut img = image::ImageBuffer::new(size * scale + scale * 2, size * scale + scale * 2);
+
+        img.fill(255);
+
+        for y in 0..size {
+            for x in 0..size {
+                if qrcode.get_module(x as i32, y as i32) {
+                    let scaled_y_with_offset = y * scale + scale;
+                    let scaled_x_with_offset = x * scale + scale;
+
+                    for real_y in scaled_y_with_offset..scaled_y_with_offset + scale {
+                        for real_x in scaled_x_with_offset..scaled_x_with_offset + scale {
+                            img.put_pixel(real_x, real_y, Luma([0]))
+                        }
+                    }
+                }
+            }
+        }
+
+        img.into()
+    }
+
+    fn text_in_range(truncate: usize) -> impl Strategy<Value = String> {
+        prop::string::string_regex(&format!(".{{1,{truncate}}}"))
+            .unwrap()
+            .prop_map(move |mut s| {
+                for i in truncate - 4..truncate {
+                    if s.is_char_boundary(i) {
+                        s.truncate(i);
+                        break;
+                    }
+                }
+                s
+            })
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(100))]
+        #[test]
+        fn roundtrip_small(
+            text in text_in_range(100),
+            ecl: QrCodeEcc
+        ) {
+            roundtrip(&text, ecl)
+        }
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(10))]
+        #[test]
+        fn roundtrip_large(
+            text in text_in_range(1273),
+            ecl: QrCodeEcc
+        ) {
+            roundtrip(&text, ecl)
+        }
+    }
+
+    impl Arbitrary for QrCodeEcc {
+        type Parameters = ();
+
+        type Strategy = TupleUnion<(
+            (u32, Arc<Just<QrCodeEcc>>),
+            (u32, Arc<Just<QrCodeEcc>>),
+            (u32, Arc<Just<QrCodeEcc>>),
+            (u32, Arc<Just<QrCodeEcc>>),
+        )>;
+
+        fn arbitrary() -> Self::Strategy {
+            prop_oneof![
+                1 => Just(QrCodeEcc::Low),
+                1 => Just(QrCodeEcc::Medium),
+                1 => Just(QrCodeEcc::Quartile),
+                1 => Just(QrCodeEcc::High),
+            ]
+        }
+
+        fn arbitrary_with(_: Self::Parameters) -> Self::Strategy {
+            Self::arbitrary()
+        }
+    }
+
+    fn roundtrip(text: &str, ecl: QrCodeEcc) {
+        let mut decoder = Quirc::new();
+
+        let qrcode = QrCode::encode_text_optimally(&text, ecl).unwrap();
+
+        let img = qrcode_to_image(&qrcode, 40);
+
+        let mut results = decoder.identify(img.width() as usize, img.height() as usize, &img);
+
+        let code = results.next().unwrap().unwrap();
+
+        assert!(results.next().is_none());
+
+        let decoded_code = code.decode().unwrap();
+
+        let decoded_text = from_utf8(&decoded_code.payload).unwrap();
+
+        assert_eq!(decoded_text, text);
+    }
 }

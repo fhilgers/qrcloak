@@ -1,5 +1,5 @@
 [workspace]
-members = ["qrcloak-core", "qrcodegen"]
+members = ["qrcloak-cli", "qrcloak-core", "qrcodegen"]
 resolver = "2"
 
 [workspace.package]

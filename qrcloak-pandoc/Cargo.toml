@@ -1,0 +1,21 @@
+[package]
+edition.workspace = true
+name = "qrcloak-pandoc"
+version.workspace = true
+
+[[bin]]
+name = "qrcloak-pandoc"
+path = "src/main.rs"
+
+[dependencies]
+age = "0.10.0"
+miette = { version = "7.2.0", features = ["fancy", "syntect-highlighter"] }
+pandoc_ast = "0.8.6"
+qrcloak-core = { workspace = true, features = ["generate"] }
+thiserror = "1.0.58"
+
+[dev-dependencies]
+image = "0.25.1"
+indoc = "2.0.5"
+qrcloak-core = { workspace = true, features = ["extract"] }
+tempdir = "0.3.7"

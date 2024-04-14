@@ -1567,11 +1567,13 @@ dependencies = [
 name = "qrcloak-cli"
 version = "0.0.1"
 dependencies = [
+ "age",
  "clap",
  "clap-stdin",
  "clap_complete",
  "miette",
  "qrcloak-core",
+ "serde",
  "serde_json",
 ]
 

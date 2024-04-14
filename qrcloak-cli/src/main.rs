@@ -1,18 +1,16 @@
 use std::{
-    fs::File,
-    io::{self, Read},
+    fmt::Debug,
+    io::{self},
     path::PathBuf,
 };
 
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Shell};
 
-use miette::{Context, IntoDiagnostic};
-use qrcloak_core::{
-    generate::Generator,
-    payload::{format::Payload, PayloadBuilder},
-};
-use std::io::Write;
+use miette::IntoDiagnostic;
+use payload::{PayloadCommand, PayloadGenerateArgs};
+use qrcloak_core::{generate::Generator, payload::format::Payload};
+use serde::{Deserialize, Serialize};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -49,11 +47,6 @@ struct QrCodeArgs {
 }
 
 #[derive(Subcommand, Debug)]
-enum PayloadCommand {
-    Generate(PayloadGenerateArgs),
-}
-
-#[derive(Subcommand, Debug)]
 enum QrCodeCommand {
     Generate(QrCodeGenerateArgs),
 }
@@ -66,41 +59,28 @@ struct QrCodeGenerateArgs {
     output: PathBuf,
 }
 
-#[derive(Parser, Debug)]
-struct PayloadGenerateArgs {
-    #[arg(short, long, default_value_t = false)]
-    from_file: bool,
+pub mod decryption;
 
-    #[arg(short, long)]
-    splits: Option<u32>,
+pub mod encryption;
+pub mod env;
+pub mod input;
+mod payload;
+mod qrcode;
 
-    input: String,
+#[derive(Deserialize, Serialize)]
+#[serde(untagged)]
+enum OneOrMany<T> {
+    One(T),
+    Many(Vec<T>),
 }
 
-fn handle_payload_generate(args: PayloadGenerateArgs) -> miette::Result<Vec<Payload>> {
-    let input = if args.from_file {
-        let path = PathBuf::from(args.input);
-        let mut file = File::open(path)
-            .into_diagnostic()
-            .wrap_err("Could not find payload file")?;
-        let mut buf = Vec::new();
-        file.read_to_end(&mut buf)
-            .into_diagnostic()
-            .wrap_err("Could not read payload file")?;
-        buf
-    } else {
-        args.input.as_bytes().to_vec()
-    };
-
-    if let Some(splits) = args.splits {
-        PayloadBuilder::default()
-            .build_partial(&input, splits)
-            .into_diagnostic()
-    } else {
-        PayloadBuilder::default()
-            .build_complete(&input)
-            .into_diagnostic()
-            .map(|p| vec![p])
+impl<T> From<Vec<T>> for OneOrMany<T> {
+    fn from(v: Vec<T>) -> Self {
+        if v.len() == 1 {
+            OneOrMany::One(v.into_iter().next().unwrap())
+        } else {
+            OneOrMany::Many(v)
+        }
     }
 }
 
@@ -124,9 +104,23 @@ fn main() -> miette::Result<()> {
         }
         Command::Payload(args) => match args.command {
             PayloadCommand::Generate(args) => {
-                let payloads = handle_payload_generate(args)?;
+                let payloads: OneOrMany<Payload> = args.handle()?.into();
+
                 serde_json::to_writer_pretty(std::io::stdout(), &payloads).into_diagnostic()?;
-                writeln!(std::io::stdout()).into_diagnostic()?;
+
+                println!()
+            }
+            PayloadCommand::Extract(args) => {
+                let text = args.handle()?;
+
+                println!("{}", text);
+            }
+            PayloadCommand::Merge(args) => {
+                let complete_payload = args.handle()?;
+                serde_json::to_writer_pretty(std::io::stdout(), &complete_payload)
+                    .into_diagnostic()?;
+
+                println!()
             }
         },
         Command::QrCode(args) => match args.inner {
@@ -137,7 +131,7 @@ fn main() -> miette::Result<()> {
                     output.set_extension("png");
                 }
 
-                let payloads = handle_payload_generate(args.payload_args)?;
+                let payloads = args.payload_args.handle()?;
 
                 let images = Generator::default()
                     .generate_many(&payloads)

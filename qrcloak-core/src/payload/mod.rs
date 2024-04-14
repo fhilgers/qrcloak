@@ -12,8 +12,8 @@ use age::{secrecy::SecretString, x25519, Recipient};
 use thiserror::Error;
 
 use self::format::{
-    CompletePayload, EncryptionSpec, IndexMetadata, PartialPayload, PartialPayloadData, Payload,
-    PayloadMetadata,
+    AgeKeySpec, AgePasswordSpec, CompletePayload, EncryptionSpec, IndexMetadata, PartialPayload,
+    PartialPayloadData, Payload, PayloadMetadata,
 };
 
 #[derive(Debug, Error)]
@@ -56,30 +56,44 @@ pub enum ValidationError {
     MissingIndeces { indeces: BTreeSet<u32> },
 }
 
-pub fn extract_chains(values: Vec<PartialPayload>) -> (Vec<CompletePayload>, Vec<PartialPayload>) {
+pub fn extract_chains(
+    values: impl Into<Vec<Payload>>,
+) -> (Vec<CompletePayload>, Vec<PartialPayload>) {
+    let (mut complete, partial) = values.into().into_iter().fold(
+        (Vec::new(), Vec::new()),
+        |(mut complete, mut partial), value| {
+            match value {
+                Payload::Complete(c) => complete.push(c),
+                Payload::Partial(p) => partial.push(p),
+            };
+            (complete, partial)
+        },
+    );
+
     let mut groups = BTreeMap::<u32, Vec<PartialPayload>>::new();
 
-    for value in values {
+    for value in partial {
         let id = value.index_metadata.id;
 
         let entry = groups.entry(id).or_default();
         entry.push(value);
     }
-
-    let mut valid = vec![];
     let mut invalid = vec![];
 
     for group in groups.into_values() {
         match convert_chain(group) {
-            Ok(complete) => valid.push(complete),
+            Ok(c) => complete.push(c),
             Err(e) => invalid.extend(e.data),
         }
     }
 
-    (valid, invalid)
+    (complete, invalid)
 }
 
-pub fn convert_chain(value: Vec<PartialPayload>) -> Result<CompletePayload, ConversionError> {
+pub fn convert_chain(
+    value: impl Into<Vec<PartialPayload>>,
+) -> Result<CompletePayload, ConversionError> {
+    let value = value.into();
     if let Err(err) = validate_chain(&value) {
         return Err(ConversionError {
             data: value,
@@ -285,11 +299,13 @@ impl CompletePayload {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum EncryptionOptions {
     AgeKey(AgeKeyOptions),
     AgePassword(AgePasswordOptions),
 }
 
+#[derive(Debug, Clone)]
 pub struct AgeKeyOptions {
     recipients: Vec<x25519::Recipient>,
 }
@@ -330,15 +346,17 @@ impl AgeKeyOptions {
 
         let mut writer = encryptor.wrap_output(&mut encrypted_data)?;
         writer.write_all(&data)?;
+        writer.finish()?;
 
         Ok(encrypted_data)
     }
 
     pub fn to_spec(&self) -> EncryptionSpec {
-        EncryptionSpec::AgeKey
+        EncryptionSpec::AgeKey(AgeKeySpec)
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct AgePasswordOptions {
     passphrase: SecretString,
 }
@@ -365,7 +383,7 @@ impl AgePasswordOptions {
     }
 
     pub fn to_spec(&self) -> EncryptionSpec {
-        EncryptionSpec::AgePassword
+        EncryptionSpec::AgePassword(AgePasswordSpec)
     }
 }
 

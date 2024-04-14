@@ -13,7 +13,7 @@ mod tests {
     use crate::{
         extract::Extractor,
         generate::Generator,
-        payload::{extract_chains, format::Payload, PayloadBuilder},
+        payload::{extract_chains, PayloadBuilder},
     };
 
     #[test]
@@ -56,17 +56,6 @@ mod tests {
             total_image.height() as usize,
             &*total_image,
         );
-
-        let payloads = payloads
-            .into_iter()
-            .map(|payload| {
-                if let Payload::Partial(partial) = payload {
-                    partial
-                } else {
-                    panic!("should be partial")
-                }
-            })
-            .collect::<Vec<_>>();
 
         let (complete, partial) = extract_chains(payloads);
 

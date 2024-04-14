@@ -1,3 +1,6 @@
+use std::io::Read;
+
+use age::{secrecy::SecretString, x25519, DecryptError, Identity};
 #[cfg(feature = "json")]
 use schemars::JsonSchema;
 
@@ -13,6 +16,18 @@ pub enum Payload {
     Partial(PartialPayload),
 }
 
+impl From<CompletePayload> for Payload {
+    fn from(payload: CompletePayload) -> Self {
+        Self::Complete(payload)
+    }
+}
+
+impl From<PartialPayload> for Payload {
+    fn from(payload: PartialPayload) -> Self {
+        Self::Partial(payload)
+    }
+}
+
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,6 +37,17 @@ pub struct CompletePayload {
 
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
     pub data: Vec<u8>,
+}
+
+impl TryFrom<Payload> for CompletePayload {
+    type Error = Payload;
+
+    fn try_from(payload: Payload) -> Result<Self, Self::Error> {
+        match payload {
+            Payload::Complete(payload) => Ok(payload),
+            p => Err(p),
+        }
+    }
 }
 
 #[cfg(feature = "serde")]
@@ -109,6 +135,15 @@ pub struct PartialPayload {
     pub data: PartialPayloadData,
 }
 
+impl From<Payload> for PartialPayload {
+    fn from(value: Payload) -> Self {
+        match value {
+            Payload::Complete(c) => c.split(1).pop().unwrap(),
+            Payload::Partial(p) => p,
+        }
+    }
+}
+
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -127,9 +162,57 @@ pub struct IndexMetadata {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EncryptionSpec {
-    AgeKey,
-    AgePassword,
+    AgeKey(#[cfg_attr(feature = "serde", serde(skip_serializing, default))] AgeKeySpec),
+    AgePassword(#[cfg_attr(feature = "serde", serde(skip_serializing, default))] AgePasswordSpec),
     NoEncryption,
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct AgeKeySpec;
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct AgePasswordSpec;
+
+impl AgeKeySpec {
+    pub fn decrypt(
+        &self,
+        key: &x25519::Identity,
+        data: &[u8],
+    ) -> Result<Vec<u8>, age::DecryptError> {
+        let key: &dyn Identity = key;
+
+        let decryptor = match age::Decryptor::new(data)? {
+            age::Decryptor::Recipients(c) => Ok(c),
+            age::Decryptor::Passphrase(_) => Err(DecryptError::NoMatchingKeys),
+        }?;
+
+        let mut decrypted_data = Vec::with_capacity(data.len());
+
+        let mut writer = decryptor.decrypt([key].into_iter())?;
+        writer.read_to_end(&mut decrypted_data)?;
+
+        Ok(decrypted_data)
+    }
+}
+
+impl AgePasswordSpec {
+    pub fn decrypt(&self, passphrase: &str, data: &[u8]) -> Result<Vec<u8>, age::DecryptError> {
+        let decryptor = match age::Decryptor::new(data)? {
+            age::Decryptor::Recipients(_) => Err(DecryptError::NoMatchingKeys),
+            age::Decryptor::Passphrase(c) => Ok(c),
+        }?;
+
+        let mut decrypted_data = Vec::with_capacity(data.len());
+
+        let mut writer = decryptor.decrypt(&SecretString::new(passphrase.into()), None)?;
+        writer.read_to_end(&mut decrypted_data)?;
+
+        Ok(decrypted_data)
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

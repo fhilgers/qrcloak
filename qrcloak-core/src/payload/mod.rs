@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Display,
@@ -267,11 +268,16 @@ impl CompletePayload {
             )
         }
 
-        let chunk_size = self.data.len().div_ceil(num_parts as usize);
+        let len = self.data.len();
+        let (quo, rem) = (len / num_parts as usize, len % num_parts as usize);
+        let split = (quo + 1) * rem;
 
         let id = rand::random();
 
-        let mut chunked = self.data.chunks(chunk_size).enumerate();
+        let mut chunked = self.data[..split]
+            .chunks(quo + 1)
+            .chain(self.data[split..].chunks(quo))
+            .enumerate();
 
         let (_, head_data) = chunked.next().expect("at least one chunk");
 

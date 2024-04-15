@@ -60,6 +60,7 @@
             pkgs.nodePackages.pnpm
             pkgs.nodejs
             pkgs.ktlint
+            pkgs.pandoc
           ];
 
           commands = [

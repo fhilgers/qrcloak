@@ -13,7 +13,7 @@ use crate::FileOrStdout;
 #[derive(Parser, Debug)]
 pub struct PayloadGenerateArgs {
     #[arg(short, long, help = "Split payload into {} parts")]
-    pub splits: Option<u32>,
+    splits: Option<u32>,
 
     #[command(flatten)]
     encryption: EncryptionOptions,
@@ -51,5 +51,42 @@ impl PayloadGenerateArgs {
         writeln!(writer, "{}", encoded_payloads.first()).into_diagnostic()?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use qrcloak_core::payload::{format::CompletePayload, Decoder, PayloadExtractor};
+
+    use super::*;
+
+    #[test]
+    fn test_generate_payload() {
+        let mut args = PayloadGenerateArgs::parse_from([
+            "cmd",
+            "--splits",
+            "2",
+            "--pretty",
+            "--text",
+            "hello world",
+        ]);
+
+        let output = FileOrStdout::new_testing();
+        args.output = output.clone();
+
+        args.handle().unwrap();
+
+        let payloads = Decoder::default()
+            .decode(&output.into_inner())
+            .expect("should decode");
+
+        let complete = CompletePayload::try_from(payloads).expect("should merge into complete");
+
+        let extracted = PayloadExtractor::default()
+            .extract(&complete)
+            .expect("should extract");
+
+        assert_eq!(extracted, b"hello world");
     }
 }

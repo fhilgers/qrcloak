@@ -6,8 +6,13 @@ use std::{
     ops::Range,
 };
 
+mod decoder;
 mod encoder;
+mod extractor;
 mod one_or_more;
+
+pub use decoder::{Decoder, DecodingError, DecodingOpts};
+pub use extractor::{DecryptionOpts, EncryptionMismatch, ExtractionError, PayloadExtractor};
 
 pub use encoder::{Encoder, EncodingError, EncodingOpts};
 pub use one_or_more::OneOrMore;

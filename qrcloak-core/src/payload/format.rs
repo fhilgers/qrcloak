@@ -7,6 +7,8 @@ use schemars::JsonSchema;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use super::{extract_chains, OneOrMore};
+
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -14,6 +16,22 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 pub enum Payload {
     Complete(CompletePayload),
     Partial(PartialPayload),
+}
+
+impl Payload {
+    pub fn get_complete(&self) -> Option<&CompletePayload> {
+        match self {
+            Payload::Complete(c) => Some(c),
+            _ => None,
+        }
+    }
+
+    pub fn get_partial(&self) -> Option<&PartialPayload> {
+        match self {
+            Payload::Partial(p) => Some(p),
+            _ => None,
+        }
+    }
 }
 
 impl From<CompletePayload> for Payload {
@@ -49,6 +67,28 @@ impl TryFrom<Payload> for CompletePayload {
         match payload {
             Payload::Complete(payload) => Ok(payload),
             p => Err(p),
+        }
+    }
+}
+
+impl<'a> TryFrom<OneOrMore<'a, Payload>> for CompletePayload {
+    type Error = (Vec<CompletePayload>, Vec<PartialPayload>);
+
+    fn try_from(value: OneOrMore<'a, Payload>) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
+    }
+}
+
+impl<'a> TryFrom<&OneOrMore<'a, Payload>> for CompletePayload {
+    type Error = (Vec<CompletePayload>, Vec<PartialPayload>);
+
+    fn try_from(value: &OneOrMore<Payload>) -> Result<Self, Self::Error> {
+        let (mut complete, partial) = extract_chains(value.as_slice());
+
+        if !partial.is_empty() || complete.len() != 1 {
+            return Err((complete, partial));
+        } else {
+            Ok(complete.pop().unwrap())
         }
     }
 }

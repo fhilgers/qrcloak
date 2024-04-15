@@ -7,6 +7,7 @@ version.workspace = true
 [dependencies]
 age = "0.10.0"
 base45 = "3.1.0"
+bytes = { version = "1.6.0", features = ["serde"] }
 getrandom = "0.2.14"
 image = { version = "0.25.1", optional = true }
 qrcodegen = { workspace = true, optional = true }

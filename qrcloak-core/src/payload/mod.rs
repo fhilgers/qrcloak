@@ -11,6 +11,7 @@ mod encoder;
 mod extractor;
 mod one_or_more;
 
+use bytes::Bytes;
 pub use decoder::{Decoder, DecodingError, DecodingOpts};
 pub use extractor::{DecryptionOpts, EncryptionMismatch, ExtractionError, PayloadExtractor};
 
@@ -275,44 +276,51 @@ impl CompletePayload {
 
         let len = self.data.len();
         let (quo, rem) = (len / num_parts as usize, len % num_parts as usize);
-        let split = (quo + 1) * rem;
+        let quo1 = quo + 1;
 
         let id = rand::random();
 
-        let mut chunked = self.data[..split]
-            .chunks(quo + 1)
-            .chain(self.data[split..].chunks(quo))
-            .enumerate();
+        let mut chunked_data = Vec::with_capacity(num_parts as usize);
 
-        let (_, head_data) = chunked.next().expect("at least one chunk");
-
-        let head = PartialPayloadData::Head(CompletePayload {
-            payload_metadata: self.payload_metadata,
-            data: head_data.into(),
-        });
-        let head = PartialPayload {
+        let make_head = |data: Bytes, index: u32| PartialPayload {
             index_metadata: IndexMetadata {
                 id,
-                index: 0,
+                index,
                 size: num_parts,
             },
-            data: head,
+            data: PartialPayloadData::Head(CompletePayload {
+                payload_metadata: self.payload_metadata.clone(),
+                data,
+            }),
         };
 
-        let tail = chunked.map(|(index, chunk)| {
-            let tail = PartialPayloadData::Tail { data: chunk.into() };
+        let make_tail = |data: Bytes, index: u32| PartialPayload {
+            index_metadata: IndexMetadata {
+                id,
+                index: index as u32,
+                size: num_parts,
+            },
+            data: PartialPayloadData::Tail { data },
+        };
 
-            PartialPayload {
-                index_metadata: IndexMetadata {
-                    id,
-                    index: index as u32,
-                    size: num_parts,
-                },
-                data: tail,
+        let make_partial = |data: Bytes, index: u32| {
+            if index == 0 {
+                make_head(data, index)
+            } else {
+                make_tail(data, index)
             }
-        });
+        };
 
-        [head].into_iter().chain(tail).collect()
+        for i in 0..rem {
+            let left = i * quo1;
+            chunked_data.push(make_partial(self.data.slice(left..left + quo1), i as u32));
+        }
+        for i in rem..num_parts as usize {
+            let left = rem + i * (quo);
+            chunked_data.push(make_partial(self.data.slice(left..left + quo), i as u32));
+        }
+
+        chunked_data
     }
 }
 
@@ -433,7 +441,7 @@ impl PayloadBuilder {
                 encryption: spec,
                 compression: None,
             },
-            data,
+            data: data.into(),
         })
     }
 

@@ -1,6 +1,7 @@
 use std::io::Read;
 
 use age::{secrecy::SecretString, x25519, DecryptError, Identity};
+use bytes::Bytes;
 #[cfg(feature = "json")]
 use schemars::JsonSchema;
 
@@ -57,7 +58,7 @@ pub struct CompletePayload {
     pub payload_metadata: PayloadMetadata,
 
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
-    pub data: Vec<u8>,
+    pub data: Bytes,
 }
 
 impl TryFrom<Payload> for CompletePayload {
@@ -98,7 +99,7 @@ struct Base45IfHumanReadable;
 
 #[cfg(feature = "serde")]
 impl Base45IfHumanReadable {
-    pub fn serialize<S>(data: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(data: &Bytes, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -109,20 +110,20 @@ impl Base45IfHumanReadable {
         }
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Bytes, D::Error>
     where
         D: Deserializer<'de>,
     {
         if deserializer.is_human_readable() {
             match base45::decode(<&str>::deserialize(deserializer)?) {
-                Ok(buf) => Ok(buf),
+                Ok(buf) => Ok(buf.into()),
                 Err(_) => Err(<D::Error as serde::de::Error>::invalid_value(
                     serde::de::Unexpected::Other("invalid base45 string"),
                     &"a valid base45 string",
                 )),
             }
         } else {
-            Vec::<u8>::deserialize(deserializer)
+            Bytes::deserialize(deserializer)
         }
     }
 }
@@ -289,7 +290,7 @@ pub enum PartialPayloadData {
     Head(CompletePayload),
     Tail {
         #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
-        data: Vec<u8>,
+        data: Bytes,
     },
 }
 

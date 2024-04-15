@@ -45,7 +45,7 @@ impl DecryptionOpts {
             (DecryptionOpts::AgePassword(passphrase), Some(EncryptionSpec::AgePassword(spec))) => {
                 Ok(spec.decrypt(passphrase.expose_secret(), data)?)
             }
-            (DecryptionOpts::NoEncryption, None) => Ok(data.clone()),
+            (DecryptionOpts::NoEncryption, None) => Ok(data.to_vec()),
             (have, wanted) => {
                 panic!("decryption opts do not match payload (have {have:?}, wanted {wanted:?})")
             }

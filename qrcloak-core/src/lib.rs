@@ -64,6 +64,6 @@ mod tests {
         assert_eq!(complete.len(), 1);
         assert_eq!(partial.len(), 0);
 
-        assert_eq!(complete[0].data, b"hello world");
+        assert_eq!(&*complete[0].data, b"hello world");
     }
 }

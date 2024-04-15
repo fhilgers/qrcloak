@@ -130,7 +130,7 @@ impl DecryptionArgs {
             )
             .into_diagnostic(),
             (DecryptionArgs::NoEncryption, None) => {
-                String::from_utf8(payload.data.clone()).into_diagnostic()
+                String::from_utf8(payload.data.to_vec()).into_diagnostic()
             }
             (have, got) => Err(miette!(
                 "Payload is encrypted with {got:?} but {have:?} was provided"

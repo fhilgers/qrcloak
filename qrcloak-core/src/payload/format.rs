@@ -32,7 +32,10 @@ impl From<PartialPayload> for Payload {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompletePayload {
-    #[serde(skip_serializing_if = "PayloadMetadata::is_empty", default)]
+    #[cfg_attr(
+        feature = "serde",
+        serde(skip_serializing_if = "PayloadMetadata::is_empty", default)
+    )]
     pub payload_metadata: PayloadMetadata,
 
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
@@ -115,12 +118,19 @@ impl JsonSchema for Base45IfHumanReadable {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct PayloadMetadata {
-    #[serde(skip_serializing_if = "Option::is_none", default)]
+    #[cfg_attr(
+        feature = "serde",
+        serde(skip_serializing_if = "Option::is_none", default)
+    )]
     pub encryption: Option<EncryptionSpec>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
+    #[cfg_attr(
+        feature = "serde",
+        serde(skip_serializing_if = "Option::is_none", default)
+    )]
     pub compression: Option<CompressionSpec>,
 }
 
+#[cfg(feature = "serde")]
 impl PayloadMetadata {
     fn is_empty(&self) -> bool {
         self.encryption.is_none() && self.compression.is_none()

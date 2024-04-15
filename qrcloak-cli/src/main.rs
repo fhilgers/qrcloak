@@ -1,4 +1,4 @@
-use std::{fmt::Debug, io, path::PathBuf, str::FromStr};
+use std::{fmt::Debug, fs::create_dir_all, io, path::PathBuf, str::FromStr};
 
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Shell};
@@ -63,24 +63,27 @@ impl FromStr for ImageFile {
     type Err = io::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(ImageFile(PathBuf::from(s)))
+        let mut path = PathBuf::from(s);
+
+        if path.extension().is_none() {
+            path.set_extension("png");
+        }
+
+        Ok(ImageFile(path))
     }
 }
 
 impl ImageFile {
-    pub fn into_path(mut self) -> PathBuf {
-        if self.0.extension().is_none() {
-            self.0.set_extension("png");
+    pub fn ensure_parent(&self) -> miette::Result<()> {
+        if let Some(parent) = self.0.parent() {
+            create_dir_all(parent).into_diagnostic()?;
         }
-
-        self.0
+        Ok(())
     }
 
     pub fn into_path_iter(self, amount: Option<usize>) -> impl Iterator<Item = PathBuf> {
-        let path = self.into_path();
-
-        let stem: PathBuf = path.file_stem().unwrap().into();
-        let extension: PathBuf = path.extension().unwrap().into();
+        let stem: PathBuf = self.0.file_stem().unwrap().into();
+        let extension: PathBuf = self.0.extension().unwrap().into();
 
         let max_width = if let Some(amt) = amount {
             format!("{amt}").len()
@@ -181,14 +184,17 @@ fn main() -> miette::Result<()> {
                     assert_eq!(args.output.len(), 1);
 
                     let output = args.output.into_iter().next().unwrap();
+                    output.ensure_parent()?;
 
                     let image = images.into_iter().next().unwrap();
-                    image.save(output.into_path()).into_diagnostic()?;
+                    image.save(output.0).into_diagnostic()?;
                 } else {
                     let amount = images.len();
 
                     if args.output.len() == 1 {
                         let output = args.output.into_iter().next().unwrap();
+
+                        output.ensure_parent()?;
 
                         for (image, path) in
                             images.into_iter().zip(output.into_path_iter(Some(amount)))
@@ -196,11 +202,9 @@ fn main() -> miette::Result<()> {
                             image.save(path).into_diagnostic()?;
                         }
                     } else {
-                        for (image, path) in images
-                            .into_iter()
-                            .zip(args.output.into_iter().map(|o| o.into_path()))
-                        {
-                            image.save(path).into_diagnostic()?;
+                        for (image, path) in images.into_iter().zip(args.output.into_iter()) {
+                            path.ensure_parent()?;
+                            image.save(path.0).into_diagnostic()?;
                         }
                     };
                 }

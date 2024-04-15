@@ -2,6 +2,7 @@ use clap::Parser;
 
 use miette::IntoDiagnostic;
 use qrcloak_core::payload::{format::Payload, PayloadBuilder};
+use qrcloak_core::payload::{Encoder, OneOrMore};
 
 use crate::encryption::EncryptionOptions;
 use crate::input::Input;
@@ -19,26 +20,21 @@ pub struct PayloadGenerateArgs {
 }
 
 impl PayloadGenerateArgs {
-    pub fn handle(self) -> miette::Result<Vec<Payload>> {
-        let input = self.input.contents().into_diagnostic()?.into_bytes();
+    pub fn handle(self) -> miette::Result<OneOrMore<'static, Payload>> {
+        let input = self.input.contents().into_diagnostic()?;
 
-        let encryption = self.encryption.0;
+        let payloads = PayloadBuilder::default()
+            .with_encryption(self.encryption.0)
+            .with_splits(self.splits)
+            .build(&input)
+            .into_diagnostic()?;
 
-        let mut builder = PayloadBuilder::default();
+        Ok(payloads)
+    }
 
-        builder = if let Some(opts) = encryption {
-            builder.with_encryption(opts)
-        } else {
-            builder
-        };
+    pub fn handle_with_encoding(self) -> miette::Result<OneOrMore<'static, String>> {
+        let payloads = self.handle()?;
 
-        if let Some(splits) = self.splits {
-            builder.build_partial(&input, splits).into_diagnostic()
-        } else {
-            builder
-                .build_complete(&input)
-                .into_diagnostic()
-                .map(|p| vec![p])
-        }
+        Encoder::default().encode(&payloads).into_diagnostic()
     }
 }

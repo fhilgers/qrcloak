@@ -19,16 +19,18 @@ mod tests {
     #[test]
     fn test_simple() {
         let payload = PayloadBuilder::default()
-            .build_partial(b"hello world", 4)
+            .with_splits(Some(4))
+            .build("hello world")
             .expect("should build");
 
         let images = Generator::default()
-            .generate_many(&payload)
+            .generate(&payload)
             .expect("should generate")
+            .as_slice()
             .into_iter()
             .map(|image| {
                 image::imageops::resize(
-                    &image,
+                    image,
                     image.width() * 4,
                     image.height() * 4,
                     image::imageops::FilterType::Nearest,

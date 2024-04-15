@@ -1,10 +1,8 @@
-use core::slice;
-
 use image::{GrayImage, ImageBuffer, Luma};
 use qrcodegen::{QrCode, Version};
 use thiserror::Error;
 
-use crate::payload::format::Payload;
+use crate::payload::{format::Payload, OneOrMore};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Encoding {
@@ -72,14 +70,15 @@ impl Generator {
         Self { ecl, ..self }
     }
 
-    pub fn generate(&self, payload: &Payload) -> Result<GrayImage, GenerateError> {
-        Ok(self
-            .generate_many(slice::from_ref(payload))?
-            .pop()
-            .expect("no payload"))
+    pub fn generate(
+        &self,
+        payload: &OneOrMore<Payload>,
+    ) -> Result<OneOrMore<'static, GrayImage>, GenerateError> {
+        self.generate_many(payload.as_slice())
+            .map(|v| OneOrMore::try_from(v).expect("at least one element"))
     }
 
-    pub fn generate_many(&self, payloads: &[Payload]) -> Result<Vec<GrayImage>, GenerateError> {
+    fn generate_many(&self, payloads: &[Payload]) -> Result<Vec<GrayImage>, GenerateError> {
         match self.encoding {
             Encoding::Json => {
                 if payloads.len() == 0 {

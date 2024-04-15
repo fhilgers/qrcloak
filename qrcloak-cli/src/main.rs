@@ -5,7 +5,7 @@ use clap_complete::{generate, Shell};
 
 use miette::{bail, IntoDiagnostic};
 use payload::{PayloadCommand, PayloadGenerateArgs};
-use qrcloak_core::{generate::Generator, payload::format::Payload};
+use qrcloak_core::generate::Generator;
 use serde::{Deserialize, Serialize};
 
 #[derive(Parser, Debug)]
@@ -147,7 +147,7 @@ fn main() -> miette::Result<()> {
         }
         Command::Payload(args) => match args.command {
             PayloadCommand::Generate(args) => {
-                let payloads: OneOrMany<Payload> = args.handle()?.into();
+                let payloads = args.handle_with_encoding()?;
 
                 serde_json::to_writer_pretty(std::io::stdout(), &payloads).into_diagnostic()?;
 
@@ -176,33 +176,35 @@ fn main() -> miette::Result<()> {
 
                 let payloads = args.payload_args.handle()?;
 
-                let images = Generator::default()
-                    .generate_many(&payloads)
-                    .into_diagnostic()?;
+                let images = Generator::default().generate(&payloads).into_diagnostic()?;
 
-                if images.len() == 1 {
+                if images.is_one() {
                     assert_eq!(args.output.len(), 1);
 
                     let output = args.output.into_iter().next().unwrap();
                     output.ensure_parent()?;
 
-                    let image = images.into_iter().next().unwrap();
+                    let image = images.as_slice().into_iter().next().unwrap();
                     image.save(output.0).into_diagnostic()?;
                 } else {
-                    let amount = images.len();
+                    let amount = images.as_slice().len();
 
                     if args.output.len() == 1 {
                         let output = args.output.into_iter().next().unwrap();
 
                         output.ensure_parent()?;
 
-                        for (image, path) in
-                            images.into_iter().zip(output.into_path_iter(Some(amount)))
+                        for (image, path) in images
+                            .as_slice()
+                            .into_iter()
+                            .zip(output.into_path_iter(Some(amount)))
                         {
                             image.save(path).into_diagnostic()?;
                         }
                     } else {
-                        for (image, path) in images.into_iter().zip(args.output.into_iter()) {
+                        for (image, path) in
+                            images.as_slice().into_iter().zip(args.output.into_iter())
+                        {
                             path.ensure_parent()?;
                             image.save(path.0).into_diagnostic()?;
                         }

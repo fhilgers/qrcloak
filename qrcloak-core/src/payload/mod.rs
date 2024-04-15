@@ -5,6 +5,12 @@ use std::{
     ops::Range,
 };
 
+mod encoder;
+mod one_or_more;
+
+pub use encoder::{Encoder, EncodingError, EncodingOpts};
+pub use one_or_more::OneOrMore;
+
 pub mod format;
 
 use age::{secrecy::SecretString, x25519, Recipient};
@@ -390,11 +396,17 @@ impl AgePasswordOptions {
 #[derive(Default)]
 pub struct PayloadBuilder {
     encryption: Option<EncryptionOptions>,
+    splits: Option<u32>,
 }
 
 impl PayloadBuilder {
-    pub fn with_encryption(mut self, encryption: EncryptionOptions) -> Self {
-        self.encryption = Some(encryption);
+    pub fn with_encryption(mut self, encryption: Option<EncryptionOptions>) -> Self {
+        self.encryption = encryption;
+        self
+    }
+
+    pub fn with_splits(mut self, splits: Option<u32>) -> Self {
+        self.splits = splits;
         self
     }
 
@@ -414,11 +426,20 @@ impl PayloadBuilder {
         })
     }
 
-    pub fn build_complete(self, data: &[u8]) -> Result<Payload, EncryptionError> {
+    pub fn build(self, data: &str) -> Result<OneOrMore<'static, Payload>, EncryptionError> {
+        if let Some(splits) = self.splits {
+            self.build_partial(data.as_bytes(), splits)
+                .map(|v| OneOrMore::try_from(v).expect("at least one element"))
+        } else {
+            self.build_complete(data.as_bytes()).map(OneOrMore::from)
+        }
+    }
+
+    fn build_complete(self, data: &[u8]) -> Result<Payload, EncryptionError> {
         Ok(Payload::Complete(self.build_complete_inner(data)?))
     }
 
-    pub fn build_partial(self, data: &[u8], parts: u32) -> Result<Vec<Payload>, EncryptionError> {
+    fn build_partial(self, data: &[u8], parts: u32) -> Result<Vec<Payload>, EncryptionError> {
         Ok(self
             .build_complete_inner(data)?
             .split(parts)
@@ -485,11 +506,11 @@ mod test {
     #[test]
     fn payload_complete_age_passphrase() {
         let _payload = PayloadBuilder::default()
-            .with_encryption(super::EncryptionOptions::AgePassword(
+            .with_encryption(Some(super::EncryptionOptions::AgePassword(
                 super::AgePasswordOptions {
                     passphrase: SecretString::new("hello".into()),
                 },
-            ))
+            )))
             .build_complete(DATA.as_bytes())
             .expect("encryption should not fail");
     }

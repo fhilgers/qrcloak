@@ -332,17 +332,17 @@ pub struct CodeOpts {
 impl CodeOpts {
     pub fn eval_to_image(&self) -> Result<pandoc_ast::Inline> {
         let payload = qrcloak_core::payload::PayloadBuilder::default()
-            .with_encryption(qrcloak_core::payload::EncryptionOptions::AgeKey(
+            .with_encryption(Some(qrcloak_core::payload::EncryptionOptions::AgeKey(
                 AgeKeyOptions::new(&self.attr.age_keys),
-            ))
-            .build_complete(self.data.as_bytes())
+            )))
+            .build(&self.data)
             .into_diagnostic()?;
 
         let qrcode = qrcloak_core::generate::Generator::default()
             .generate(&payload)
             .into_diagnostic()?;
 
-        qrcode.save(&self.attr.path).into_diagnostic()?;
+        qrcode.first().save(&self.attr.path).into_diagnostic()?;
 
         Ok(pandoc_ast::Inline::Image(
             (

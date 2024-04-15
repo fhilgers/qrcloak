@@ -9,7 +9,7 @@ use crate::input::Input;
 #[derive(Parser, Debug)]
 pub struct PayloadGenerateArgs {
     #[arg(short, long, help = "Split payload into {} parts")]
-    splits: Option<u32>,
+    pub splits: Option<u32>,
 
     #[command(flatten)]
     encryption: EncryptionOptions,

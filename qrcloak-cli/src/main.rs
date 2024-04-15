@@ -3,7 +3,7 @@ use std::{fmt::Debug, io, path::PathBuf, str::FromStr};
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Shell};
 
-use miette::IntoDiagnostic;
+use miette::{bail, IntoDiagnostic};
 use payload::{PayloadCommand, PayloadGenerateArgs};
 use qrcloak_core::{generate::Generator, payload::format::Payload};
 use serde::{Deserialize, Serialize};
@@ -52,7 +52,8 @@ struct QrCodeGenerateArgs {
     #[command(flatten)]
     payload_args: PayloadGenerateArgs,
 
-    output: ImageFile,
+    #[arg(required = true, help = "Output files")]
+    output: Vec<ImageFile>,
 }
 
 #[derive(Debug, Clone)]
@@ -163,7 +164,13 @@ fn main() -> miette::Result<()> {
             }
         },
         Command::QrCode(args) => match args.inner {
-            QrCodeCommand::Generate(args) => {
+            QrCodeCommand::Generate(mut args) => {
+                if args.payload_args.splits.is_some() && args.output.len() > 1 {
+                    bail!("Cannod use splits with multiple output files")
+                } else {
+                    args.payload_args.splits = Some(args.output.len() as u32);
+                }
+
                 let payloads = args.payload_args.handle()?;
 
                 let images = Generator::default()
@@ -171,17 +178,31 @@ fn main() -> miette::Result<()> {
                     .into_diagnostic()?;
 
                 if images.len() == 1 {
+                    assert_eq!(args.output.len(), 1);
+
+                    let output = args.output.into_iter().next().unwrap();
+
                     let image = images.into_iter().next().unwrap();
-                    image.save(args.output.into_path()).into_diagnostic()?;
+                    image.save(output.into_path()).into_diagnostic()?;
                 } else {
                     let amount = images.len();
 
-                    for (image, path) in images
-                        .into_iter()
-                        .zip(args.output.into_path_iter(Some(amount)))
-                    {
-                        image.save(path).into_diagnostic()?;
-                    }
+                    if args.output.len() == 1 {
+                        let output = args.output.into_iter().next().unwrap();
+
+                        for (image, path) in
+                            images.into_iter().zip(output.into_path_iter(Some(amount)))
+                        {
+                            image.save(path).into_diagnostic()?;
+                        }
+                    } else {
+                        for (image, path) in images
+                            .into_iter()
+                            .zip(args.output.into_iter().map(|o| o.into_path()))
+                        {
+                            image.save(path).into_diagnostic()?;
+                        }
+                    };
                 }
             }
         },

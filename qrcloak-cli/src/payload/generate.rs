@@ -1,7 +1,7 @@
 use clap::Parser;
 
 use miette::IntoDiagnostic;
-use qrcloak_core::payload::{format::Payload, PayloadBuilder};
+use qrcloak_core::payload::PayloadBuilder;
 use qrcloak_core::payload::{Encoder, OneOrMore};
 
 use crate::encryption::EncryptionOptions;
@@ -20,7 +20,7 @@ pub struct PayloadGenerateArgs {
 }
 
 impl PayloadGenerateArgs {
-    pub fn handle(self) -> miette::Result<OneOrMore<'static, Payload>> {
+    pub fn handle(self) -> miette::Result<OneOrMore<'static, String>> {
         let input = self.input.contents().into_diagnostic()?;
 
         let payloads = PayloadBuilder::default()
@@ -28,12 +28,6 @@ impl PayloadGenerateArgs {
             .with_splits(self.splits)
             .build(&input)
             .into_diagnostic()?;
-
-        Ok(payloads)
-    }
-
-    pub fn handle_with_encoding(self) -> miette::Result<OneOrMore<'static, String>> {
-        let payloads = self.handle()?;
 
         Encoder::default().encode(&payloads).into_diagnostic()
     }

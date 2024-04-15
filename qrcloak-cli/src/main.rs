@@ -3,9 +3,14 @@ use std::{fmt::Debug, fs::create_dir_all, io, path::PathBuf, str::FromStr};
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Shell};
 
-use miette::{bail, IntoDiagnostic};
-use payload::{PayloadCommand, PayloadGenerateArgs};
-use qrcloak_core::generate::Generator;
+use encryption::EncryptionOptions;
+use input::Input;
+use miette::{miette, IntoDiagnostic};
+use payload::PayloadCommand;
+use qrcloak_core::{
+    generate::Generator,
+    payload::{format::Payload, OneOrMore, PayloadBuilder},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Parser, Debug)]
@@ -49,11 +54,37 @@ enum QrCodeCommand {
 
 #[derive(Parser, Debug)]
 struct QrCodeGenerateArgs {
+    #[arg(short, long, help = "Split payload into {} parts")]
+    pub splits: Option<u32>,
+
     #[command(flatten)]
-    payload_args: PayloadGenerateArgs,
+    encryption: EncryptionOptions,
+
+    #[command(flatten)]
+    input: Input<String>,
 
     #[arg(required = true, help = "Output files")]
     output: Vec<ImageFile>,
+}
+
+impl QrCodeGenerateArgs {
+    pub fn handle(mut self) -> miette::Result<OneOrMore<'static, Payload>> {
+        let input = self.input.contents().into_diagnostic()?;
+
+        if self.splits.is_some() && self.output.len() > 1 {
+            return Err(miette!("Cannod use splits with multiple output files"));
+        } else {
+            self.splits = Some(self.output.len() as u32);
+        }
+
+        let payloads = PayloadBuilder::default()
+            .with_encryption(self.encryption.0)
+            .with_splits(self.splits)
+            .build(&input)
+            .into_diagnostic()?;
+
+        Ok(payloads)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -147,7 +178,7 @@ fn main() -> miette::Result<()> {
         }
         Command::Payload(args) => match args.command {
             PayloadCommand::Generate(args) => {
-                let payloads = args.handle_with_encoding()?;
+                let payloads = args.handle()?;
 
                 serde_json::to_writer_pretty(std::io::stdout(), &payloads).into_diagnostic()?;
 
@@ -167,21 +198,16 @@ fn main() -> miette::Result<()> {
             }
         },
         Command::QrCode(args) => match args.inner {
-            QrCodeCommand::Generate(mut args) => {
-                if args.payload_args.splits.is_some() && args.output.len() > 1 {
-                    bail!("Cannod use splits with multiple output files")
-                } else {
-                    args.payload_args.splits = Some(args.output.len() as u32);
-                }
-
-                let payloads = args.payload_args.handle()?;
+            QrCodeCommand::Generate(args) => {
+                let output = args.output.clone();
+                let payloads = args.handle()?;
 
                 let images = Generator::default().generate(&payloads).into_diagnostic()?;
 
                 if images.is_one() {
-                    assert_eq!(args.output.len(), 1);
+                    assert_eq!(output.len(), 1);
 
-                    let output = args.output.into_iter().next().unwrap();
+                    let output = output.into_iter().next().unwrap();
                     output.ensure_parent()?;
 
                     let image = images.as_slice().into_iter().next().unwrap();
@@ -189,8 +215,8 @@ fn main() -> miette::Result<()> {
                 } else {
                     let amount = images.as_slice().len();
 
-                    if args.output.len() == 1 {
-                        let output = args.output.into_iter().next().unwrap();
+                    if output.len() == 1 {
+                        let output = output.into_iter().next().unwrap();
 
                         output.ensure_parent()?;
 
@@ -202,9 +228,7 @@ fn main() -> miette::Result<()> {
                             image.save(path).into_diagnostic()?;
                         }
                     } else {
-                        for (image, path) in
-                            images.as_slice().into_iter().zip(args.output.into_iter())
-                        {
+                        for (image, path) in images.as_slice().into_iter().zip(output.into_iter()) {
                             path.ensure_parent()?;
                             image.save(path.0).into_diagnostic()?;
                         }

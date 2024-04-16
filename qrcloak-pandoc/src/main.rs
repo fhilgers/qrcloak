@@ -330,7 +330,18 @@ pub struct CodeOpts {
 }
 
 impl CodeOpts {
-    pub fn eval_to_image(&self) -> Result<pandoc_ast::Inline> {
+    pub fn to_inline(self) -> pandoc_ast::Inline {
+        pandoc_ast::Inline::Image(
+            (
+                "qrcloak".to_string(),
+                self.attr.leftover_classes,
+                self.attr.leftover_key_val_pairs,
+            ),
+            Default::default(),
+            (self.attr.path, self.attr.alt_name.unwrap_or_default()),
+        )
+    }
+    pub fn generate_image(&self) -> Result<()> {
         let payload = PayloadGenerator::default()
             .with_encryption(qrcloak_core::format::Encryption::AgeKey(
                 AgeKeyEncryption::new(self.attr.age_keys.clone()),
@@ -342,18 +353,7 @@ impl CodeOpts {
 
         qrcode[0].save(&self.attr.path).into_diagnostic()?;
 
-        Ok(pandoc_ast::Inline::Image(
-            (
-                "qrcloak".to_string(),
-                self.attr.leftover_classes.clone(),
-                self.attr.leftover_key_val_pairs.clone(),
-            ),
-            Default::default(),
-            (
-                self.attr.path.clone(),
-                self.attr.alt_name.clone().unwrap_or_default(),
-            ),
-        ))
+        Ok(())
     }
 }
 
@@ -374,7 +374,9 @@ fn filter_pandoc(mut pandoc: Pandoc) -> Result<Pandoc> {
     for code in codes {
         let opts = code.code.parse()?;
 
-        *code.inline = opts.eval_to_image()?;
+        opts.generate_image()?;
+
+        *code.inline = opts.to_inline();
     }
 
     Ok(pandoc)

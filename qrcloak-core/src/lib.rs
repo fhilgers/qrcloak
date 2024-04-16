@@ -1,7 +1,5 @@
-pub mod payload;
-
 pub mod format;
-pub mod payload_new;
+pub mod payload;
 
 #[cfg(feature = "generate")]
 pub mod generate;
@@ -16,24 +14,27 @@ mod tests {
     use crate::{
         extract::Extractor,
         generate::Generator,
-        payload::{extract_chains, PayloadBuilder},
+        payload::{OneOrMore, PayloadGenerator, PayloadMerger, PayloadSplitter},
     };
 
     #[test]
     fn test_simple() {
-        let payload = PayloadBuilder::default()
-            .with_splits(Some(4))
-            .build("hello world")
+        let payload = PayloadGenerator::default()
+            .generate("hello world".into())
             .expect("should build");
 
+        let payloads = PayloadSplitter::default()
+            .with_splits(4)
+            .split(payload)
+            .into_payloads();
+
         let images = Generator::default()
-            .generate(&payload)
+            .generate(&payloads)
             .expect("should generate")
-            .as_slice()
             .into_iter()
             .map(|image| {
                 image::imageops::resize(
-                    image,
+                    &image,
                     image.width() * 4,
                     image.height() * 4,
                     image::imageops::FilterType::Nearest,
@@ -62,10 +63,11 @@ mod tests {
             &*total_image,
         );
 
-        let (complete, partial) = extract_chains(payloads);
+        let (_, partial) = OneOrMore::try_from(payloads).expect("should merge").split();
+
+        let complete = PayloadMerger::default().merge(partial).0;
 
         assert_eq!(complete.len(), 1);
-        assert_eq!(partial.len(), 0);
 
         assert_eq!(&*complete[0].data, b"hello world");
     }

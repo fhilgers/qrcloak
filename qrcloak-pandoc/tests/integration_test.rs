@@ -5,9 +5,10 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::{env, str::FromStr};
 
-use age::x25519;
+use age::x25519::Identity;
 use indoc::formatdoc;
-use qrcloak_core::payload::format::{self, Payload};
+use qrcloak_core::format::AgeKeyDecryption;
+use qrcloak_core::payload::{OneOrMore, PayloadExtractor};
 use tempdir::TempDir;
 
 fn block_encryption<'a>(
@@ -96,30 +97,18 @@ fn test_filter() {
 
     let payload = payload.into_iter().next().expect("should have one payload");
 
-    let payload = match payload {
-        Payload::Complete(complete) => {
-            let encryption = complete
-                .payload_metadata
-                .encryption
-                .expect("should have encryption");
+    let (mut complete, _) = OneOrMore::from(payload).split();
 
-            match encryption {
-                format::EncryptionSpec::AgeKey(key) => {
-                    let data = key
-                        .decrypt(
-                            &x25519::Identity::from_str(age_private_key)
-                                .expect("should be valid key"),
-                            &complete.data,
-                        )
-                        .expect("should decrypt");
+    let payload = complete.pop().unwrap();
 
-                    String::from_utf8(data).expect("should be valid utf8")
-                }
-                _ => panic!("should be age key"),
-            }
-        }
-        _ => panic!("should be complete payload"),
-    };
+    let payload = PayloadExtractor::default()
+        .with_decryption(qrcloak_core::format::Decryption::AgeKey(
+            AgeKeyDecryption::new(vec![
+                Identity::from_str(age_private_key).expect("should be valid key")
+            ]),
+        ))
+        .extract(payload)
+        .expect("should extract");
 
     assert_eq!(payload, data);
 

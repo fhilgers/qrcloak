@@ -1,13 +1,16 @@
 use std::str::FromStr;
 
 use clap::Parser;
+use qrcloak_core::{
+    format::CompletePayload,
+    payload::{OneOrMore, PayloadExtractor},
+};
 use std::io::Write;
 
 use miette::IntoDiagnostic;
-use qrcloak_core::payload::{format::CompletePayload, OneOrMore};
 use serde::de::Error;
 
-use crate::{decryption::DecryptionArgs, input::Input, FileOrStdout};
+use crate::{decryption::DecryptionOptions, input::Input, FileOrStdout};
 
 #[derive(Parser, Debug)]
 pub struct PayloadExtractArgs {
@@ -15,7 +18,7 @@ pub struct PayloadExtractArgs {
     input: Input<PayloadExtractText>,
 
     #[command(flatten)]
-    decryption: DecryptionArgs,
+    decryption: DecryptionOptions,
 
     #[arg(default_value_t = FileOrStdout::Stdout)]
     output: FileOrStdout,
@@ -44,11 +47,14 @@ impl PayloadExtractArgs {
     pub fn handle(self) -> miette::Result<()> {
         let payload = self.input.contents().into_diagnostic()?.0;
 
-        let data = self.decryption.decrypt(&payload)?;
+        let data = PayloadExtractor::default()
+            .with_decryption(self.decryption.0)
+            .extract(payload)
+            .into_diagnostic()?;
 
         let mut writer = self.output.try_get_writer().into_diagnostic()?;
 
-        writeln!(writer, "{}", data).into_diagnostic()?;
+        writeln!(writer, "{}", String::from_utf8_lossy(&data)).into_diagnostic()?;
 
         Ok(())
     }

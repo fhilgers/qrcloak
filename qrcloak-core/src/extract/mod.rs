@@ -1,6 +1,6 @@
 use quircs::Quirc;
 
-use crate::payload::format::Payload;
+use crate::format::Payload;
 
 pub struct Extractor;
 

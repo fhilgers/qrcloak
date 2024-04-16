@@ -1,6 +1,6 @@
 use crate::{
     format::{CompletePayload, PartialPayload, PartialPayloadHead, PartialPayloadTail},
-    payload_new::utils::{IndexIter, Splits},
+    payload::utils::{IndexIter, Splits},
 };
 
 use super::one_or_more::OneOrMore;

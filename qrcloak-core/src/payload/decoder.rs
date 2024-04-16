@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use super::{format::Payload, one_or_more::OneOrMore};
+use crate::{format::Payload, payload::one_or_more::OneOrMore};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecodingOpts {

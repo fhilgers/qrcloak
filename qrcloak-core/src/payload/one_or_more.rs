@@ -1,85 +1,95 @@
-use core::slice;
+use std::{borrow::Cow, ops::Deref, slice};
+
+use crate::format::{CompletePayload, PartialPayload, Payload};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Inner<'a, T> {
-    Borrowed(&'a [T]),
-    Owned(Vec<T>),
-}
+pub struct OneOrMore<'a, T: Clone>(Cow<'a, [T]>);
 
 #[cfg(feature = "serde")]
-impl<'a, T: serde::Serialize> serde::Serialize for Inner<'a, T> {
+impl<'a, T: serde::Serialize + Clone> serde::Serialize for OneOrMore<'a, T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        match &self {
-            Inner::Borrowed(value) => value.serialize(serializer),
-            Inner::Owned(value) => value.serialize(serializer),
+        if self.0.len() == 1 {
+            self.0[0].serialize(serializer)
+        } else {
+            self.0.serialize(serializer)
         }
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'a, 'de, T: serde::Deserialize<'de>> serde::Deserialize<'de> for Inner<'a, T> {
+impl<'a, 'de, T: serde::Deserialize<'de> + Clone> serde::Deserialize<'de> for OneOrMore<'a, T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<T>::deserialize(deserializer)?;
-
-        if value.is_empty() {
-            return Err(serde::de::Error::custom("expected at least one element"));
+        #[derive(serde::Deserialize)]
+        #[serde(untagged)]
+        enum OneOrMany<T> {
+            One(T),
+            Many(Vec<T>),
         }
 
-        Ok(Inner::Owned(value))
+        match OneOrMany::<T>::deserialize(deserializer)? {
+            OneOrMany::One(value) => Ok(OneOrMore(Cow::Owned(vec![value]))),
+            OneOrMany::Many(value) => Ok(OneOrMore(Cow::Owned(value))),
+        }
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(transparent))]
-pub struct OneOrMore<'a, T>(Inner<'a, T>);
-
-impl<'a, T> OneOrMore<'a, T> {
+impl<'a, T: Clone> OneOrMore<'a, T> {
     pub fn is_one(&self) -> bool {
-        match &self.0 {
-            Inner::Borrowed(value) => value.len() == 1,
-            Inner::Owned(value) => value.len() == 1,
-        }
+        self.0.len() == 1
     }
 
     pub fn first(&self) -> &T {
-        match &self.0 {
-            Inner::Borrowed(value) => value.first().unwrap(),
-            Inner::Owned(value) => value.first().unwrap(),
-        }
+        &self.0[0]
     }
 
     pub fn is_many(&self) -> bool {
         !self.is_one()
     }
 
-    pub fn as_slice(&self) -> &[T] {
-        match &self.0 {
-            Inner::Borrowed(value) => value,
-            Inner::Owned(value) => value.as_slice(),
-        }
+    pub fn iter(&self) -> std::slice::Iter<T> {
+        self.0.iter()
     }
 }
 
-impl<'a, T> Into<Inner<'a, T>> for OneOrMore<'a, T> {
-    fn into(self) -> Inner<'a, T> {
-        self.0
+impl<'a, T: Clone> Deref for OneOrMore<'a, T> {
+    type Target = [T];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
-impl<'a, T> From<Inner<'a, T>> for OneOrMore<'a, T> {
-    fn from(value: Inner<'a, T>) -> Self {
-        Self(value)
+impl<'a, T: Clone> IntoIterator for OneOrMore<'a, T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_owned().into_iter()
     }
 }
 
-impl<'a, T> TryFrom<Vec<T>> for OneOrMore<'a, T> {
+impl<'a, T: Clone> IntoIterator for &'a OneOrMore<'a, T> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl<'a, T: Clone> From<T> for OneOrMore<'a, T> {
+    fn from(value: T) -> Self {
+        Self(Cow::Owned(vec![value]))
+    }
+}
+
+impl<'a, T: Clone> TryFrom<Vec<T>> for OneOrMore<'a, T> {
     type Error = Vec<T>;
 
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
@@ -87,11 +97,11 @@ impl<'a, T> TryFrom<Vec<T>> for OneOrMore<'a, T> {
             return Err(value);
         }
 
-        Ok(Self(Inner::Owned(value)))
+        Ok(Self(Cow::Owned(value)))
     }
 }
 
-impl<'a, T> TryFrom<&'a [T]> for OneOrMore<'a, T> {
+impl<'a, T: Clone> TryFrom<&'a [T]> for OneOrMore<'a, T> {
     type Error = &'a [T];
 
     fn try_from(value: &'a [T]) -> Result<Self, Self::Error> {
@@ -99,30 +109,58 @@ impl<'a, T> TryFrom<&'a [T]> for OneOrMore<'a, T> {
             return Err(value);
         }
 
-        Ok(Self(Inner::Borrowed(value)))
+        Ok(Self(Cow::Borrowed(value)))
     }
 }
 
-impl<'a, T> From<&'a T> for OneOrMore<'a, T> {
+impl<'a, T: Clone> From<&'a T> for OneOrMore<'a, T> {
     fn from(value: &'a T) -> Self {
-        Self(Inner::Borrowed(slice::from_ref(value)))
+        Self(Cow::Borrowed(slice::from_ref(value)))
     }
 }
 
-impl<'a, T> From<T> for OneOrMore<'a, T> {
-    fn from(value: T) -> Self {
-        Self(Inner::Owned(vec![value]))
+impl<'a, T: Clone> Into<Vec<T>> for OneOrMore<'a, T> {
+    fn into(self) -> Vec<T> {
+        self.0.into_owned()
     }
 }
 
-impl<'a, T> AsRef<[T]> for OneOrMore<'a, T> {
-    fn as_ref(&self) -> &[T] {
-        self.as_slice()
+impl<'a> OneOrMore<'a, PartialPayload> {
+    pub fn into_payloads(self) -> OneOrMore<'a, Payload> {
+        self.0
+            .into_owned()
+            .into_iter()
+            .map(|p| p.into())
+            .collect::<Vec<_>>()
+            .try_into()
+            .expect("at least one element")
     }
 }
 
-impl<'a, T> AsRef<OneOrMore<'a, T>> for OneOrMore<'a, T> {
-    fn as_ref(&self) -> &OneOrMore<'a, T> {
-        self
+impl<'a> OneOrMore<'a, CompletePayload> {
+    pub fn into_payloads(self) -> OneOrMore<'a, Payload> {
+        self.0
+            .into_owned()
+            .into_iter()
+            .map(|p| p.into())
+            .collect::<Vec<_>>()
+            .try_into()
+            .expect("at least one element")
+    }
+}
+
+impl<'a> OneOrMore<'a, Payload> {
+    pub fn split(self) -> (Vec<CompletePayload>, Vec<PartialPayload>) {
+        let mut partials = Vec::new();
+        let mut completes = Vec::new();
+
+        for payload in self.into_iter() {
+            match payload {
+                Payload::Complete(c) => completes.push(c),
+                Payload::Partial(p) => partials.push(p),
+            }
+        }
+
+        (completes, partials)
     }
 }

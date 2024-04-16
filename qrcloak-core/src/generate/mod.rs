@@ -2,7 +2,7 @@ use image::{GrayImage, ImageBuffer, Luma};
 use qrcodegen::{QrCode, Version};
 use thiserror::Error;
 
-use crate::payload::{format::Payload, OneOrMore};
+use crate::{format::Payload, payload::OneOrMore};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Encoding {
@@ -74,7 +74,7 @@ impl Generator {
         &self,
         payload: &OneOrMore<Payload>,
     ) -> Result<OneOrMore<'static, GrayImage>, GenerateError> {
-        self.generate_many(payload.as_slice())
+        self.generate_many(payload)
             .map(|v| OneOrMore::try_from(v).expect("at least one element"))
     }
 

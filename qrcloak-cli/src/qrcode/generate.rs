@@ -2,7 +2,10 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use miette::IntoDiagnostic;
-use qrcloak_core::{generate::Generator, payload::PayloadBuilder};
+use qrcloak_core::{
+    generate::Generator,
+    payload::{OneOrMore, PayloadGenerator, PayloadSplitter},
+};
 
 use crate::{encryption::EncryptionOptions, input::Input};
 
@@ -35,15 +38,23 @@ impl QrCodeGenerateArgs {
             None
         };
 
-        let payloads = PayloadBuilder::default()
+        let payloads = PayloadGenerator::default()
             .with_encryption(self.encryption.0)
-            .with_splits(splits)
-            .build(&input)
+            .generate(input.into())
             .into_diagnostic()?;
+
+        let payloads = if let Some(splits) = splits {
+            PayloadSplitter::default()
+                .with_splits(splits)
+                .split(payloads)
+                .into_payloads()
+        } else {
+            OneOrMore::from(payloads).into_payloads()
+        };
 
         let images = Generator::default().generate(&payloads).into_diagnostic()?;
 
-        for (image, path) in images.as_slice().into_iter().zip(self.output.into_iter()) {
+        for (image, path) in images.into_iter().zip(self.output.into_iter()) {
             ensure_parent(&path)?;
 
             image.save(path).into_diagnostic()?;

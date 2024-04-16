@@ -8,7 +8,11 @@ use std::{
 use age::x25519::Recipient;
 use miette::{miette, Diagnostic, IntoDiagnostic, LabeledSpan, NamedSource, Result, SourceSpan};
 use pandoc_ast::Pandoc;
-use qrcloak_core::payload::AgeKeyOptions;
+use qrcloak_core::{
+    format::AgeKeyEncryption,
+    generate::Generator,
+    payload::{OneOrMore, PayloadGenerator},
+};
 use std::collections::BTreeMap;
 use thiserror::Error;
 
@@ -331,15 +335,15 @@ pub struct CodeOpts {
 
 impl CodeOpts {
     pub fn eval_to_image(&self) -> Result<pandoc_ast::Inline> {
-        let payload = qrcloak_core::payload::PayloadBuilder::default()
-            .with_encryption(Some(qrcloak_core::payload::EncryptionOptions::AgeKey(
-                AgeKeyOptions::new(&self.attr.age_keys),
-            )))
-            .build(&self.data)
+        let payload = PayloadGenerator::default()
+            .with_encryption(qrcloak_core::format::Encryption::AgeKey(
+                AgeKeyEncryption::new(self.attr.age_keys.clone()),
+            ))
+            .generate(self.data.clone().into())
             .into_diagnostic()?;
 
-        let qrcode = qrcloak_core::generate::Generator::default()
-            .generate(&payload)
+        let qrcode = Generator::default()
+            .generate(&OneOrMore::from(payload).into_payloads())
             .into_diagnostic()?;
 
         qrcode.first().save(&self.attr.path).into_diagnostic()?;

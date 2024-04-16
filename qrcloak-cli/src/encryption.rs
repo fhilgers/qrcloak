@@ -1,8 +1,9 @@
 use std::str::FromStr;
 
+use age::secrecy::SecretString;
 use clap::{Args, FromArgMatches};
 
-use qrcloak_core::payload::{AgeKeyOptions, AgePasswordOptions};
+use qrcloak_core::format::{AgeKeyEncryption, AgePassphrase, Encryption};
 
 use crate::env::get_env;
 
@@ -25,7 +26,7 @@ pub struct EncryptionArgs {
 }
 
 #[derive(Debug, Clone)]
-pub struct EncryptionOptions(pub Option<qrcloak_core::payload::EncryptionOptions>);
+pub struct EncryptionOptions(pub Encryption);
 
 impl Args for EncryptionOptions {
     fn augment_args(cmd: clap::Command) -> clap::Command {
@@ -56,15 +57,15 @@ impl FromStr for Recipients {
 impl From<&EncryptionOptions> for EncryptionArgs {
     fn from(args: &EncryptionOptions) -> Self {
         match args.0 {
-            Some(qrcloak_core::payload::EncryptionOptions::AgeKey(_)) => EncryptionArgs {
+            Encryption::AgeKey(_) => EncryptionArgs {
                 age_key: true,
                 age_passphrase: false,
             },
-            Some(qrcloak_core::payload::EncryptionOptions::AgePassword(_)) => EncryptionArgs {
+            Encryption::AgePasshprase(_) => EncryptionArgs {
                 age_key: false,
                 age_passphrase: true,
             },
-            None => EncryptionArgs {
+            Encryption::NoEncryption => EncryptionArgs {
                 age_key: false,
                 age_passphrase: false,
             },
@@ -79,19 +80,17 @@ impl TryFrom<EncryptionArgs> for EncryptionOptions {
         if args.age_key {
             let reciptiens: Recipients = get_env("AGE_KEY")?;
 
-            Ok(EncryptionOptions(Some(
-                qrcloak_core::payload::EncryptionOptions::AgeKey(AgeKeyOptions::new(&reciptiens.0)),
+            Ok(EncryptionOptions(Encryption::AgeKey(
+                AgeKeyEncryption::new(reciptiens.0),
             )))
         } else if args.age_passphrase {
             let passphrase: String = get_env("AGE_PASSPHRASE")?;
 
-            Ok(EncryptionOptions(Some(
-                qrcloak_core::payload::EncryptionOptions::AgePassword(AgePasswordOptions::new(
-                    &passphrase,
-                )),
+            Ok(EncryptionOptions(Encryption::AgePasshprase(
+                AgePassphrase::new(SecretString::new(passphrase)),
             )))
         } else {
-            Ok(EncryptionOptions(None))
+            Ok(EncryptionOptions(Encryption::NoEncryption))
         }
     }
 }

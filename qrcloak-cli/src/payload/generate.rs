@@ -3,8 +3,7 @@ use std::io::Write;
 use clap::Parser;
 
 use miette::IntoDiagnostic;
-use qrcloak_core::payload::Encoder;
-use qrcloak_core::payload::PayloadBuilder;
+use qrcloak_core::payload::{Encoder, EncodingOpts, OneOrMore, PayloadGenerator, PayloadSplitter};
 
 use crate::encryption::EncryptionOptions;
 use crate::input::Input;
@@ -32,14 +31,22 @@ impl PayloadGenerateArgs {
     pub fn handle(self) -> miette::Result<()> {
         let input = self.input.contents().into_diagnostic()?;
 
-        let payloads = PayloadBuilder::default()
+        let payloads = PayloadGenerator::default()
             .with_encryption(self.encryption.0)
-            .with_splits(self.splits)
-            .build(&input)
+            .generate(input.into())
             .into_diagnostic()?;
 
+        let payloads = if let Some(splits) = self.splits {
+            PayloadSplitter::default()
+                .with_splits(splits)
+                .split(payloads)
+                .into_payloads()
+        } else {
+            OneOrMore::from(payloads).into_payloads()
+        };
+
         let encoded_payloads = Encoder::default()
-            .with_encoding(qrcloak_core::payload::EncodingOpts::Json {
+            .with_encoding(EncodingOpts::Json {
                 pretty: self.pretty,
                 merge: true,
             })
@@ -56,8 +63,7 @@ impl PayloadGenerateArgs {
 
 #[cfg(test)]
 mod tests {
-
-    use qrcloak_core::payload::{format::CompletePayload, Decoder, PayloadExtractor};
+    use qrcloak_core::payload::{Decoder, PayloadExtractor, PayloadMerger};
 
     use super::*;
 
@@ -81,12 +87,20 @@ mod tests {
             .decode(&output.into_inner())
             .expect("should decode");
 
-        let complete = CompletePayload::try_from(payloads).expect("should merge into complete");
+        let (complete, partials) = payloads.split();
+
+        assert_eq!(partials.len(), 2);
+        assert_eq!(complete.len(), 0);
+
+        let mut complete = PayloadMerger::default().merge(partials).0;
+
+        assert_eq!(complete.len(), 1);
+        let complete = complete.pop().expect("should have one complete");
 
         let extracted = PayloadExtractor::default()
-            .extract(&complete)
+            .extract(complete)
             .expect("should extract");
 
-        assert_eq!(extracted, b"hello world");
+        assert_eq!(&*extracted, b"hello world");
     }
 }

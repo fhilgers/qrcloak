@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use super::{format::Payload, one_or_more::OneOrMore};
+use crate::{format::Payload, payload::one_or_more::OneOrMore};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncodingOpts {
@@ -53,14 +53,14 @@ impl Encoder {
         &self,
         payloads: &OneOrMore<Payload>,
     ) -> Result<OneOrMore<'static, String>, EncodingError> {
-        let mut result = Vec::with_capacity(payloads.as_slice().len());
+        let mut result = Vec::with_capacity(payloads.len());
 
         match self.encoding_opts {
             EncodingOpts::Json { pretty, merge } => {
                 if merge {
                     result.push(self.encode_json(payloads, pretty)?);
                 } else {
-                    for payload in payloads.as_slice() {
+                    for payload in payloads {
                         result.push(self.encode_json(&OneOrMore::from(payload), pretty)?);
                     }
                 }

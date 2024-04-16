@@ -14,7 +14,7 @@ mod tests {
     use crate::{
         extract::Extractor,
         generate::Generator,
-        payload::{OneOrMore, PayloadGenerator, PayloadMerger, PayloadSplitter},
+        payload::{PayloadGenerator, PayloadMerger, PayloadSplitter},
     };
 
     #[test]
@@ -23,13 +23,10 @@ mod tests {
             .generate("hello world".into())
             .expect("should build");
 
-        let payloads = PayloadSplitter::default()
-            .with_splits(4)
-            .split(payload)
-            .into_payloads();
+        let payloads = PayloadSplitter::default().with_splits(4).split(payload);
 
         let images = Generator::default()
-            .generate(&payloads)
+            .generate(payloads)
             .expect("should generate")
             .into_iter()
             .map(|image| {
@@ -63,9 +60,7 @@ mod tests {
             &*total_image,
         );
 
-        let (_, partial) = OneOrMore::try_from(payloads).expect("should merge").split();
-
-        let complete = PayloadMerger::default().merge(partial).0;
+        let complete = PayloadMerger::default().merge(payloads).0;
 
         assert_eq!(complete.len(), 1);
 

@@ -1,9 +1,11 @@
 use std::io::Write;
+use std::vec;
 
 use clap::Parser;
 
 use miette::IntoDiagnostic;
-use qrcloak_core::payload::{Encoder, EncodingOpts, OneOrMore, PayloadGenerator, PayloadSplitter};
+use qrcloak_core::format::Payload;
+use qrcloak_core::payload::{Encoder, EncodingOpts, PayloadGenerator, PayloadSplitter};
 
 use crate::encryption::EncryptionOptions;
 use crate::input::Input;
@@ -36,13 +38,14 @@ impl PayloadGenerateArgs {
             .generate(input.into())
             .into_diagnostic()?;
 
-        let payloads = if let Some(splits) = self.splits {
+        let payloads: Vec<Payload> = if let Some(splits) = self.splits {
             PayloadSplitter::default()
                 .with_splits(splits)
                 .split(payloads)
-                .into_payloads()
+                .map(Payload::from)
+                .collect()
         } else {
-            OneOrMore::from(payloads).into_payloads()
+            vec![Payload::from(payloads)]
         };
 
         let encoded_payloads = Encoder::default()
@@ -50,12 +53,12 @@ impl PayloadGenerateArgs {
                 pretty: self.pretty,
                 merge: true,
             })
-            .encode(&payloads)
+            .encode(payloads)
             .into_diagnostic()?;
 
         let mut writer = self.output.try_get_writer().into_diagnostic()?;
 
-        writeln!(writer, "{}", encoded_payloads.first()).into_diagnostic()?;
+        writeln!(writer, "{}", encoded_payloads[0]).into_diagnostic()?;
 
         Ok(())
     }
@@ -87,12 +90,7 @@ mod tests {
             .decode(&output.into_inner())
             .expect("should decode");
 
-        let (complete, partials) = payloads.split();
-
-        assert_eq!(partials.len(), 2);
-        assert_eq!(complete.len(), 0);
-
-        let mut complete = PayloadMerger::default().merge(partials).0;
+        let mut complete = PayloadMerger::default().merge(payloads).0;
 
         assert_eq!(complete.len(), 1);
         let complete = complete.pop().expect("should have one complete");

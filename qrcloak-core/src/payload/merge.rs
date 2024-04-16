@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bytes::BytesMut;
 
-use crate::format::{CompletePayload, PartialPayload};
+use crate::format::{CompletePayload, PartialPayload, Payload};
 
 #[derive(Debug, Clone, Default)]
 pub struct UnmergedPayloads {
@@ -15,6 +15,7 @@ pub struct MergeResult(pub Vec<CompletePayload>, pub UnmergedPayloads);
 
 #[derive(Debug, Clone, Default)]
 pub struct PayloadMerger {
+    completes: Vec<CompletePayload>,
     unmerged: UnmergedPayloads,
 }
 
@@ -24,8 +25,20 @@ impl PayloadMerger {
         self
     }
 
-    fn collect_partials(&mut self, payloads: Vec<PartialPayload>) {
+    fn collect_partials<T, I>(&mut self, payloads: I)
+    where
+        T: Into<Payload>,
+        I: IntoIterator<Item = T>,
+    {
         for payload in payloads {
+            let payload = match payload.into() {
+                Payload::Complete(c) => {
+                    self.completes.push(c);
+                    continue;
+                }
+                Payload::Partial(p) => p,
+            };
+
             if payload.is_misconfigured() {
                 self.unmerged.misconfigured.push(payload);
                 continue;
@@ -42,9 +55,7 @@ impl PayloadMerger {
         }
     }
 
-    fn collect_merged(&mut self) -> Vec<CompletePayload> {
-        let mut merged = Vec::new();
-
+    fn collect_merged(&mut self) {
         self.unmerged.partials.retain(|_, val| {
             let head = if let Some(PartialPayload::Head(head)) = &mut val[0] {
                 head.clone()
@@ -68,7 +79,7 @@ impl PayloadMerger {
             complete.extend_from_slice(&head.complete.data);
             complete.extend(tail_data.into_iter());
 
-            merged.push(CompletePayload {
+            self.completes.push(CompletePayload {
                 data: complete.freeze(),
                 encryption: head.complete.encryption,
                 compression: head.complete.compression,
@@ -76,13 +87,12 @@ impl PayloadMerger {
 
             false
         });
-
-        merged
     }
 
-    pub fn merge(mut self, payloads: Vec<PartialPayload>) -> MergeResult {
+    pub fn merge(mut self, payloads: impl IntoIterator<Item = impl Into<Payload>>) -> MergeResult {
         self.collect_partials(payloads);
+        self.collect_merged();
 
-        MergeResult(self.collect_merged(), self.unmerged)
+        MergeResult(self.completes, self.unmerged)
     }
 }

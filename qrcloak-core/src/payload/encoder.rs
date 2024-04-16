@@ -1,6 +1,8 @@
 use thiserror::Error;
 
-use crate::{format::Payload, payload::one_or_more::OneOrMore};
+use crate::format::Payload;
+
+use super::OneOrMany;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncodingOpts {
@@ -39,7 +41,7 @@ impl Encoder {
 
     fn encode_json(
         &self,
-        payloads: &OneOrMore<Payload>,
+        payloads: OneOrMany<Payload>,
         pretty: bool,
     ) -> Result<String, EncodingError> {
         if pretty {
@@ -51,22 +53,24 @@ impl Encoder {
 
     pub fn encode(
         &self,
-        payloads: &OneOrMore<Payload>,
-    ) -> Result<OneOrMore<'static, String>, EncodingError> {
-        let mut result = Vec::with_capacity(payloads.len());
+        payloads: impl IntoIterator<Item = impl Into<Payload>>,
+    ) -> Result<Vec<String>, EncodingError> {
+        let payloads = payloads.into_iter().map(Into::into);
+
+        let mut result = Vec::with_capacity(payloads.size_hint().0);
 
         match self.encoding_opts {
             EncodingOpts::Json { pretty, merge } => {
                 if merge {
-                    result.push(self.encode_json(payloads, pretty)?);
+                    result.push(self.encode_json(payloads.collect(), pretty)?);
                 } else {
                     for payload in payloads {
-                        result.push(self.encode_json(&OneOrMore::from(payload), pretty)?);
+                        result.push(self.encode_json([payload].into_iter().collect(), pretty)?);
                     }
                 }
             }
         }
 
-        Ok(OneOrMore::try_from(result).expect("at least one element"))
+        Ok(result)
     }
 }

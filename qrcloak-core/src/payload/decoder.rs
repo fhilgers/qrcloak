@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::{format::Payload, payload::one_or_more::OneOrMore};
+use crate::format::Payload;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecodingOpts {
@@ -34,11 +34,11 @@ impl Decoder {
         self
     }
 
-    fn decode_json(&self, data: &[u8]) -> Result<OneOrMore<'static, Payload>, DecodingError> {
+    fn decode_json(&self, data: &[u8]) -> Result<Vec<Payload>, DecodingError> {
         Ok(serde_json::from_slice(data)?)
     }
 
-    pub fn decode(&self, data: &[u8]) -> Result<OneOrMore<'static, Payload>, DecodingError> {
+    pub fn decode(&self, data: &[u8]) -> Result<Vec<Payload>, DecodingError> {
         let payloads = match self.decoding_opts {
             DecodingOpts::Json => self.decode_json(data)?,
         };

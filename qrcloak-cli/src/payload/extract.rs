@@ -3,7 +3,7 @@ use std::str::FromStr;
 use clap::Parser;
 use qrcloak_core::{
     format::CompletePayload,
-    payload::{OneOrMore, PayloadExtractor},
+    payload::{OneOrMany, PayloadExtractor},
 };
 use std::io::Write;
 
@@ -31,15 +31,20 @@ impl FromStr for PayloadExtractText {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let payload = serde_json::from_str::<OneOrMore<CompletePayload>>(s)?;
+        let payload = serde_json::from_str::<OneOrMany<CompletePayload>>(s)?;
 
-        if !payload.is_one() {
-            return Err(serde_json::Error::custom(
-                "Input is a list of multiple payloads",
-            ));
+        match payload {
+            OneOrMany::One(payload) => Ok(Self(payload)),
+            OneOrMany::Many(mut payloads) => {
+                if payloads.len() != 1 {
+                    return Err(serde_json::Error::custom(
+                        "Input is a list of multiple payloads",
+                    ));
+                }
+                Ok(Self(payloads.pop().unwrap()))
+            }
+            OneOrMany::Empty => Err(serde_json::Error::custom("Input is empty")),
         }
-
-        Ok(Self(payload.first().clone()))
     }
 }
 

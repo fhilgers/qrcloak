@@ -5,8 +5,9 @@ use clap::Parser;
 use miette::{miette, Context, IntoDiagnostic};
 use qrcloak_core::{
     format::PartialPayload,
-    payload::{Encoder, EncodingOpts, OneOrMore, PayloadMerger},
+    payload::{Encoder, EncodingOpts, OneOrMany, PayloadMerger},
 };
+use serde::de::Error;
 
 use std::io::Write;
 
@@ -32,26 +33,24 @@ impl PayloadMergeArgs {
             .into_diagnostic()
             .wrap_err("Unable to read payloads from input")?;
 
-        let mut merge_result = PayloadMerger::default().merge(payloads.0);
+        let merge_result = PayloadMerger::default().merge(payloads.0);
 
         // TODO: create good error message
         if merge_result.0.len() != 1 {
             return Err(miette!("Merge result should have one complete payload"));
         }
 
-        let complete = OneOrMore::from(merge_result.0.pop().unwrap()).into_payloads();
-
         let encoded_payload = Encoder::default()
             .with_encoding(EncodingOpts::Json {
                 pretty: self.pretty,
                 merge: true,
             })
-            .encode(&complete)
+            .encode(merge_result.0)
             .into_diagnostic()?;
 
         let mut writer = self.output.try_get_writer().into_diagnostic()?;
 
-        writeln!(writer, "{}", encoded_payload.first()).into_diagnostic()?;
+        writeln!(writer, "{}", encoded_payload[0]).into_diagnostic()?;
 
         Ok(())
     }
@@ -64,8 +63,12 @@ impl FromStr for PartialPayloads {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let payloads = serde_json::from_str::<OneOrMore<PartialPayload>>(s)?;
+        let payloads = serde_json::from_str::<OneOrMany<PartialPayload>>(s)?;
 
-        Ok(PartialPayloads(payloads.into()))
+        match payloads {
+            OneOrMany::One(_) => Err(serde_json::Error::custom("Expected a list of payloads")),
+            OneOrMany::Many(payloads) => Ok(Self(payloads)),
+            OneOrMany::Empty => Err(serde_json::Error::custom("Input is empty")),
+        }
     }
 }

@@ -2,7 +2,7 @@ use image::{GrayImage, ImageBuffer, Luma};
 use qrcodegen::{QrCode, Version};
 use thiserror::Error;
 
-use crate::{format::Payload, payload::OneOrMore};
+use crate::format::Payload;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Encoding {
@@ -72,25 +72,25 @@ impl Generator {
 
     pub fn generate(
         &self,
-        payload: &OneOrMore<Payload>,
-    ) -> Result<OneOrMore<'static, GrayImage>, GenerateError> {
-        self.generate_many(payload)
-            .map(|v| OneOrMore::try_from(v).expect("at least one element"))
+        payload: impl IntoIterator<Item = impl Into<Payload>>,
+    ) -> Result<Vec<GrayImage>, GenerateError> {
+        let iter = payload.into_iter().map(Into::into);
+
+        self.generate_many(iter)
     }
 
-    fn generate_many(&self, payloads: &[Payload]) -> Result<Vec<GrayImage>, GenerateError> {
+    fn generate_many(
+        &self,
+        payloads: impl Iterator<Item = Payload>,
+    ) -> Result<Vec<GrayImage>, GenerateError> {
         match self.encoding {
             Encoding::Json => {
-                if payloads.len() == 0 {
-                    return Ok(vec![]);
-                }
-
                 let mut minversion = Version::MIN;
 
-                let mut result = Vec::with_capacity(payloads.len());
+                let mut result = Vec::with_capacity(payloads.size_hint().0);
 
                 for payload in payloads {
-                    let json = serde_json::to_string(payload)?;
+                    let json = serde_json::to_string(&payload)?;
                     let qrcode = qrcodegen::QrCode::encode_text_optimally_advanced(
                         &json,
                         self.ecl,

@@ -7,7 +7,7 @@ use schemars::JsonSchema;
 /// The specification of the encryption to be used for the payload.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum EncryptionSpec {
     /// No encryption is used.
     #[default]

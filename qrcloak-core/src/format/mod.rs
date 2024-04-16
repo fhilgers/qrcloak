@@ -15,7 +15,7 @@ use schemars::JsonSchema;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "serde", serde(untagged))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Payload {
     /// A complete payload that is not split accross multiple partial ones.
     Complete(CompletePayload),

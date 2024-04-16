@@ -10,6 +10,20 @@ pub struct UnmergedPayloads {
     misconfigured: Vec<PartialPayload>,
 }
 
+impl UnmergedPayloads {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn partials(&self) -> &HashMap<(u32, u32), Vec<Option<PartialPayload>>> {
+        &self.partials
+    }
+
+    pub fn misconfigured(&self) -> &Vec<PartialPayload> {
+        &self.misconfigured
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct MergeResult(pub Vec<CompletePayload>, pub UnmergedPayloads);
 

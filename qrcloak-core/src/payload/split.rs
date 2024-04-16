@@ -3,9 +3,15 @@ use crate::{
     payload::utils::{IndexIter, Splits},
 };
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct PayloadSplitter {
     splits: u32,
+}
+
+impl Default for PayloadSplitter {
+    fn default() -> Self {
+        Self { splits: 1 }
+    }
 }
 
 impl PayloadSplitter {

@@ -17,7 +17,7 @@ use super::{index::Index, CompressionSpec, EncryptionSpec};
 /// encryption and compression.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PartialPayloadHead {
     /// The data of the payload.
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
@@ -45,7 +45,7 @@ pub struct PartialPayloadHead {
 /// that is not the head (the first).
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PartialPayloadTail {
     /// The data of the payload.
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
@@ -58,7 +58,7 @@ pub struct PartialPayloadTail {
 /// A partial payload
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PartialPayload {
     /// The head of the group of partial payloads.
     Head(PartialPayloadHead),

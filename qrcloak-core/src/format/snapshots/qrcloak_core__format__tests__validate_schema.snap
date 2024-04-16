@@ -60,6 +60,12 @@ expression: schema
       "description": "The specification of the compression to be used for the payload.",
       "oneOf": [
         {
+          "type": "string",
+          "enum": [
+            "Gzip"
+          ]
+        },
+        {
           "description": "No compression is used.",
           "type": "string",
           "enum": [

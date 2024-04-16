@@ -8,6 +8,7 @@ version.workspace = true
 age = "0.10.0"
 base45 = "3.1.0"
 bytes = { version = "1.6.0", features = ["serde"] }
+flate2 = "1.0.28"
 getrandom = "0.2.14"
 image = { version = "0.25.1", optional = true }
 qrcodegen = { workspace = true, optional = true }

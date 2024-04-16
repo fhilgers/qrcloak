@@ -12,6 +12,7 @@ impl Splits {
     pub fn new(data: Bytes, splits: usize) -> Self {
         let len = data.len();
         assert!(len >= splits);
+        assert_ne!(splits, 0);
 
         let (quo, rem) = (len / splits, len % splits);
 
@@ -115,6 +116,7 @@ mod tests {
         assert_eq!(splits.next(), Some(Bytes::from("l")));
         assert_eq!(splits.next(), Some(Bytes::from("l")));
         assert_eq!(splits.next(), Some(Bytes::from("o")));
+        assert_eq!(splits.next(), None);
     }
 
     #[test]
@@ -127,5 +129,6 @@ mod tests {
         assert_eq!(splits.next(), Some(Bytes::from("l")));
         assert_eq!(splits.next(), Some(Bytes::from("l")));
         assert_eq!(splits.next(), Some(Bytes::from("o")));
+        assert_eq!(splits.next(), None);
     }
 }

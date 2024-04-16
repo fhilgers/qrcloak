@@ -15,7 +15,7 @@ use schemars::JsonSchema;
 /// accross multiple partial ones.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompletePayload {
     /// The data of the payload.
     #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]

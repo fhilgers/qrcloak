@@ -2,6 +2,8 @@ use thiserror::Error;
 
 use crate::format::Payload;
 
+use super::OneOrMany;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecodingOpts {
     Json,
@@ -34,7 +36,7 @@ impl Decoder {
         self
     }
 
-    fn decode_json(&self, data: &[u8]) -> Result<Vec<Payload>, DecodingError> {
+    fn decode_json(&self, data: &[u8]) -> Result<OneOrMany<Payload>, DecodingError> {
         Ok(serde_json::from_slice(data)?)
     }
 
@@ -43,6 +45,6 @@ impl Decoder {
             DecodingOpts::Json => self.decode_json(data)?,
         };
 
-        Ok(payloads)
+        Ok(payloads.into())
     }
 }

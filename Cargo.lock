@@ -1692,6 +1692,7 @@ dependencies = [
  "age",
  "base45",
  "bytes",
+ "flate2",
  "getrandom",
  "image",
  "insta",

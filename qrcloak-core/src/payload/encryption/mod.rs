@@ -41,6 +41,16 @@ pub enum DecryptionError {
     Age(#[from] age::DecryptError),
 }
 
+impl From<Encryption> for EncryptionSpec {
+    fn from(encryption: Encryption) -> Self {
+        match encryption {
+            Encryption::NoEncryption => EncryptionSpec::NoEncryption,
+            Encryption::AgePasshprase(_) => EncryptionSpec::AgePassphrase,
+            Encryption::AgeKey(_) => EncryptionSpec::AgeKey,
+        }
+    }
+}
+
 impl Encryption {
     pub fn process(&self, data: Bytes) -> Result<Bytes, EncryptionError> {
         match self {

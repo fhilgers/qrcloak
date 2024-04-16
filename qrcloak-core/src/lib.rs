@@ -1,4 +1,6 @@
+/// The data formats used
 pub mod format;
+
 pub mod payload;
 
 #[cfg(feature = "generate")]

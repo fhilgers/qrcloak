@@ -63,7 +63,7 @@ impl PayloadMerger {
                 return true;
             };
 
-            let mut capacity = head.complete.data.len();
+            let mut capacity = head.data.len();
             let mut tail_data = Vec::with_capacity(head.index.size as usize - 1);
 
             for maybe_tail in val.into_iter().skip(1) {
@@ -76,13 +76,13 @@ impl PayloadMerger {
             }
 
             let mut complete = BytesMut::with_capacity(capacity);
-            complete.extend_from_slice(&head.complete.data);
+            complete.extend_from_slice(&head.data);
             complete.extend(tail_data.into_iter());
 
             self.completes.push(CompletePayload {
                 data: complete.freeze(),
-                encryption: head.complete.encryption,
-                compression: head.complete.compression,
+                encryption: head.encryption,
+                compression: head.compression,
             });
 
             false

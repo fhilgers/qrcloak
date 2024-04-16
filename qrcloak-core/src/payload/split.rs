@@ -32,11 +32,9 @@ impl PayloadSplitter {
         assert!(head_index.is_head());
 
         let head = PartialPayload::Head(PartialPayloadHead {
-            complete: CompletePayload {
-                data: head_bytes,
-                encryption,
-                compression,
-            },
+            data: head_bytes,
+            encryption,
+            compression,
             index: head_index,
         });
 

@@ -11,12 +11,16 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "json")]
 use schemars::JsonSchema;
 
+/// The payload format, being either a complete or partial payload.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "serde", serde(untagged))]
 #[derive(Debug, Clone)]
 pub enum Payload {
+    /// A complete payload that is not split accross multiple partial ones.
     Complete(CompletePayload),
+
+    /// A partial payload that is split accross multiple partial ones.
     Partial(PartialPayload),
 }
 

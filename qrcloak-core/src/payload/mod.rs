@@ -6,16 +6,20 @@ use std::{
     ops::Range,
 };
 
+#[cfg(feature = "json")]
 mod decoder;
+#[cfg(feature = "json")]
 mod encoder;
 mod extractor;
 mod one_or_more;
 
 use bytes::Bytes;
+#[cfg(feature = "json")]
 pub use decoder::{Decoder, DecodingError, DecodingOpts};
-pub use extractor::{DecryptionOpts, EncryptionMismatch, ExtractionError, PayloadExtractor};
 
+#[cfg(feature = "json")]
 pub use encoder::{Encoder, EncodingError, EncodingOpts};
+pub use extractor::{DecryptionOpts, EncryptionMismatch, ExtractionError, PayloadExtractor};
 pub use one_or_more::OneOrMore;
 
 pub mod format;

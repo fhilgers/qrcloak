@@ -1,7 +1,5 @@
 use core::slice;
 
-use serde::Serialize;
-
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Inner<'a, T> {
     Borrowed(&'a [T]),
@@ -9,7 +7,7 @@ pub enum Inner<'a, T> {
 }
 
 #[cfg(feature = "serde")]
-impl<'a, T: Serialize> serde::Serialize for Inner<'a, T> {
+impl<'a, T: serde::Serialize> serde::Serialize for Inner<'a, T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

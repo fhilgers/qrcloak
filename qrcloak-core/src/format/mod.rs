@@ -20,6 +20,40 @@ pub enum Payload {
     Partial(PartialPayload),
 }
 
+impl From<CompletePayload> for Payload {
+    fn from(payload: CompletePayload) -> Self {
+        Self::Complete(payload)
+    }
+}
+
+impl From<PartialPayload> for Payload {
+    fn from(payload: PartialPayload) -> Self {
+        Self::Partial(payload)
+    }
+}
+
+impl TryFrom<Payload> for CompletePayload {
+    type Error = Payload;
+
+    fn try_from(payload: Payload) -> Result<Self, Self::Error> {
+        match payload {
+            Payload::Complete(payload) => Ok(payload),
+            p => Err(p),
+        }
+    }
+}
+
+impl TryFrom<Payload> for PartialPayload {
+    type Error = Payload;
+
+    fn try_from(payload: Payload) -> Result<Self, Self::Error> {
+        match payload {
+            Payload::Partial(payload) => Ok(payload),
+            p => Err(p),
+        }
+    }
+}
+
 pub use complete::CompletePayload;
 pub use compression::{Compression, CompressionError, Decompression, DecompressionError};
 pub use encryption::{

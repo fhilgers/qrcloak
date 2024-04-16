@@ -1,5 +1,3 @@
-use bytes::Bytes;
-
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -11,7 +9,7 @@ pub struct Base45IfHumanReadable;
 
 #[cfg(feature = "serde")]
 impl Base45IfHumanReadable {
-    pub fn serialize<S>(data: &Bytes, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(data: &bytes::Bytes, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -22,7 +20,7 @@ impl Base45IfHumanReadable {
         }
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Bytes, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<bytes::Bytes, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -35,11 +33,12 @@ impl Base45IfHumanReadable {
                 )),
             }
         } else {
-            Bytes::deserialize(deserializer)
+            bytes::Bytes::deserialize(deserializer)
         }
     }
 }
 
+#[cfg(feature = "json")]
 const BASE45_PATTERN: &str = "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$";
 
 #[cfg(feature = "json")]

@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "json")]
 use schemars::JsonSchema;
 
+#[cfg(feature = "json")]
 use super::base45::Base45IfHumanReadable;
+
 use super::{index::Index, CompletePayload};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

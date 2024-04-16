@@ -27,7 +27,6 @@ impl CompressionSpec {
     pub fn no_compression(&self) -> bool {
         match self {
             CompressionSpec::NoCompression => true,
-            _ => false,
         }
     }
 }

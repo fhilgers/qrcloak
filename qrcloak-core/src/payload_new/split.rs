@@ -3,6 +3,8 @@ use crate::{
     payload_new::utils::{IndexIter, Splits},
 };
 
+use super::one_or_more::OneOrMore;
+
 #[derive(Default, Clone)]
 pub struct PayloadSplitter {
     splits: u32,
@@ -14,7 +16,7 @@ impl PayloadSplitter {
         self
     }
 
-    pub fn split(&self, payload: CompletePayload) -> Vec<PartialPayload> {
+    pub fn split(&self, payload: CompletePayload) -> OneOrMore<'static, PartialPayload> {
         let CompletePayload {
             data,
             encryption,
@@ -44,6 +46,11 @@ impl PayloadSplitter {
             .zip(index)
             .map(|(split, index)| PartialPayload::Tail(PartialPayloadTail { data: split, index }));
 
-        [head].into_iter().chain(tail).collect()
+        [head]
+            .into_iter()
+            .chain(tail)
+            .collect::<Vec<_>>()
+            .try_into()
+            .expect("at least one split")
     }
 }

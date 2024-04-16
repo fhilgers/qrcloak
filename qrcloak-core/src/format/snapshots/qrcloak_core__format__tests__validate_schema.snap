@@ -1,0 +1,144 @@
+---
+source: qrcloak-core/src/format/mod.rs
+expression: schema
+---
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Payload",
+  "anyOf": [
+    {
+      "$ref": "#/definitions/CompletePayload"
+    },
+    {
+      "$ref": "#/definitions/PartialPayload"
+    }
+  ],
+  "definitions": {
+    "CompletePayload": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "compression": {
+          "$ref": "#/definitions/CompressionSpec"
+        },
+        "data": {
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "encryption": {
+          "$ref": "#/definitions/EncryptionSpec"
+        }
+      }
+    },
+    "CompressionSpec": {
+      "type": "string",
+      "enum": [
+        "NoCompression"
+      ]
+    },
+    "EncryptionSpec": {
+      "type": "string",
+      "enum": [
+        "NoEncryption",
+        "AgePassphrase",
+        "AgeKey"
+      ]
+    },
+    "Index": {
+      "type": "object",
+      "required": [
+        "id",
+        "index",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "index": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "size": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "PartialPayload": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "Head"
+          ],
+          "properties": {
+            "Head": {
+              "$ref": "#/definitions/PartialPayloadHead"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "Tail"
+          ],
+          "properties": {
+            "Tail": {
+              "$ref": "#/definitions/PartialPayloadTail"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PartialPayloadHead": {
+      "type": "object",
+      "required": [
+        "data",
+        "index"
+      ],
+      "properties": {
+        "compression": {
+          "$ref": "#/definitions/CompressionSpec"
+        },
+        "data": {
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "encryption": {
+          "$ref": "#/definitions/EncryptionSpec"
+        },
+        "index": {
+          "$ref": "#/definitions/Index"
+        }
+      }
+    },
+    "PartialPayloadTail": {
+      "type": "object",
+      "required": [
+        "data",
+        "index"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "index": {
+          "$ref": "#/definitions/Index"
+        }
+      }
+    }
+  }
+}

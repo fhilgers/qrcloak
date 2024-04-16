@@ -1,19 +1,34 @@
 use bytes::Bytes;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "json")]
+use schemars::JsonSchema;
+
+use super::base45::Base45IfHumanReadable;
 use super::{index::Index, CompletePayload};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone)]
 pub struct PartialPayloadHead {
+    #[cfg_attr(feature = "serde", serde(flatten))]
     pub(crate) complete: CompletePayload,
     pub(crate) index: Index,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone)]
 pub struct PartialPayloadTail {
+    #[cfg_attr(feature = "serde", serde(with = "Base45IfHumanReadable"))]
     pub(crate) data: Bytes,
     pub(crate) index: Index,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", derive(JsonSchema))]
 #[derive(Debug, Clone)]
 pub enum PartialPayload {
     Head(PartialPayloadHead),

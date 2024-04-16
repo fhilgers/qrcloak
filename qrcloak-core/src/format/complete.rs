@@ -1,6 +1,6 @@
 use bytes::Bytes;
 
-use super::{compression::CompressionSpec, encryption::EncryptionSpec};
+use super::{encryption::EncryptionSpec, CompressionSpec};
 
 #[cfg(feature = "json")]
 use crate::format::base45::Base45IfHumanReadable;

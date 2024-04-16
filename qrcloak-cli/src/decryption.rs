@@ -2,8 +2,7 @@ use std::fmt::Debug;
 
 use age::{secrecy::SecretString, x25519};
 use clap::{Args, CommandFactory, FromArgMatches, Parser};
-
-use qrcloak_core::format::{AgeKeyDecryption, AgePassphrase, Decryption};
+use qrcloak_core::payload::{AgeKeyDecryption, AgePassphrase, Decryption};
 
 use crate::env::get_env;
 

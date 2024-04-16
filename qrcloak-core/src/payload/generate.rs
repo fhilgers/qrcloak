@@ -1,8 +1,9 @@
 use bytes::Bytes;
 use thiserror::Error;
 
-use crate::format::{CompletePayload, Compression, CompressionError, Encryption, EncryptionError};
+use crate::format::CompletePayload;
 
+use super::{Compression, CompressionError, Encryption, EncryptionError};
 #[derive(Default, Clone)]
 pub struct PayloadGenerator {
     encryption: Encryption,

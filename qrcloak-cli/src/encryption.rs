@@ -2,8 +2,7 @@ use std::str::FromStr;
 
 use age::secrecy::SecretString;
 use clap::{Args, FromArgMatches};
-
-use qrcloak_core::format::{AgeKeyEncryption, AgePassphrase, Encryption};
+use qrcloak_core::payload::{AgeKeyEncryption, AgePassphrase, Encryption};
 
 use crate::env::get_env;
 

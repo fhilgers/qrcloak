@@ -8,7 +8,10 @@ use std::{
 use age::x25519::Recipient;
 use miette::{miette, Diagnostic, IntoDiagnostic, LabeledSpan, NamedSource, Result, SourceSpan};
 use pandoc_ast::Pandoc;
-use qrcloak_core::{format::AgeKeyEncryption, generate::Generator, payload::PayloadGenerator};
+use qrcloak_core::{
+    generate::Generator,
+    payload::{AgeKeyEncryption, Encryption, PayloadGenerator},
+};
 use std::collections::BTreeMap;
 use thiserror::Error;
 
@@ -343,9 +346,9 @@ impl CodeOpts {
     }
     pub fn generate_image(&self) -> Result<()> {
         let payload = PayloadGenerator::default()
-            .with_encryption(qrcloak_core::format::Encryption::AgeKey(
-                AgeKeyEncryption::new(self.attr.age_keys.clone()),
-            ))
+            .with_encryption(Encryption::AgeKey(AgeKeyEncryption::new(
+                self.attr.age_keys.clone(),
+            )))
             .generate(self.data.clone().into())
             .into_diagnostic()?;
 

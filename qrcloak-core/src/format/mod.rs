@@ -55,11 +55,8 @@ impl TryFrom<Payload> for PartialPayload {
 }
 
 pub use complete::CompletePayload;
-pub use compression::{Compression, CompressionError, Decompression, DecompressionError};
-pub use encryption::{
-    AgeKeyDecryption, AgeKeyEncryption, AgePassphrase, Decryption, DecryptionError, Encryption,
-    EncryptionError,
-};
+pub use compression::CompressionSpec;
+pub use encryption::EncryptionSpec;
 pub use index::Index;
 pub use partial::{PartialPayload, PartialPayloadHead, PartialPayloadTail};
 

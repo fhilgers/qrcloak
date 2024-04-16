@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use thiserror::Error;
 
-use crate::format::{
-    CompletePayload, Decompression, DecompressionError, Decryption, DecryptionError,
-};
+use crate::format::CompletePayload;
+
+use super::{Decompression, DecompressionError, Decryption, DecryptionError};
 
 #[derive(Default, Clone)]
 pub struct PayloadExtractor {

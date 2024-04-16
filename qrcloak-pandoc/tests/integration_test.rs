@@ -7,8 +7,7 @@ use std::{env, str::FromStr};
 
 use age::x25519::Identity;
 use indoc::formatdoc;
-use qrcloak_core::format::AgeKeyDecryption;
-use qrcloak_core::payload::{PayloadExtractor, PayloadMerger};
+use qrcloak_core::payload::{AgeKeyDecryption, Decryption, PayloadExtractor, PayloadMerger};
 use tempdir::TempDir;
 
 fn block_encryption<'a>(
@@ -98,11 +97,9 @@ fn test_filter() {
     let merged = PayloadMerger::default().merge(payload).0;
 
     let payload = PayloadExtractor::default()
-        .with_decryption(qrcloak_core::format::Decryption::AgeKey(
-            AgeKeyDecryption::new(vec![
-                Identity::from_str(age_private_key).expect("should be valid key")
-            ]),
-        ))
+        .with_decryption(Decryption::AgeKey(AgeKeyDecryption::new(vec![
+            Identity::from_str(age_private_key).expect("should be valid key"),
+        ])))
         .extract(merged[0].clone())
         .expect("should extract");
 

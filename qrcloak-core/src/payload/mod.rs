@@ -4,6 +4,8 @@ mod decoder;
 #[cfg(feature = "json")]
 mod encoder;
 
+mod compression;
+mod encryption;
 mod extract;
 mod generate;
 mod merge;
@@ -15,6 +17,11 @@ pub use decoder::{Decoder, DecodingError, DecodingOpts};
 #[cfg(feature = "json")]
 pub use encoder::{Encoder, EncodingError, EncodingOpts};
 
+pub use compression::{Compression, CompressionError, Decompression, DecompressionError};
+pub use encryption::{
+    AgeKeyDecryption, AgeKeyEncryption, AgePassphrase, Decryption, DecryptionError, Encryption,
+    EncryptionError,
+};
 pub use extract::{PayloadExtractionError, PayloadExtractor};
 pub use generate::{PayloadGenerationError, PayloadGenerator};
 pub use merge::{MergeResult, PayloadMerger};
@@ -90,13 +97,10 @@ mod tests {
 
     use bytes::Bytes;
 
-    use crate::{
-        format::{AgeKeyDecryption, AgeKeyEncryption},
-        payload::{
-            extract::PayloadExtractor,
-            merge::{MergeResult, PayloadMerger},
-            Decoder, Encoder,
-        },
+    use crate::payload::{
+        extract::PayloadExtractor,
+        merge::{MergeResult, PayloadMerger},
+        AgeKeyDecryption, AgeKeyEncryption, Decoder, Decryption, Encoder, Encryption,
     };
 
     use super::{generate::PayloadGenerator, split::PayloadSplitter};
@@ -143,9 +147,9 @@ mod tests {
         let identity = age::x25519::Identity::generate();
 
         let payload = PayloadGenerator::default()
-            .with_encryption(crate::format::Encryption::AgeKey(AgeKeyEncryption::new(
-                vec![identity.to_public()],
-            )))
+            .with_encryption(Encryption::AgeKey(AgeKeyEncryption::new(vec![
+                identity.to_public()
+            ])))
             .generate(Bytes::from_static(expected))
             .expect("should generate");
 
@@ -158,9 +162,7 @@ mod tests {
         let complete = complete.pop().expect("should have one complete");
 
         let data = PayloadExtractor::default()
-            .with_decryption(crate::format::Decryption::AgeKey(AgeKeyDecryption::new(
-                vec![identity],
-            )))
+            .with_decryption(Decryption::AgeKey(AgeKeyDecryption::new(vec![identity])))
             .extract(complete)
             .expect("should extract");
 

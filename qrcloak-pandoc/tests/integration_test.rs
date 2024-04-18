@@ -8,7 +8,7 @@ use std::{env, str::FromStr};
 use age::x25519::Identity;
 use indoc::formatdoc;
 use qrcloak_core::payload::{AgeKeyDecryption, Decryption, PayloadExtractor, PayloadMerger};
-use tempdir::TempDir;
+use tempfile::TempDir;
 
 fn block_encryption<'a>(
     public_keys: impl AsRef<[&'a str]>,
@@ -52,7 +52,7 @@ fn test_filter() {
     let age_private_key =
         "AGE-SECRET-KEY-17ZWSEMWJ4TVXG2ZD7TJ7275GERE0X2AWQ7FUD9JJ3EXY303QRDWQRNQJ8A";
 
-    let tmp_dir = TempDir::new("test_filter").expect("could not create temp dir");
+    let tmp_dir = TempDir::new().expect("could not create temp dir");
     let qrcode_path = tmp_dir.path().join("qrcode.png");
 
     let data = "Input to encrypt";

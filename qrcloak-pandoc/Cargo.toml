@@ -18,4 +18,4 @@ thiserror = "1.0.58"
 image = "0.25.1"
 indoc = "2.0.5"
 qrcloak-core = { workspace = true, features = ["extract"] }
-tempdir = "0.3.7"
+tempfile = "3.10.1"

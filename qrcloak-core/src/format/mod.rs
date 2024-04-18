@@ -11,10 +11,15 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "json")]
 use schemars::JsonSchema;
 
+#[cfg(feature = "wasm")]
+use tsify_next::Tsify;
+
 /// The payload format, being either a complete or partial payload.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "serde", serde(untagged))]
+#[cfg_attr(feature = "wasm", derive(Tsify))]
+#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Payload {
     /// A complete payload that is not split accross multiple partial ones.

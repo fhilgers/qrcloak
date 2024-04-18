@@ -25,7 +25,7 @@ impl Base45IfHumanReadable {
         D: Deserializer<'de>,
     {
         if deserializer.is_human_readable() {
-            match base45::decode(<&str>::deserialize(deserializer)?) {
+            match base45::decode(<String>::deserialize(deserializer)?) {
                 Ok(buf) => Ok(buf.into()),
                 Err(_) => Err(<D::Error as serde::de::Error>::invalid_value(
                     serde::de::Unexpected::Other("invalid base45 string"),

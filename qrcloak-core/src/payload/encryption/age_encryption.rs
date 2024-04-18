@@ -11,6 +11,18 @@ pub struct AgeKeyEncryption {
     recipients: Vec<x25519::Recipient>,
 }
 
+impl From<Vec<x25519::Recipient>> for AgeKeyEncryption {
+    fn from(recipients: Vec<x25519::Recipient>) -> Self {
+        Self { recipients }
+    }
+}
+
+impl Into<Vec<x25519::Recipient>> for AgeKeyEncryption {
+    fn into(self) -> Vec<x25519::Recipient> {
+        self.recipients
+    }
+}
+
 impl AgeKeyEncryption {
     // TODO one or more
     pub fn new(recipients: Vec<x25519::Recipient>) -> Self {
@@ -42,6 +54,18 @@ impl AgeKeyEncryption {
 #[derive(Clone)]
 pub struct AgeKeyDecryption {
     identities: Vec<x25519::Identity>,
+}
+
+impl From<Vec<x25519::Identity>> for AgeKeyDecryption {
+    fn from(identities: Vec<x25519::Identity>) -> Self {
+        Self { identities }
+    }
+}
+
+impl Into<Vec<x25519::Identity>> for AgeKeyDecryption {
+    fn into(self) -> Vec<x25519::Identity> {
+        self.identities
+    }
 }
 
 impl Debug for AgeKeyDecryption {
@@ -88,9 +112,21 @@ pub struct AgePassphrase {
     passphrase: SecretString,
 }
 
+impl From<SecretString> for AgePassphrase {
+    fn from(passphrase: SecretString) -> Self {
+        Self { passphrase }
+    }
+}
+
+impl Into<SecretString> for AgePassphrase {
+    fn into(self) -> SecretString {
+        self.passphrase
+    }
+}
+
 impl AgePassphrase {
     pub fn new(passphrase: SecretString) -> Self {
-        Self { passphrase }
+        Self::from(passphrase)
     }
 
     // TODO better error handling

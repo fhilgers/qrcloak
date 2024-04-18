@@ -11,7 +11,7 @@ use crate::format::{CompletePayload, EncryptionSpec};
 pub enum Encryption {
     #[default]
     NoEncryption,
-    AgePasshprase(age_encryption::AgePassphrase),
+    AgePassphrase(age_encryption::AgePassphrase),
     AgeKey(age_encryption::AgeKeyEncryption),
 }
 
@@ -45,7 +45,7 @@ impl From<Encryption> for EncryptionSpec {
     fn from(encryption: Encryption) -> Self {
         match encryption {
             Encryption::NoEncryption => EncryptionSpec::NoEncryption,
-            Encryption::AgePasshprase(_) => EncryptionSpec::AgePassphrase,
+            Encryption::AgePassphrase(_) => EncryptionSpec::AgePassphrase,
             Encryption::AgeKey(_) => EncryptionSpec::AgeKey,
         }
     }
@@ -55,7 +55,7 @@ impl Encryption {
     pub fn process(&self, data: Bytes) -> Result<Bytes, EncryptionError> {
         match self {
             Encryption::NoEncryption => Ok(data),
-            Encryption::AgePasshprase(pw) => Ok(pw.encrypt(data)?),
+            Encryption::AgePassphrase(pw) => Ok(pw.encrypt(data)?),
             Encryption::AgeKey(key) => Ok(key.encrypt(data)?),
         }
     }
@@ -63,7 +63,7 @@ impl Encryption {
     pub fn spec(&self) -> EncryptionSpec {
         match self {
             Encryption::NoEncryption => EncryptionSpec::NoEncryption,
-            Encryption::AgePasshprase(_) => EncryptionSpec::AgePassphrase,
+            Encryption::AgePassphrase(_) => EncryptionSpec::AgePassphrase,
             Encryption::AgeKey(_) => EncryptionSpec::AgeKey,
         }
     }

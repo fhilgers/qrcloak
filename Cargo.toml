@@ -1,5 +1,12 @@
 [workspace]
-members = ["qrcloak-cli", "qrcloak-core", "qrcloak-pandoc", "qrcodegen"]
+members = [
+  "qrcloak-bindings",
+  "qrcloak-cli",
+  "qrcloak-core",
+  "qrcloak-pandoc",
+  "qrcodegen",
+  "wasm-bindgen-brand",
+]
 resolver = "2"
 
 [workspace.package]
@@ -9,6 +16,7 @@ version = "0.0.1"
 [workspace.dependencies]
 qrcloak-core = { path = "./qrcloak-core" }
 qrcodegen = { path = "./qrcodegen" }
+wasm-bindgen-brand = { path = "./wasm-bindgen-brand" }
 
 
 [profile.dev.package.insta]
@@ -16,3 +24,7 @@ opt-level = 3
 
 [profile.dev.package.similar]
 opt-level = 3
+
+
+[patch.crates-io]
+tsify-next = { path = "../tsify" }

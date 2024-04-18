@@ -15,14 +15,19 @@ qrcodegen = { workspace = true, optional = true }
 quircs = { version = "0.10.2", optional = true }
 rand = "0.8.5"
 schemars = { version = "0.8.16", optional = true }
+secrecy = { version = "0.8.0", features = ["bytes", "serde"] }
 serde = { version = "1.0.197", features = ["derive"], optional = true }
+serde-wasm-bindgen = { version = "0.6.5", optional = true }
 serde_json = { version = "1.0.115", optional = true }
 thiserror = "1.0.58"
+tsify-next = { version = "0.5", features = ["js"], optional = true }
+wasm-bindgen = { version = "0.2.92", optional = true }
 
 [features]
 extract = ["json", "quircs"]
 generate = ["image", "json", "qrcodegen"]
 json = ["schemars", "serde", "serde_json"]
+wasm = ["serde", "serde-wasm-bindgen", "tsify-next", "wasm-bindgen"]
 
 [dev-dependencies]
 image = { version = "0.25.1", features = ["png"] }

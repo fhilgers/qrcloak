@@ -15,6 +15,10 @@ impl Default for PayloadSplitter {
 }
 
 impl PayloadSplitter {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn with_splits(mut self, splits: u32) -> Self {
         self.splits = splits.max(1);
         self

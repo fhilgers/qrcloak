@@ -26,7 +26,7 @@ pub use encryption::{
 };
 pub use extract::{PayloadExtractionError, PayloadExtractor};
 pub use generate::{PayloadGenerationError, PayloadGenerator};
-pub use merge::{MergeResult, PayloadMerger};
+pub use merge::{MergeResult, PayloadMerger, UnmergedPayloads};
 pub use split::PayloadSplitter;
 
 pub enum OneOrMany<T> {
@@ -256,9 +256,9 @@ mod tests {
             let mut completes = Vec::new();
             for payload in splits {
                 let res = merger.merge([payload]);
-                completes.extend(res.0);
+                completes.extend(res.complete);
 
-                merger = PayloadMerger::default().with_unmerged(res.1);
+                merger = PayloadMerger::default().with_unmerged(res.incomplete);
             }
 
             assert_eq!(completes.len(), 1);
@@ -361,7 +361,7 @@ mod tests {
         let passphrase = AgePassphrase::new(SecretString::new("passphrase".into()));
 
         TesterBuilder::default()
-            .with_encryption(Some(Encryption::AgePasshprase(passphrase.clone())))
+            .with_encryption(Some(Encryption::AgePassphrase(passphrase.clone())))
             .with_decryption(Some(Decryption::AgePassphrase(passphrase)))
             .build()
             .test("hello world".into())

@@ -94,7 +94,7 @@ fn test_filter() {
 
     assert_eq!(payload.len(), 1);
 
-    let merged = PayloadMerger::default().merge(payload).0;
+    let merged = PayloadMerger::default().merge(payload).complete;
 
     let payload = PayloadExtractor::default()
         .with_decryption(Decryption::AgeKey(AgeKeyDecryption::new(vec![

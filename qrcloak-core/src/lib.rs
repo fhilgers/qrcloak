@@ -9,6 +9,8 @@ pub mod generate;
 #[cfg(feature = "extract")]
 pub mod extract;
 
+pub use age::{secrecy, x25519};
+
 #[cfg(all(test, feature = "extract", feature = "generate"))]
 mod tests {
     use image::GenericImage;
@@ -62,7 +64,7 @@ mod tests {
             &*total_image,
         );
 
-        let complete = PayloadMerger::default().merge(payloads).0;
+        let complete = PayloadMerger::default().merge(payloads).complete;
 
         assert_eq!(complete.len(), 1);
 

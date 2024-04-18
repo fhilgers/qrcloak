@@ -90,7 +90,7 @@ mod tests {
             .decode(&output.into_inner())
             .expect("should decode");
 
-        let mut complete = PayloadMerger::default().merge(payloads).0;
+        let mut complete = PayloadMerger::default().merge(payloads).complete;
 
         assert_eq!(complete.len(), 1);
         let complete = complete.pop().expect("should have one complete");

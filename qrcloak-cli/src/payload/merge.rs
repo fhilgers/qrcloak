@@ -36,7 +36,7 @@ impl PayloadMergeArgs {
         let merge_result = PayloadMerger::default().merge(payloads.0);
 
         // TODO: create good error message
-        if merge_result.0.len() != 1 {
+        if merge_result.complete.len() != 1 {
             return Err(miette!("Merge result should have one complete payload"));
         }
 
@@ -45,7 +45,7 @@ impl PayloadMergeArgs {
                 pretty: self.pretty,
                 merge: true,
             })
-            .encode(merge_result.0)
+            .encode(merge_result.complete)
             .into_diagnostic()?;
 
         let mut writer = self.output.try_get_writer().into_diagnostic()?;

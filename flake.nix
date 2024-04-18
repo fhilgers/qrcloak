@@ -61,6 +61,8 @@
             pkgs.nodejs
             pkgs.ktlint
             pkgs.pandoc
+            pkgs.just
+            pkgs.bun
           ];
 
           commands = [

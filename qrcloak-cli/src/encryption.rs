@@ -60,7 +60,7 @@ impl From<&EncryptionOptions> for EncryptionArgs {
                 age_key: true,
                 age_passphrase: false,
             },
-            Encryption::AgePasshprase(_) => EncryptionArgs {
+            Encryption::AgePassphrase(_) => EncryptionArgs {
                 age_key: false,
                 age_passphrase: true,
             },
@@ -85,7 +85,7 @@ impl TryFrom<EncryptionArgs> for EncryptionOptions {
         } else if args.age_passphrase {
             let passphrase: String = get_env("AGE_PASSPHRASE")?;
 
-            Ok(EncryptionOptions(Encryption::AgePasshprase(
+            Ok(EncryptionOptions(Encryption::AgePassphrase(
                 AgePassphrase::new(SecretString::new(passphrase)),
             )))
         } else {

@@ -1,0 +1,19 @@
+
+wasm: 
+  #!/usr/bin/env sh
+  find ./src -type f -exec sha256sum {} \; > ./.sha256.new
+  
+  diff ./.sha256 ./.sha256.new > /dev/null
+
+  if [[ $? -ne 0 ]]; then 
+    mv ./.sha256.new ./.sha256
+    wasm-pack build --target nodejs --release
+  else 
+    rm ./.sha256.new
+  fi
+
+test_js: wasm
+  #!/usr/bin/env sh
+  cd ./languages/qrcloak-js
+  bun test
+  

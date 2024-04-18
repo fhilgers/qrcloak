@@ -21,6 +21,10 @@ pub enum PayloadExtractionError {
 }
 
 impl PayloadExtractor {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn with_decryption(mut self, decryption: Decryption) -> Self {
         self.decryption = decryption;
         self

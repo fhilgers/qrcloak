@@ -4,7 +4,12 @@ use bytes::BytesMut;
 
 use crate::format::{CompletePayload, PartialPayload, Payload};
 
+#[cfg(feature = "wasm")]
+use tsify_next::Tsify;
+
 #[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
 pub struct UnmergedPayloads {
     partials: HashMap<(u32, u32), Vec<Option<PartialPayload>>>,
     misconfigured: Vec<PartialPayload>,
@@ -25,7 +30,12 @@ impl UnmergedPayloads {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct MergeResult(pub Vec<CompletePayload>, pub UnmergedPayloads);
+#[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+pub struct MergeResult {
+    pub complete: Vec<CompletePayload>,
+    pub incomplete: UnmergedPayloads,
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct PayloadMerger {
@@ -34,6 +44,10 @@ pub struct PayloadMerger {
 }
 
 impl PayloadMerger {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn with_unmerged(mut self, unmerged: UnmergedPayloads) -> Self {
         self.unmerged = unmerged;
         self
@@ -107,6 +121,9 @@ impl PayloadMerger {
         self.collect_partials(payloads);
         self.collect_merged();
 
-        MergeResult(self.completes, self.unmerged)
+        MergeResult {
+            complete: self.completes,
+            incomplete: self.unmerged,
+        }
     }
 }

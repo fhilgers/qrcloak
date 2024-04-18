@@ -4,7 +4,12 @@ use crate::format::Payload;
 
 use super::OneOrMany;
 
+#[cfg(feature = "wasm")]
+use tsify_next::Tsify;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
 pub enum EncodingOpts {
     Json { pretty: bool, merge: bool },
 }

@@ -10,9 +10,28 @@ use tsify_next::Tsify;
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct UnmergedPayloads {
-    partials: HashMap<(u32, u32), Vec<Option<PartialPayload>>>,
+    partials: HashMap<PartialIndex, Vec<Option<PartialPayload>>>,
     misconfigured: Vec<PartialPayload>,
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+pub struct PartialIndex {
+    id: u32,
+    size: u32,
+}
+
+impl From<(u32, u32)> for PartialIndex {
+    fn from(index: (u32, u32)) -> Self {
+        Self {
+            id: index.0,
+            size: index.1,
+        }
+    }
 }
 
 impl UnmergedPayloads {
@@ -20,7 +39,7 @@ impl UnmergedPayloads {
         Self::default()
     }
 
-    pub fn partials(&self) -> &HashMap<(u32, u32), Vec<Option<PartialPayload>>> {
+    pub fn partials(&self) -> &HashMap<PartialIndex, Vec<Option<PartialPayload>>> {
         &self.partials
     }
 
@@ -32,6 +51,7 @@ impl UnmergedPayloads {
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "wasm", derive(Tsify, serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct MergeResult {
     pub complete: Vec<CompletePayload>,
     pub incomplete: UnmergedPayloads,
@@ -76,7 +96,7 @@ impl PayloadMerger {
             let entry = self
                 .unmerged
                 .partials
-                .entry((index.id, index.size))
+                .entry((index.id, index.size).into())
                 .or_insert(vec![None; index.size as usize]);
 
             entry[index.index as usize] = Some(payload);

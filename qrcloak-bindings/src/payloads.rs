@@ -2,10 +2,29 @@ use std::ops::{Deref, DerefMut};
 
 use qrcloak_core::format::{CompletePayload, PartialPayload, Payload};
 
+use crate::UniffiCustomTypeConverter;
+
 #[derive(tsify_next::Tsify, serde::Serialize, serde::Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 #[serde(transparent)]
 pub struct Payloads(Vec<Payload>);
+
+impl UniffiCustomTypeConverter for Payloads {
+    type Builtin = Vec<Payload>;
+
+    fn from_custom(obj: Self) -> Self::Builtin {
+        obj.0
+    }
+
+    fn into_custom(val: Self::Builtin) -> uniffi::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(Self(val))
+    }
+}
+
+uniffi::custom_type!(Payloads, Vec<Payload>);
 
 impl<T: Into<Payload>> FromIterator<T> for Payloads {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {

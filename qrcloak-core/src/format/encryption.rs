@@ -12,6 +12,7 @@ use tsify_next::Tsify;
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum EncryptionSpec {
     /// No encryption is used.

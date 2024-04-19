@@ -12,6 +12,7 @@ use tsify_next::Tsify;
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Index {
     /// The id to match multiple partial payloads together

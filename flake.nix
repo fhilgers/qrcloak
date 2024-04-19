@@ -63,6 +63,8 @@
             pkgs.pandoc
             pkgs.just
             pkgs.bun
+            pkgs.upx
+            pkgs.ktfmt
           ];
 
           commands = [
@@ -115,6 +117,11 @@
                 "reorder_arrays=true"
               ];
               includes = ["*.toml"];
+            };
+
+            ktfmt = {
+              command = "${pkgs.ktfmt}/bin/ktfmt";
+              includes = ["*.kt" "*.kts"];
             };
           };
 

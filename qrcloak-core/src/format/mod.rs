@@ -20,6 +20,7 @@ use tsify_next::Tsify;
 #[cfg_attr(feature = "serde", serde(untagged))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Payload {
     /// A complete payload that is not split accross multiple partial ones.
@@ -81,5 +82,29 @@ mod tests {
         let schema = schema_for!(Payload);
 
         assert_json_snapshot!(schema);
+    }
+}
+
+#[cfg(feature = "uniffi")]
+mod uniffi_bytes {
+    use bytes::Bytes;
+
+    use crate::UniffiCustomTypeConverter;
+
+    uniffi::custom_type!(Bytes, Vec<u8>);
+
+    impl UniffiCustomTypeConverter for Bytes {
+        type Builtin = Vec<u8>;
+
+        fn from_custom(obj: Self) -> Self::Builtin {
+            obj.to_vec()
+        }
+
+        fn into_custom(val: Self::Builtin) -> uniffi::Result<Self>
+        where
+            Self: Sized,
+        {
+            Ok(val.into())
+        }
     }
 }

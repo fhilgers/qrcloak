@@ -9,6 +9,9 @@ pub mod generate;
 #[cfg(feature = "extract")]
 pub mod extract;
 
+#[cfg(feature = "uniffi")]
+uniffi::setup_scaffolding!();
+
 pub use age::{secrecy, x25519};
 
 #[cfg(all(test, feature = "extract", feature = "generate"))]

@@ -21,12 +21,14 @@ serde-wasm-bindgen = { version = "0.6.5", optional = true }
 serde_json = { version = "1.0.115", optional = true }
 thiserror = "1.0.58"
 tsify-next = { version = "0.5", features = ["js"], optional = true }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", optional = true }
 wasm-bindgen = { version = "0.2.92", optional = true }
 
 [features]
 extract = ["json", "quircs"]
 generate = ["image", "json", "qrcodegen"]
 json = ["schemars", "serde", "serde_json"]
+uniffi = ["dep:uniffi"]
 wasm = ["serde", "serde-wasm-bindgen", "tsify-next", "wasm-bindgen"]
 
 [dev-dependencies]

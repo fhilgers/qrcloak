@@ -22,6 +22,7 @@ use super::{index::Index, CompressionSpec, EncryptionSpec};
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PartialPayloadHead {
     /// The data of the payload.
@@ -53,6 +54,7 @@ pub struct PartialPayloadHead {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PartialPayloadTail {
     /// The data of the payload.
@@ -69,6 +71,7 @@ pub struct PartialPayloadTail {
 #[cfg_attr(feature = "json", derive(JsonSchema))]
 #[cfg_attr(feature = "wasm", derive(Tsify))]
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PartialPayload {
     /// The head of the group of partial payloads.

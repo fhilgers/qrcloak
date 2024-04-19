@@ -17,7 +17,7 @@ test("roundtrip", () => {
   let recipient = identity.to_public();
 
   let payload = new PayloadGenerator()
-    .with_encryption({ AgeKey: [recipient] })
+    .with_encryption({ AgeKey: { recipients: [recipient] } })
     .generate(data);
 
   let splits = new PayloadSplitter().with_splits(4).split(payload);
@@ -39,7 +39,7 @@ test("roundtrip", () => {
   expect(merged.incomplete.partials.size).toBe(0);
 
   let extracted = new PayloadExtractor()
-    .with_decryption({ AgeKey: [identity] })
+    .with_decryption({ AgeKey: { identities: [identity] } })
     .extract(merged.complete[0]);
 
   let str = new TextDecoder().decode(extracted);

@@ -8,21 +8,27 @@ use qrcloak_core::{
 
 extern crate alloc;
 
+use uniffi::{Error, Object};
 use wasm_bindgen::prelude::*;
 
 mod as_js_value;
 mod compression;
 mod encryption;
 mod payloads;
+mod uniffi_object_clone;
 
 use payloads::Payloads;
 
-#[derive(Default, Clone)]
+uniffi::setup_scaffolding!();
+
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadGenerator(qrcloak_core::payload::PayloadGenerator);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadGenerator {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -36,17 +42,19 @@ impl PayloadGenerator {
         Self(self.0.clone().with_compression(compression.into()))
     }
 
-    pub fn generate(&self, data: &str) -> Result<CompletePayload, JsError> {
+    pub fn generate(&self, data: &str) -> Result<CompletePayload, GenericError> {
         Ok(self.0.generate(Bytes::copy_from_slice(data.as_bytes()))?)
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadSplitter(qrcloak_core::payload::PayloadSplitter);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadSplitter {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -61,12 +69,14 @@ impl PayloadSplitter {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadExtractor(qrcloak_core::payload::PayloadExtractor);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadExtractor {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -80,17 +90,19 @@ impl PayloadExtractor {
         Self(self.0.clone().with_decompression(decompression.into()))
     }
 
-    pub fn extract(&self, payload: CompletePayload) -> Result<Vec<u8>, JsError> {
+    pub fn extract(&self, payload: CompletePayload) -> Result<Vec<u8>, GenericError> {
         Ok(self.0.extract(payload)?.into())
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadMerger(qrcloak_core::payload::PayloadMerger);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadMerger {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -105,12 +117,14 @@ impl PayloadMerger {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadEncoder(qrcloak_core::payload::Encoder);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadEncoder {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -120,17 +134,19 @@ impl PayloadEncoder {
         Self(self.0.with_encoding(encoding))
     }
 
-    pub fn encode(&self, payloads: Payloads) -> Result<Vec<String>, JsError> {
+    pub fn encode(&self, payloads: Payloads) -> Result<Vec<String>, GenericError> {
         Ok(self.0.encode(payloads)?)
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Object)]
 #[wasm_bindgen]
 pub struct PayloadDecoder(qrcloak_core::payload::Decoder);
 
+#[uniffi::export]
 #[wasm_bindgen]
 impl PayloadDecoder {
+    #[uniffi::constructor]
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
@@ -140,7 +156,27 @@ impl PayloadDecoder {
         Self(self.0.with_opts(opts))
     }
 
-    pub fn decode(&self, payloads: &str) -> Result<Payloads, JsError> {
+    pub fn decode(&self, payloads: &str) -> Result<Payloads, GenericError> {
         Ok(self.0.decode(payloads.as_bytes())?.into())
+    }
+}
+
+// TODO: this is necessary because of https://github.com/mozilla/uniffi-rs/issues/1605
+#[derive(Debug, thiserror::Error, Error)]
+#[uniffi(flat_error)]
+pub enum GenericError {
+    #[error(transparent)]
+    DecodingError(#[from] qrcloak_core::payload::DecodingError),
+    #[error(transparent)]
+    EncodingError(#[from] qrcloak_core::payload::EncodingError),
+    #[error(transparent)]
+    ExtractionError(#[from] qrcloak_core::payload::PayloadExtractionError),
+    #[error(transparent)]
+    GenerationError(#[from] qrcloak_core::payload::PayloadGenerationError),
+}
+
+impl Into<JsValue> for GenericError {
+    fn into(self) -> JsValue {
+        JsValue::from(self.to_string())
     }
 }

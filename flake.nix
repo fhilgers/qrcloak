@@ -121,6 +121,9 @@
 
             ktfmt = {
               command = "${pkgs.ktfmt}/bin/ktfmt";
+              options = [
+                "--kotlinlang-style"
+              ];
               includes = ["*.kt" "*.kts"];
             };
           };

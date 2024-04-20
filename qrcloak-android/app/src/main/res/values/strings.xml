@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Qrcloak</string>
+    <string name="scanner_tab_name">Scanner</string>
+    <string name="saved_tab_name">Saved</string>
 </resources>

@@ -41,6 +41,12 @@ dependencies {
     implementation(libs.qrcloak.core)
     implementation(libs.qrcloak.core.libs)
 
+    implementation(libs.voyager.navigator)
+    implementation(libs.voyager.tabNavigator)
+    implementation(libs.voyager.screenModel)
+
+    implementation(libs.androidx.icons.extended)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

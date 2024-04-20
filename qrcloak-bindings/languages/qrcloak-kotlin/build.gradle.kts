@@ -1,23 +1,15 @@
-import com.ncorti.ktfmt.gradle.tasks.KtfmtFormatTask
+import com.android.build.gradle.internal.tasks.factory.dependsOn
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
-    kotlin("multiplatform") version "1.8.21"
+    kotlin("multiplatform") version "1.9.23"
     id("maven-publish")
-    id("com.android.library") version "8.3.2"
-
-    id("com.ncorti.ktfmt.gradle") version "0.18.0"
-
-    idea
+    id("com.android.library") version "8.2.0"
 }
 
-group = "org.example"
+group = "com.github.fhilgers"
 
-version = "1.0-SNAPSHOT-0"
-
-repositories {
-    google()
-    mavenCentral()
-}
+version = "1.0-SNAPSHOT"
 
 publishing { repositories { mavenLocal() } }
 
@@ -26,10 +18,10 @@ kotlin {
         jvmToolchain(11)
         testRuns["test"].executionTask.configure { useJUnitPlatform() }
     }
-    android { publishLibraryVariants("release", "debug") }
+    androidTarget { publishLibraryVariants("release", "debug") }
 
     sourceSets {
-        val commonMain by getting { dependencies {} }
+        val commonMain by getting {}
         val commonTest by getting { dependencies { implementation(kotlin("test")) } }
         val jvmMain by getting { dependencies { implementation("net.java.dev.jna:jna:5.14.0") } }
 
@@ -38,17 +30,8 @@ kotlin {
             dependencies { implementation("net.java.dev.jna:jna:5.14.0@aar") }
         }
         val androidUnitTest by getting { dependencies { implementation("junit:junit:4.13.2") } }
-
     }
 }
-
-tasks.register<KtfmtFormatTask>("ktfmt") {
-    source = project.fileTree(rootDir)
-    include("**/*.kt")
-    include("**/*.kts")
-}
-
-ktfmt { kotlinLangStyle() }
 
 android {
     namespace = "org.example.library"
@@ -75,71 +58,160 @@ val jniLibMappings = listOf("x86_64", "x86", "armeabi-v7a", "arm64-v8a")
 
 val rootDir = File("../../../")
 val targetDir = File(rootDir.path, "target")
+val srcDirs = listOf(File("../../src"), File("../../../src"))
+val libName = "libqrcloak_bindings.so"
 
-val build =
-    tasks.create("cargo-build") {
+fun buildRelease(target: String?): TaskProvider<Exec> =
+    tasks.register<Exec>("cargoBuild${target?:"Current"}Lib") {
+        group = "cargo"
+
+        inputs.dir("../../src")
+
+        val args =
+            listOf(
+                "cargo",
+                "build",
+                "--release",
+            )
+
+        val outputLib = target?.let { "${it}/release/${libName}" } ?: "release/${libName}"
+
+        outputs.file(File(targetDir, outputLib))
+
+        commandLine(target?.let { args + listOf("--target", it) } ?: args)
+    }
+
+val cargoBuildCurrentTarget = buildRelease(null)
+val cargoAndroidTargets = androidTargets.map(::buildRelease).toList()
+val cargoDesktopTargets = desktopTargets.map(::buildRelease).toList()
+
+val cargoBuildAndroidLibs =
+    tasks.register("cargoBuildAndroidLibs") {
+        group = "cargo"
+
+        dependsOn(cargoAndroidTargets)
+
+        outputs.files(cargoAndroidTargets.flatMap { it.get().outputs.files })
+    }
+
+val cargoBuildDesktopLibs =
+    tasks.register("cargoBuildDesktopLibs") {
+        group = "cargo"
+
+        dependsOn(cargoDesktopTargets)
+
+        outputs.files(cargoDesktopTargets.flatMap { it.get().outputs.files })
+    }
+
+val cargoBuildAllLibs =
+    tasks.register("cargoBuildAllLibs") {
+        group = "cargo"
+
+        dependsOn(cargoBuildAndroidLibs, cargoBuildDesktopLibs, cargoBuildCurrentTarget)
+    }
+
+val uniffiBindgen =
+    tasks.register<Exec>("uniffiBindgen") {
+        group = "cargo"
+
+        dependsOn(cargoBuildCurrentTarget)
+
+        val libFile = cargoBuildCurrentTarget.get().outputs.files.singleFile
+
+        val outDir =
+            File(layout.buildDirectory.asFile.get(), "generated/source/uniffi/commonMain/kotlin")
+        outputs.dir(outDir)
+
+        commandLine(
+            "cargo",
+            "run",
+            "--features=uniffi/cli",
+            "--bin",
+            "uniffi-bindgen",
+            "generate",
+            "--library",
+            "$libFile",
+            "--language",
+            "kotlin",
+            "--out-dir",
+            outDir.path
+        )
+    }
+
+val bundleAndroidLibs =
+    tasks.register("bundleAndroidLibs") {
+        group = "cargo"
+
+        dependsOn(cargoBuildAndroidLibs)
+
+        val libFiles = cargoBuildAndroidLibs.get().outputs.files
+
+        val jniLibs = File(layout.buildDirectory.asFile.get(), "generated/jniLibs")
+        outputs.dir(jniLibs)
+
         doLast {
-            (desktopTargets + androidTargets).forEach { target ->
-                exec { commandLine("cargo", "build", "--release", "--target", target) }
+            libFiles.zip(jniLibMappings).forEach { (libFile, dirPrefix) ->
+                copy {
+                    from(libFile)
+                    into(File(jniLibs, dirPrefix))
+                }
             }
         }
     }
 
-tasks.create("cargo-deploy") {
-    dependsOn(build)
+val bundleJvmLibs =
+    tasks.register("bundleJvmLibs") {
+        group = "cargo"
 
-    val jniLibs = File(layout.buildDirectory.asFile.get(), "generated/jniLibs")
-    val desktopLibs = File(layout.buildDirectory.asFile.get(), "generated/desktopLibs")
+        dependsOn(cargoBuildDesktopLibs)
 
-    android.sourceSets.getByName("main").jniLibs.srcDir(jniLibs)
-    kotlin.sourceSets.getByName("jvmMain").resources.srcDir(desktopLibs)
+        val libFiles = cargoBuildDesktopLibs.get().outputs.files
 
-    doLast {
-        androidTargets.zip(jniLibMappings).forEach { (target, dir) ->
-            sync {
-                from(File(targetDir.path, "${target}/release"))
-                include("*.so")
-                into(File(jniLibs, dir))
+        val libs = File(layout.buildDirectory.asFile.get(), "generated/jvmLibs")
+        outputs.dir(libs)
+
+        doLast {
+            libFiles.zip(desktopLibMappings).forEach { (libFile, dirPrefix) ->
+                copy {
+                    from(libFile)
+                    into(File(libs, dirPrefix))
+                }
             }
         }
+    }
 
-        desktopTargets.zip(desktopLibMappings).forEach { (target, dir) ->
-            sync {
-                from(File(targetDir.path, "${target}/release"))
-                include("*.so")
-                into(File(desktopLibs, dir))
-            }
+val bundleJvmLibsJar =
+    tasks.register<Jar>("bundleJvmLibsJar") {
+        group = "cargo"
+
+        archiveBaseName = "qrcloak-core-jvm-libs"
+
+        from(bundleJvmLibs)
+    }
+
+publishing {
+    publications {
+        create<MavenPublication>("jvmLibs") {
+            artifactId = "qrcloak-jvm-libs"
+
+            artifact(bundleJvmLibsJar)
         }
     }
 }
 
-tasks.create("uniffi", Exec::class.java) {
-    dependsOn(build)
+afterEvaluate {
+    kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(uniffiBindgen)
+    kotlin.sourceSets.getByName("jvmMain").resources.srcDir(bundleJvmLibs)
 
-    val outDir =
-        File(layout.buildDirectory.asFile.get(), "generated/source/uniffi/commonMain/kotlin")
-    val sourceSet = kotlin.sourceSets.getByName("commonMain")
-    sourceSet.kotlin.srcDir(outDir)
-
-    idea.module.generatedSourceDirs.add(outDir)
-
-    commandLine(
-        "cargo",
-        "run",
-        "--features=uniffi/cli",
-        "--bin",
-        "uniffi-bindgen",
-        "generate",
-        "--library",
-        "../../../target/release/libqrcloak_bindings.so",
-        "--language",
-        "kotlin",
-        "--out-dir",
-        outDir.path
-    )
-}
-
-tasks.named("preBuild") {
-    dependsOn("uniffi")
-    dependsOn("cargo-deploy")
+    android.libraryVariants.forEach { variant ->
+        val t =
+            tasks.register("bundleAndroid${variant.name.capitalized()}Libs") {
+                dependsOn(bundleAndroidLibs)
+                android.sourceSets
+                    .getByName(variant.name)
+                    .jniLibs
+                    .srcDir(bundleAndroidLibs.get().outputs.files)
+            }
+        tasks.named("merge${variant.name.capitalized()}JniLibFolders").dependsOn(t)
+    }
 }

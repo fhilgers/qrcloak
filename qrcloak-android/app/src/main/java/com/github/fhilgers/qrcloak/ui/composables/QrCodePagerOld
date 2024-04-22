@@ -101,37 +101,4 @@ fun QrCodeDataPager(qrCodes: List<String>, modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-fun ScrollableOutlinedBase64Text(
-    text: String,
-    modifier: Modifier = Modifier,
-    maxLines: Int = Int.MAX_VALUE,
-) {
-    Box(
-        modifier =
-            modifier
-                .border(
-                    border =
-                        BorderStroke(
-                            width = OutlinedTextFieldDefaults.FocusedBorderThickness,
-                            color = MaterialTheme.colorScheme.outline,
-                        ),
-                    shape = OutlinedTextFieldDefaults.shape,
-                )
-                .padding(OutlinedTextFieldDefaults.contentPadding()),
-    ) {
-        Box(
-            modifier = Modifier.verticalScroll(state = rememberScrollState()),
-        ) {
-            Text(
-                text = text.map { it }.joinToString("\u200D"),
-                style =
-                    LocalTextStyle.current.copy(
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.Justify
-                    ),
-                maxLines = maxLines,
-            )
-        }
-    }
-}
+

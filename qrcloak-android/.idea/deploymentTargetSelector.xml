@@ -8,16 +8,16 @@
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Swipeable">
+      <SelectionState runConfigName="PreviewQrCodeList">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewQrCodePager">
+      <SelectionState runConfigName="SecretDialogPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewQrCodePager (1)">
+      <SelectionState runConfigName="CompleteDetailsPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewQrCodeDataPager">
+      <SelectionState runConfigName="CompletePayloadDetailScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

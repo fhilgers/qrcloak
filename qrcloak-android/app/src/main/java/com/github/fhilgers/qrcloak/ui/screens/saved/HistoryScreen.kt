@@ -15,10 +15,16 @@ import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +37,8 @@ import com.github.fhilgers.qrcloak.R
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
+import com.github.fhilgers.qrcloak.ui.screens.SetFab
+import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
 import com.github.fhilgers.qrcloak.utils.OptionalPartialPayloadParceler
 import com.github.fhilgers.qrcloak.utils.compressionTag
@@ -38,12 +46,18 @@ import com.github.fhilgers.qrcloak.utils.dataString
 import com.github.fhilgers.qrcloak.utils.encryptionTag
 import com.github.fhilgers.qrcloak.utils.id
 import com.github.fhilgers.qrcloak.utils.tag
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
-import uniffi.qrcloak_bindings.AgeIdentity
+import uniffi.qrcloak_bindings.AgeRecipient
 import uniffi.qrcloak_bindings.Compression
 import uniffi.qrcloak_bindings.Encryption
 import uniffi.qrcloak_bindings.GzipCompression
+import uniffi.qrcloak_bindings.Passphrase
 import uniffi.qrcloak_bindings.PayloadGenerator
 import uniffi.qrcloak_bindings.PayloadMerger
 import uniffi.qrcloak_bindings.PayloadSplitter
@@ -58,9 +72,17 @@ data class HistoryScreen(val qrCodes: List<QrCode>) : Screen, Parcelable {
 
         val navigator = LocalNavigator.currentOrThrow
 
+        SetFab { ExtendedFloatingActionButton(onClick = { /*TODO*/}) { Text(text = "History") } }
+
         QrCodeList(
             qrCodes = qrCodes,
-            onClick = { navigator.push(DetailScreen(qrCode = it)) },
+            onClick = {
+                when (it) {
+                    is QrCode.Complete -> navigator.push(CompleteDetailScreen(it.payload))
+                    is QrCode.Group -> TODO()
+                    is QrCode.Normal -> TODO()
+                }
+            },
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -181,12 +203,26 @@ fun QrCodeList(qrCodes: List<QrCode>, onClick: (QrCode) -> Unit, modifier: Modif
     }
 }
 
-fun makeDummyList(): List<QrCode> {
+@OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
+suspend fun makeDummyList(): List<QrCode> = coroutineScope {
+    val ageRecipient =
+        AgeRecipient.tryFromString("age1jkrld9cvkwlrtxqzf4ymlv6vfpaqnkephks0t2t4gz4lkx2e0vaq6z7yc4")
+
     val encryptedPayload =
         PayloadGenerator()
-            .withEncryption(Encryption.AgeKey(listOf(AgeIdentity.generate().toPublic())))
+            .withEncryption(Encryption.AgeKey(listOf(ageRecipient)))
             .withCompression(Compression.Gzip(GzipCompression()))
             .generate("hello")
+
+    val pwEncrypted =
+        async(newSingleThreadContext("Key Derivation")) {
+                PayloadGenerator()
+                    .withEncryption(
+                        Encryption.AgePassphrase(passphrase = Passphrase("hello world"))
+                    )
+                    .generate("arosetin")
+            }
+            .await()
 
     val payload = PayloadGenerator().generate("hello")
     val normal = "hello"
@@ -200,8 +236,9 @@ fun makeDummyList(): List<QrCode> {
             QrCode.Group(size = it.key.size, id = it.key.id, payloads = it.value)
         }
 
-    return listOf(QrCode.Normal(normal), QrCode.Complete(payload)) +
+    return@coroutineScope listOf(QrCode.Normal(normal), QrCode.Complete(payload)) +
         p +
+        QrCode.Complete(pwEncrypted) +
         QrCode.Complete(encryptedPayload)
 }
 
@@ -209,5 +246,9 @@ fun makeDummyList(): List<QrCode> {
 @Composable
 fun PreviewQrCodeList() {
 
-    QrCodeList(qrCodes = makeDummyList(), onClick = {})
+    var qrCodes by remember { mutableStateOf(listOf<QrCode>()) }
+
+    LaunchedEffect(Unit) { qrCodes = makeDummyList() }
+
+    QrCodeList(qrCodes = qrCodes, onClick = {})
 }

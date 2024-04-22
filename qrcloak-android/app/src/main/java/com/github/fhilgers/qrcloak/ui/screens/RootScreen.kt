@@ -1,5 +1,6 @@
 package com.github.fhilgers.qrcloak.ui.screens
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -15,8 +16,11 @@ import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.github.fhilgers.qrcloak.ui.screens.saved.SavedTab
+import kotlinx.parcelize.Parcelize
 
-object RootScreen : Screen {
+@Parcelize
+object RootScreen : Screen, Parcelable {
 
     private fun readResolve(): Any = RootScreen
 
@@ -24,8 +28,6 @@ object RootScreen : Screen {
     override fun Content() {
 
         TabNavigator(ScannerTab) { navigator ->
-            val tab = navigator.current as ExtendedTab
-
             Scaffold(
                 bottomBar = {
                     BottomNavigation {
@@ -33,17 +35,12 @@ object RootScreen : Screen {
                         BottomNavigationItem(tab = SavedTab)
                     }
                 },
-                floatingActionButton = { tab.Fab() }
+                floatingActionButton = {}
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) { CurrentScreen() }
             }
         }
     }
-}
-
-interface ExtendedTab : Tab {
-
-    @Composable fun Fab() {}
 }
 
 @Composable

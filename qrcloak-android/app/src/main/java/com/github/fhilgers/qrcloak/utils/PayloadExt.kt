@@ -78,6 +78,13 @@ val PartialPayload.id: UInt?
             is PartialPayload.Tail -> null
         }
 
+val PartialPayload.index: Index
+    get() =
+        when (this) {
+            is PartialPayload.Head -> v1.index
+            is PartialPayload.Tail -> v1.index
+        }
+
 val List<PartialPayload?>.tag: String
     @Composable get() = stringResource(id = R.string.partial_payloads_tag)
 
@@ -114,9 +121,9 @@ val List<PartialPayload?>.compressionTag: String
             }
         } ?: unknownCompressionTag
 
-fun CompletePayload.toPayload() = Payload.Complete(this)
+fun CompletePayload.toPayload(): Payload = Payload.Complete(this)
 
-fun PartialPayload.toPayload() = Payload.Partial(this)
+fun PartialPayload.toPayload(): Payload = Payload.Partial(this)
 
 val CompletePayload.tag: String
     @Composable get() = stringResource(id = R.string.complete_payload_tag)

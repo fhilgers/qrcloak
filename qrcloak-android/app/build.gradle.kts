@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.voyager.screenModel)
 
     implementation(libs.qrose)
+    implementation(libs.datastore.preferences)
 
     implementation(libs.androidx.icons.extended)
 

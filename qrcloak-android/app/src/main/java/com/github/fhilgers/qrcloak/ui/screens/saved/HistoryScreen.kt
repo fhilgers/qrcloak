@@ -20,19 +20,28 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.github.fhilgers.qrcloak.COMPLETE_KEY
+import com.github.fhilgers.qrcloak.GROUP_KEY
+import com.github.fhilgers.qrcloak.NORMAL_KEY
 import com.github.fhilgers.qrcloak.R
+import com.github.fhilgers.qrcloak.dataStore
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
@@ -46,11 +55,17 @@ import com.github.fhilgers.qrcloak.utils.compressionTag
 import com.github.fhilgers.qrcloak.utils.dataString
 import com.github.fhilgers.qrcloak.utils.encryptionTag
 import com.github.fhilgers.qrcloak.utils.id
+import com.github.fhilgers.qrcloak.utils.index
 import com.github.fhilgers.qrcloak.utils.tag
+import com.github.fhilgers.qrcloak.utils.toPayload
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
@@ -59,19 +74,25 @@ import uniffi.qrcloak_bindings.Compression
 import uniffi.qrcloak_bindings.Encryption
 import uniffi.qrcloak_bindings.GzipCompression
 import uniffi.qrcloak_bindings.Passphrase
+import uniffi.qrcloak_bindings.PayloadDecoder
+import uniffi.qrcloak_bindings.PayloadEncoder
 import uniffi.qrcloak_bindings.PayloadGenerator
 import uniffi.qrcloak_bindings.PayloadMerger
 import uniffi.qrcloak_bindings.PayloadSplitter
 import uniffi.qrcloak_core.CompletePayload
+import uniffi.qrcloak_core.DecodingOpts
+import uniffi.qrcloak_core.EncodingOpts
 import uniffi.qrcloak_core.PartialPayload
 import uniffi.qrcloak_core.Payload
 
 @Parcelize
-data class HistoryScreen(val qrCodes: List<QrCode>) : Screen, Parcelable {
+data object HistoryScreen : Screen, Parcelable {
 
     @Composable
     override fun Content() {
 
+        val dataStore = LocalContext.current.dataStore
+        val qrCodes by QrCode.fromStore(dataStore).collectAsState(initial = listOf())
         val navigator = LocalNavigator.currentOrThrow
 
         SetAppBar(title = { Text(text = "Saved QRCodes") }, navigationIcon = {}, actions = {})
@@ -101,7 +122,78 @@ sealed interface QrCode : Parcelable {
 
     @Parcelize
     @TypeParceler<PartialPayload?, OptionalPartialPayloadParceler>
-    data class Group(val size: UInt, val id: UInt, val payloads: List<PartialPayload?>) : QrCode
+    data class Group(val id: UInt, val payloads: List<PartialPayload?>) : QrCode
+
+    companion object {}
+}
+
+fun QrCode.Companion.fromStore(dataStore: DataStore<Preferences>): Flow<List<QrCode>> {
+    return dataStore.data.map {
+        val decoder = PayloadDecoder().withDecoding(DecodingOpts.JSON)
+
+        val encodedNormals = it[NORMAL_KEY] ?: emptySet()
+        val encodedGroups = it[GROUP_KEY] ?: emptySet()
+        val encodedCompletes = it[COMPLETE_KEY] ?: emptySet()
+
+        val normals = encodedNormals.map { it }.map { QrCode.Normal(it) }
+        val completes =
+            encodedCompletes
+                .map { (decoder.decode(it)[0] as Payload.Complete).v1 }
+                .map { QrCode.Complete(it) }
+        val groups =
+            encodedGroups
+                .map { decoder.decode(it) }
+                .map {
+                    val merged = PayloadMerger().merge(it)
+
+                    if (merged.complete.size == 1) {
+                        it.map { (it as Payload.Partial).v1 }
+                    } else {
+                        merged.incomplete.partials.values.first()!!
+                    }
+                }
+                .map { QrCode.Group(id = it.id, payloads = it) }
+
+        normals + completes + groups
+    }
+}
+
+suspend fun QrCode.Normal.save(dataStore: DataStore<Preferences>) {
+    dataStore.edit { qrCodes ->
+        val previous = qrCodes[NORMAL_KEY] ?: emptySet()
+        qrCodes[NORMAL_KEY] = previous + data
+    }
+}
+
+suspend fun QrCode.Complete.save(dataStore: DataStore<Preferences>) {
+    val encoder = PayloadEncoder().withEncoding(EncodingOpts.Json(pretty = false, merge = true))
+
+    dataStore.edit { qrCodes ->
+        val previous = qrCodes[COMPLETE_KEY] ?: emptySet()
+        qrCodes[COMPLETE_KEY] = previous + encoder.encode(listOf(payload.toPayload()))[0]
+    }
+}
+
+suspend fun QrCode.Group.save(dataStore: DataStore<Preferences>) {
+    val encoder = PayloadEncoder().withEncoding(EncodingOpts.Json(pretty = false, merge = true))
+
+    dataStore.edit { qrCodes ->
+        val previous = qrCodes[GROUP_KEY] ?: emptySet()
+
+        qrCodes[GROUP_KEY] = previous + encoder.encode(payloads.mapNotNull { it?.toPayload() })[0]
+    }
+}
+
+suspend fun QrCode.save(dataStore: DataStore<Preferences>) {
+    when (this) {
+        is QrCode.Complete -> this.save(dataStore)
+        is QrCode.Group -> this.save(dataStore)
+        is QrCode.Normal -> this.save(dataStore)
+    }
+}
+
+suspend fun List<QrCode>.save(dataStore: DataStore<Preferences>) {
+    forEach { it.save(dataStore) }
 }
 
 @Composable
@@ -238,20 +330,13 @@ suspend fun makeDummyList(): List<QrCode> = coroutineScope {
 
     val someMerged = PayloadMerger().merge(partials.subList(0, 3))
 
-    val p =
-        someMerged.incomplete.partials.map {
-            QrCode.Group(size = it.key.size, id = it.key.id, payloads = it.value)
-        }
+    val p = someMerged.incomplete.partials.map { QrCode.Group(id = it.key.id, payloads = it.value) }
 
-    return@coroutineScope listOf(QrCode.Normal(normal), QrCode.Complete(payload)) +
+    return@coroutineScope listOf(QrCode.Normal(data = normal), QrCode.Complete(payload = payload)) +
         p +
-        QrCode.Complete(pwEncrypted) +
-        QrCode.Complete(encryptedPayload) +
-        QrCode.Group(
-            id = partialsMapped[0].id!!,
-            size = partialsMapped.size.toUInt(),
-            payloads = partialsMapped
-        )
+        QrCode.Complete(payload = pwEncrypted) +
+        QrCode.Complete(payload = encryptedPayload) +
+        QrCode.Group(id = partialsMapped[0].id!!, payloads = partialsMapped)
 }
 
 @Preview

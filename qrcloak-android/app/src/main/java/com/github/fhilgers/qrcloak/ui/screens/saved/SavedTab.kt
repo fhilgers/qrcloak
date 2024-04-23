@@ -2,7 +2,6 @@ package com.github.fhilgers.qrcloak.ui.screens.saved
 
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,17 +31,6 @@ object SavedTab : Tab, Parcelable {
     @Composable
     override fun Content() {
 
-        Navigator(screen = HistoryScreen(qrCodes = listOf())) { navigator ->
-            val current = navigator.lastItem as? HistoryScreen
-            LaunchedEffect(current) {
-                current?.also {
-                    if (it.qrCodes.isEmpty()) {
-                        navigator.replaceAll(HistoryScreen(qrCodes = makeDummyList()))
-                    }
-                }
-            }
-
-            CurrentScreen()
-        }
+        Navigator(screen = HistoryScreen) { navigator -> CurrentScreen() }
     }
 }

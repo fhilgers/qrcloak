@@ -14,16 +14,18 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -37,7 +39,11 @@ import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.github.fhilgers.qrcloak.ui.composables.SingleLineSnackbar
 import com.github.fhilgers.qrcloak.ui.screens.saved.SavedTab
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -45,11 +51,29 @@ object RootScreen : Screen, Parcelable {
 
     private fun readResolve(): Any = RootScreen
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     override fun Content() {
-        TabNavigator(ScannerTab) { navigator ->
+
+        val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
+        LaunchedEffect(cameraPermissionState.status) {
+            if (!cameraPermissionState.status.isGranted) {
+                cameraPermissionState.launchPermissionRequest()
+            }
+        }
+
+        val snackbarHostState = LocalSnackbarHostState.current
+
+        TabNavigator(ScannerTab) { _ ->
             Scaffold(
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                    ) {
+                        SingleLineSnackbar(snackbarData = it)
+                    }
+                },
                 bottomBar = {
                     BottomNavigation {
                         BottomNavigationItem(tab = ScannerTab)
@@ -58,15 +82,14 @@ object RootScreen : Screen, Parcelable {
                 },
                 topBar = { CurrentAppBar() },
                 floatingActionButton = {
-                    Box(
+                    CurrentFab(
                         modifier =
                             Modifier.consumeWindowInsets(WindowInsets.navigationBars)
                                 .consumeWindowInsets(PaddingValues(vertical = 80.dp))
                                 .imePadding()
-                    ) {
-                        CurrentFab()
-                    }
-                }
+                    )
+                },
+                contentWindowInsets = WindowInsets.navigationBars
             ) { contentPadding ->
                 Box(
                     modifier =
@@ -87,6 +110,7 @@ data class TopAppBarData(
     val actions: SnapshotStateStack<@Composable() (RowScope.() -> Unit)> = mutableStateStackOf()
 )
 
+val LocalSnackbarHostState = compositionLocalOf { SnackbarHostState() }
 val LocalTopAppBarProvider = compositionLocalOf { TopAppBarData() }
 val LocalFabProvider = compositionLocalOf { mutableStateStackOf<@Composable () -> Unit>() }
 
@@ -103,18 +127,16 @@ fun SetFab(key: Any? = null, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun CurrentFab() {
+fun CurrentFab(modifier: Modifier = Modifier) {
     AnimatedContent(
         targetState = LocalFabProvider.current.lastItemOrNull,
         contentAlignment = Alignment.Center,
         transitionSpec = { scaleIn().togetherWith(scaleOut()).using(SizeTransform(clip = false)) },
-        label = "CurrentFab"
+        label = "CurrentFab",
+        modifier = modifier
     ) {
         when (it) {
-            null ->
-                Box(
-                    modifier = Modifier.size(40.dp)
-                ) // STUPID BUG IN COMPOSE, otherwise it does not render
+            null -> {}
             else -> it()
         }
     }
@@ -151,18 +173,17 @@ fun CurrentAppBar() {
 
     val provider = LocalTopAppBarProvider.current
 
-    MediumTopAppBar(
-        title = { provider.title.lastItemOrNull?.invoke() },
-        navigationIcon = { provider.navigationIcon.lastItemOrNull?.invoke() },
-        actions = {
-            when (val v = provider.actions.lastItemOrNull) {
-                null -> {}
-                else -> {
-                    v()
-                }
-            }
-        }
-    )
+    val title = provider.title.lastItemOrNull
+    val navigation = provider.navigationIcon.lastItemOrNull
+    val actions = provider.actions.lastItemOrNull
+
+    if (title != null && navigation != null && actions != null) {
+        MediumTopAppBar(
+            title = { title() },
+            navigationIcon = { navigation() },
+            actions = { actions() }
+        )
+    }
 }
 
 @Composable

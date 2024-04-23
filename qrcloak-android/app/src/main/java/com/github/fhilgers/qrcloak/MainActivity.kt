@@ -17,6 +17,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "qr
 val NORMAL_KEY = stringSetPreferencesKey("normal")
 val GROUP_KEY = stringSetPreferencesKey("group")
 val COMPLETE_KEY = stringSetPreferencesKey("complete")
+val RAW_KEY = stringSetPreferencesKey("raw")
 
 class MainActivity : ComponentActivity() {
 

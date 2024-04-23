@@ -11,14 +11,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Numbers
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -48,6 +49,7 @@ import com.github.fhilgers.qrcloak.COMPLETE_KEY
 import com.github.fhilgers.qrcloak.GROUP_KEY
 import com.github.fhilgers.qrcloak.NORMAL_KEY
 import com.github.fhilgers.qrcloak.R
+import com.github.fhilgers.qrcloak.RAW_KEY
 import com.github.fhilgers.qrcloak.dataStore
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
@@ -161,6 +163,32 @@ fun QrCode.Companion.fromStore(dataStore: DataStore<Preferences>): Flow<List<QrC
         val encodedNormals = it[NORMAL_KEY] ?: emptySet()
         val encodedGroups = it[GROUP_KEY] ?: emptySet()
         val encodedCompletes = it[COMPLETE_KEY] ?: emptySet()
+        val raw = it[RAW_KEY] ?: emptySet()
+
+        val leftOver = mutableSetOf<String>()
+        val rawPayloads = mutableSetOf<Payload>()
+
+        raw.forEach() {
+            try {
+                val payload = decoder.decode(it)[0]
+
+                rawPayloads.add(payload)
+            } catch (_: Exception) {
+                leftOver.add(it)
+            }
+        }
+
+        val mergeResult = PayloadMerger().merge(rawPayloads.toList())
+
+        val rawNormals = leftOver.map { QrCode.Normal(it) }
+        val rawCompletes = mergeResult.complete.map { QrCode.Complete(it) }
+        val rawGroups =
+            mergeResult.incomplete.partials.map {
+                QrCode.Group(id = it.key.id, payloads = it.value)
+            }
+
+        (rawNormals + rawGroups + rawCompletes).save(dataStore)
+        dataStore.edit { it[RAW_KEY] = emptySet() }
 
         val normals = encodedNormals.map { it }.map { QrCode.Normal(it) }
         val completes =
@@ -176,7 +204,7 @@ fun QrCode.Companion.fromStore(dataStore: DataStore<Preferences>): Flow<List<QrC
                     if (merged.complete.size == 1) {
                         it.map { (it as Payload.Partial).v1 }
                     } else {
-                        merged.incomplete.partials.values.first()!!
+                        merged.incomplete.partials.values.first()
                     }
                 }
                 .map { QrCode.Group(id = it.id, payloads = it) }
@@ -229,7 +257,10 @@ fun NoPayloadListItem(data: String, onClick: () -> Unit, modifier: Modifier = Mo
         overlineContent = { Text(text = stringResource(id = R.string.no_payload_tag)) },
         headlineContent = { Text(text = data, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         trailingContent = {
-            Icon(imageVector = Icons.Default.NavigateNext, contentDescription = "NavigateNext")
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.NavigateNext,
+                contentDescription = "NavigateNext"
+            )
         },
         modifier = modifier.clickable(onClick = onClick)
     )
@@ -255,7 +286,10 @@ fun CompletePayloadListItem(
             }
         },
         trailingContent = {
-            Icon(imageVector = Icons.Default.NavigateNext, contentDescription = "NavigateNext")
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.NavigateNext,
+                contentDescription = "NavigateNext"
+            )
         },
         modifier = modifier.clickable(onClick = onClick)
     )
@@ -288,7 +322,10 @@ fun GroupPayloadListItem(
             }
         },
         trailingContent = {
-            Icon(imageVector = Icons.Default.NavigateNext, contentDescription = "NavigateNext")
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.NavigateNext,
+                contentDescription = "NavigateNext"
+            )
         },
         modifier = modifier.clickable(onClick = onClick)
     )
@@ -323,7 +360,7 @@ fun QrCodeList(qrCodes: List<QrCode>, onClick: (QrCode) -> Unit, modifier: Modif
             Spacer(modifier = Modifier.height(8.dp))
 
             if (index < qrCodes.lastIndex) {
-                Divider()
+                HorizontalDivider()
 
                 Spacer(modifier = Modifier.height(8.dp))
             }

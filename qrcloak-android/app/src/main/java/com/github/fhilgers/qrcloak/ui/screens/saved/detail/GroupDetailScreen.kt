@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.EnhancedEncryption
@@ -89,7 +90,7 @@ fun GroupDetails(
             state = pagerState,
             contentPadding = PaddingValues(16.dp),
             pageSpacing = 8.dp,
-            beyondBoundsPageCount = pagerState.pageCount,
+            outOfBoundsPageCount = pagerState.pageCount,
         ) { page ->
             when (val text = texts[page]) {
                 null -> {
@@ -130,7 +131,7 @@ data class GroupDetailScreen(val id: UInt, val payloads: List<PartialPayload?>) 
             navigationIcon = {
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
                         contentDescription = "Navigate Back"
                     )
                 }

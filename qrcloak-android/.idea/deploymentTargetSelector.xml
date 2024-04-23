@@ -7,10 +7,10 @@
       </SelectionState>
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-04-23T15:49:40.716724734Z">
+        <DropdownSelection timestamp="2024-04-23T16:03:24.898262872Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/home/flyxi/.android/avd/Pixel_3a_API_34.avd" />
+              <DeviceId pluginId="Default" identifier="serial=10.40.42.218:46299;connection=041d23e7" />
             </handle>
           </Target>
         </DropdownSelection>

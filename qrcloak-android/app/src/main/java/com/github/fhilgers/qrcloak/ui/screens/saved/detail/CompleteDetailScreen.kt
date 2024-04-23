@@ -1,11 +1,6 @@
 package com.github.fhilgers.qrcloak.ui.screens.saved.detail
 
 import android.os.Parcelable
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,14 +8,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,7 +27,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,13 +34,16 @@ import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.github.fhilgers.qrcloak.ui.composables.ScrollableOutlinedBase64Text
 import com.github.fhilgers.qrcloak.ui.composables.SecretDialog
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
 import com.github.fhilgers.qrcloak.ui.screens.CurrentFab
+import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
 import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
 import com.github.fhilgers.qrcloak.utils.dataString
@@ -290,36 +288,30 @@ fun CompletePayloadDetailFab(
     onStartKeyEntry: () -> Unit,
     onShow: () -> Unit,
 ) {
-    SetFab {
-        AnimatedContent(
-            targetState = state,
-            contentAlignment = Alignment.Center,
-            transitionSpec = {
-                scaleIn().togetherWith(scaleOut()).using(SizeTransform(clip = false))
-            },
-            label = "PayloadDetailFab"
-        ) {
-            when (it) {
-                CompleteDetailScreenModel.State.Plain -> {
-                    FloatingActionButton(onClick = onHide) {
-                        Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = "Hide")
-                    }
-                }
-                CompleteDetailScreenModel.State.Encoded -> {
-                    FloatingActionButton(onClick = onStartKeyEntry) {
-                        Icon(imageVector = Icons.Default.Visibility, contentDescription = "Show")
-                    }
-                }
-                CompleteDetailScreenModel.State.Hidden -> {
-                    FloatingActionButton(onClick = onShow) {
-                        Icon(imageVector = Icons.Default.Visibility, contentDescription = "Show")
-                    }
-                }
-                else -> {
-                    Box(modifier = Modifier.size(40.dp)) // BUG IN compose
+
+    when (state) {
+        CompleteDetailScreenModel.State.Plain -> {
+            SetFab {
+                FloatingActionButton(onClick = onHide) {
+                    Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = "Hide")
                 }
             }
         }
+        CompleteDetailScreenModel.State.Encoded -> {
+            SetFab {
+                FloatingActionButton(onClick = onStartKeyEntry) {
+                    Icon(imageVector = Icons.Default.Visibility, contentDescription = "Show")
+                }
+            }
+        }
+        CompleteDetailScreenModel.State.Hidden -> {
+            SetFab {
+                FloatingActionButton(onClick = onShow) {
+                    Icon(imageVector = Icons.Default.Visibility, contentDescription = "Show")
+                }
+            }
+        }
+        else -> {}
     }
 }
 
@@ -373,6 +365,21 @@ data class CompleteDetailScreen(val payload: CompletePayload) : Screen, Parcelab
             rememberScreenModel(tag = payload.toString()) { CompleteDetailScreenModel(payload) }
 
         val state by screenModel.state.collectAsState()
+
+        val navigator = LocalNavigator.currentOrThrow
+
+        SetAppBar(
+            title = { Text(text = "Complete Payload") },
+            navigationIcon = {
+                IconButton(onClick = { navigator.pop() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Navigate Back"
+                    )
+                }
+            },
+            actions = {}
+        )
 
         CompletePayloadDetail(
             text = screenModel.currentText(),

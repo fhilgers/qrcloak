@@ -36,6 +36,7 @@ import com.github.fhilgers.qrcloak.R
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
+import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.GroupDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.NormalDetailScreen
@@ -72,6 +73,8 @@ data class HistoryScreen(val qrCodes: List<QrCode>) : Screen, Parcelable {
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
+
+        SetAppBar(title = { Text(text = "Saved QRCodes") }, navigationIcon = {}, actions = {})
 
         QrCodeList(
             qrCodes = qrCodes,

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Inventory2
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.filled.Merge
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -32,6 +35,7 @@ import com.github.fhilgers.qrcloak.ui.composables.ScrollableOutlinedBase64Text
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
+import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
 import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.utils.OptionalPartialPayloadParceler
 import com.github.fhilgers.qrcloak.utils.compressionTag
@@ -111,6 +115,28 @@ data class GroupDetailScreen(val id: UInt, val payloads: List<PartialPayload?>) 
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
+
+        val isIncomplete = payloads.contains(null)
+
+        val prefix =
+            if (isIncomplete) {
+                "Incomplete"
+            } else {
+                "Complete"
+            }
+
+        SetAppBar(
+            title = { Text(text = "$prefix Payload Group") },
+            navigationIcon = {
+                IconButton(onClick = { navigator.pop() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Navigate Back"
+                    )
+                }
+            },
+            actions = {}
+        )
 
         GroupDetails(
             id = id,

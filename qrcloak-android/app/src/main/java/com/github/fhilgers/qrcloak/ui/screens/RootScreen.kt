@@ -1,7 +1,6 @@
 package com.github.fhilgers.qrcloak.ui.screens
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.scaleIn
@@ -16,7 +15,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.stack.SnapshotStateStack
 import cafe.adriel.voyager.core.stack.mutableStateStackOf
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
@@ -43,6 +45,7 @@ object RootScreen : Screen, Parcelable {
 
     private fun readResolve(): Any = RootScreen
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         TabNavigator(ScannerTab) { navigator ->
@@ -53,6 +56,7 @@ object RootScreen : Screen, Parcelable {
                         BottomNavigationItem(tab = SavedTab)
                     }
                 },
+                topBar = { CurrentAppBar() },
                 floatingActionButton = {
                     Box(
                         modifier =
@@ -70,6 +74,13 @@ object RootScreen : Screen, Parcelable {
     }
 }
 
+data class TopAppBarData(
+    val title: SnapshotStateStack<@Composable () -> Unit> = mutableStateStackOf(),
+    val navigationIcon: SnapshotStateStack<@Composable () -> Unit> = mutableStateStackOf(),
+    val actions: SnapshotStateStack<@Composable() (RowScope.() -> Unit)> = mutableStateStackOf()
+)
+
+val LocalTopAppBarProvider = compositionLocalOf { TopAppBarData() }
 val LocalFabProvider = compositionLocalOf { mutableStateStackOf<@Composable () -> Unit>() }
 
 @Composable
@@ -86,14 +97,12 @@ fun SetFab(content: @Composable () -> Unit) {
 
 @Composable
 fun CurrentFab() {
-
     AnimatedContent(
         targetState = LocalFabProvider.current.lastItemOrNull,
         contentAlignment = Alignment.Center,
-        transitionSpec = { scaleIn().togetherWith(scaleOut()).using(SizeTransform(clip = false)) }
+        transitionSpec = { scaleIn().togetherWith(scaleOut()).using(SizeTransform(clip = false)) },
+        label = "CurrentFab"
     ) {
-        Log.d("arsoten", "$it")
-
         when (it) {
             null ->
                 Box(
@@ -102,6 +111,51 @@ fun CurrentFab() {
             else -> it()
         }
     }
+}
+
+@Composable
+fun SetAppBar(
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable RowScope.() -> Unit
+) {
+    val provider = LocalTopAppBarProvider.current
+
+    DisposableEffect(title, navigationIcon, actions) {
+        val previousTitle = provider.title.lastItemOrNull
+        val previousNavigationIcon = provider.navigationIcon.lastItemOrNull
+        val previousActions = provider.navigationIcon.lastItemOrNull
+
+        provider.title.push(title)
+        provider.navigationIcon.push(navigationIcon)
+        provider.actions.push(actions)
+
+        onDispose {
+            provider.title.popUntil { it == previousTitle }
+            provider.navigationIcon.popUntil { it == previousNavigationIcon }
+            provider.navigationIcon.popUntil { it == previousActions }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CurrentAppBar() {
+
+    val provider = LocalTopAppBarProvider.current
+
+    MediumTopAppBar(
+        title = { provider.title.lastItemOrNull?.invoke() },
+        navigationIcon = { provider.navigationIcon.lastItemOrNull?.invoke() },
+        actions = {
+            when (val v = provider.actions.lastItemOrNull) {
+                null -> {}
+                else -> {
+                    v()
+                }
+            }
+        }
+    )
 }
 
 @Composable

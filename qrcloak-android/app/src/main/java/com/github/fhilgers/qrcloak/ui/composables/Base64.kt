@@ -20,6 +20,7 @@ fun ScrollableOutlinedBase64Text(
     text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
+    isError: Boolean = false
 ) {
     Box(
         modifier =
@@ -28,7 +29,12 @@ fun ScrollableOutlinedBase64Text(
                     border =
                         BorderStroke(
                             width = OutlinedTextFieldDefaults.FocusedBorderThickness,
-                            color = MaterialTheme.colorScheme.outline,
+                            color =
+                                if (isError) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.outline
+                                },
                         ),
                     shape = OutlinedTextFieldDefaults.shape,
                 )
@@ -42,7 +48,7 @@ fun ScrollableOutlinedBase64Text(
                 style =
                     LocalTextStyle.current.copy(
                         fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.Justify
+                        textAlign = TextAlign.Justify,
                     ),
                 maxLines = maxLines,
             )

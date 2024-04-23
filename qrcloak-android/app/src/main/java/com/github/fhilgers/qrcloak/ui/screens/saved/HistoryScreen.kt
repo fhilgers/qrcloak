@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -37,8 +36,9 @@ import com.github.fhilgers.qrcloak.R
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
-import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
+import com.github.fhilgers.qrcloak.ui.screens.saved.detail.GroupDetailScreen
+import com.github.fhilgers.qrcloak.ui.screens.saved.detail.NormalDetailScreen
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
 import com.github.fhilgers.qrcloak.utils.OptionalPartialPayloadParceler
 import com.github.fhilgers.qrcloak.utils.compressionTag
@@ -63,6 +63,7 @@ import uniffi.qrcloak_bindings.PayloadMerger
 import uniffi.qrcloak_bindings.PayloadSplitter
 import uniffi.qrcloak_core.CompletePayload
 import uniffi.qrcloak_core.PartialPayload
+import uniffi.qrcloak_core.Payload
 
 @Parcelize
 data class HistoryScreen(val qrCodes: List<QrCode>) : Screen, Parcelable {
@@ -72,15 +73,13 @@ data class HistoryScreen(val qrCodes: List<QrCode>) : Screen, Parcelable {
 
         val navigator = LocalNavigator.currentOrThrow
 
-        SetFab { ExtendedFloatingActionButton(onClick = { /*TODO*/}) { Text(text = "History") } }
-
         QrCodeList(
             qrCodes = qrCodes,
             onClick = {
                 when (it) {
                     is QrCode.Complete -> navigator.push(CompleteDetailScreen(it.payload))
-                    is QrCode.Group -> TODO()
-                    is QrCode.Normal -> TODO()
+                    is QrCode.Group -> navigator.push(GroupDetailScreen(it.id, it.payloads))
+                    is QrCode.Normal -> navigator.push(NormalDetailScreen(data = it.data))
                 }
             },
             modifier = Modifier.fillMaxSize()
@@ -229,6 +228,8 @@ suspend fun makeDummyList(): List<QrCode> = coroutineScope {
 
     val partials = PayloadSplitter().withSplits(4u).split(encryptedPayload)
 
+    val partialsMapped = partials.map { (it as Payload.Partial).v1 }
+
     val someMerged = PayloadMerger().merge(partials.subList(0, 3))
 
     val p =
@@ -239,7 +240,12 @@ suspend fun makeDummyList(): List<QrCode> = coroutineScope {
     return@coroutineScope listOf(QrCode.Normal(normal), QrCode.Complete(payload)) +
         p +
         QrCode.Complete(pwEncrypted) +
-        QrCode.Complete(encryptedPayload)
+        QrCode.Complete(encryptedPayload) +
+        QrCode.Group(
+            id = partialsMapped[0].id!!,
+            size = partialsMapped.size.toUInt(),
+            payloads = partialsMapped
+        )
 }
 
 @Preview

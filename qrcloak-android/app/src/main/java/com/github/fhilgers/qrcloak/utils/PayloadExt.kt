@@ -44,6 +44,18 @@ val CompletePayload.dataString: String
     get() = Base64.encode(data)
 
 @OptIn(ExperimentalEncodingApi::class)
+val PartialPayload.dataString: String
+    get() {
+        val bytes =
+            when (this) {
+                is PartialPayload.Head -> v1.data
+                is PartialPayload.Tail -> v1.data
+            }
+
+        return Base64.encode(bytes)
+    }
+
+@OptIn(ExperimentalEncodingApi::class)
 val List<PartialPayload?>.dataString: String
     get() {
         val bytes =
@@ -58,6 +70,13 @@ val List<PartialPayload?>.dataString: String
 
         return Base64.encode(bytes)
     }
+
+val PartialPayload.id: UInt?
+    get() =
+        when (this) {
+            is PartialPayload.Head -> v1.index.id
+            is PartialPayload.Tail -> null
+        }
 
 val List<PartialPayload?>.tag: String
     @Composable get() = stringResource(id = R.string.partial_payloads_tag)

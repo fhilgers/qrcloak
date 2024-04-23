@@ -5,22 +5,26 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -46,6 +53,7 @@ import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
 import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.GroupDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.NormalDetailScreen
@@ -64,8 +72,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
@@ -85,6 +95,15 @@ import uniffi.qrcloak_core.EncodingOpts
 import uniffi.qrcloak_core.PartialPayload
 import uniffi.qrcloak_core.Payload
 
+class HistoryScreenModel(dataStore: DataStore<Preferences>) : ScreenModel {
+
+    val qrCodes: MutableState<List<QrCode>> = mutableStateOf(listOf())
+
+    init {
+        screenModelScope.launch { QrCode.fromStore(dataStore).collect { qrCodes.value = it } }
+    }
+}
+
 @Parcelize
 data object HistoryScreen : Screen, Parcelable {
 
@@ -92,13 +111,21 @@ data object HistoryScreen : Screen, Parcelable {
     override fun Content() {
 
         val dataStore = LocalContext.current.dataStore
-        val qrCodes by QrCode.fromStore(dataStore).collectAsState(initial = listOf())
+        val model =
+            rememberScreenModel<HistoryScreenModel> { HistoryScreenModel(dataStore = dataStore) }
+
         val navigator = LocalNavigator.currentOrThrow
 
         SetAppBar(title = { Text(text = "Saved QRCodes") }, navigationIcon = {}, actions = {})
 
+        SetFab {
+            FloatingActionButton(onClick = { navigator.push(CreateScreen) }) {
+                Icon(imageVector = Icons.Default.Create, contentDescription = "Create")
+            }
+        }
+
         QrCodeList(
-            qrCodes = qrCodes,
+            qrCodes = model.qrCodes.value,
             onClick = {
                 when (it) {
                     is QrCode.Complete -> navigator.push(CompleteDetailScreen(it.payload))
@@ -287,14 +314,18 @@ fun QrCodeListItem(qrCode: QrCode, onClick: () -> Unit, modifier: Modifier = Mod
 fun QrCodeList(qrCodes: List<QrCode>, onClick: (QrCode) -> Unit, modifier: Modifier = Modifier) {
     LazyColumn(
         contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.Top,
         modifier = modifier,
     ) {
         itemsIndexed(qrCodes) { index, qrCode ->
             QrCodeListItem(qrCode = qrCode, onClick = { onClick(qrCode) })
 
+            Spacer(modifier = Modifier.height(8.dp))
+
             if (index < qrCodes.lastIndex) {
                 Divider()
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

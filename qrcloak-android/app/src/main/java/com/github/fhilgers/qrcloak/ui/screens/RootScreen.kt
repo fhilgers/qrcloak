@@ -68,7 +68,14 @@ object RootScreen : Screen, Parcelable {
                     }
                 }
             ) { contentPadding ->
-                Box(modifier = Modifier.padding(contentPadding)) { CurrentScreen() }
+                Box(
+                    modifier =
+                        Modifier.padding(contentPadding)
+                            .consumeWindowInsets(contentPadding)
+                            .imePadding()
+                ) {
+                    CurrentScreen()
+                }
             }
         }
     }

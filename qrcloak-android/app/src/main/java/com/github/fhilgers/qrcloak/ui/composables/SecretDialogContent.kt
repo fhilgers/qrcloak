@@ -31,6 +31,44 @@ import androidx.compose.ui.unit.dp
 import uniffi.qrcloak_bindings.AgeIdentity
 
 @Composable
+fun SecretTextField(
+    hide: Boolean,
+    secret: String,
+    onSecretChange: (String) -> Unit,
+    onHide: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: (@Composable () -> Unit)? = null,
+    isError: Boolean = false,
+    supportingText: (@Composable () -> Unit)? = null,
+) {
+    OutlinedTextField(
+        value = secret,
+        onValueChange = onSecretChange,
+        label = label,
+        isError = isError,
+        supportingText = supportingText,
+        singleLine = true,
+        trailingIcon = {
+            IconButton(onClick = onHide) {
+                when (hide) {
+                    true ->
+                        Icon(imageVector = Icons.Default.Visibility, contentDescription = "Show")
+                    false ->
+                        Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = "Hide")
+                }
+            }
+        },
+        visualTransformation =
+            if (hide) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+        modifier = modifier
+    )
+}
+
+@Composable
 fun SecretDialogContent(
     secret: String,
     headlineText: String,
@@ -60,35 +98,14 @@ fun SecretDialogContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = secret,
-                onValueChange = onSecretChange,
+            SecretTextField(
+                secret = secret,
+                onSecretChange = onSecretChange,
                 label = label,
                 isError = isError,
                 supportingText = supportingText,
-                singleLine = true,
-                trailingIcon = {
-                    IconButton(onClick = { hide = !hide }) {
-                        when (hide) {
-                            true ->
-                                Icon(
-                                    imageVector = Icons.Default.Visibility,
-                                    contentDescription = "Show"
-                                )
-                            false ->
-                                Icon(
-                                    imageVector = Icons.Default.VisibilityOff,
-                                    contentDescription = "Hide"
-                                )
-                        }
-                    }
-                },
-                visualTransformation =
-                    if (hide) {
-                        PasswordVisualTransformation()
-                    } else {
-                        VisualTransformation.None
-                    }
+                onHide = { hide = !hide },
+                hide = hide,
             )
 
             Spacer(modifier = Modifier.height(24.dp))

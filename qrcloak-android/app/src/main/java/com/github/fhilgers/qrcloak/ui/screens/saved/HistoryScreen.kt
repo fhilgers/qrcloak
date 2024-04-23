@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.EnhancedEncryption
@@ -198,9 +198,12 @@ fun QrCodeList(qrCodes: List<QrCode>, onClick: (QrCode) -> Unit, modifier: Modif
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier,
     ) {
-        items(qrCodes) { qrCode ->
+        itemsIndexed(qrCodes) { index, qrCode ->
             QrCodeListItem(qrCode = qrCode, onClick = { onClick(qrCode) })
-            Divider()
+
+            if (index < qrCodes.lastIndex) {
+                Divider()
+            }
         }
     }
 }

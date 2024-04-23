@@ -64,8 +64,8 @@ fun GroupDetails(
     val total = texts.count()
     val there = texts.mapNotNull { it }.count()
 
-    SetFab {
-        if (total == there) {
+    if (total == there) {
+        SetFab {
             FloatingActionButton(onClick = onMerge) {
                 Icon(imageVector = Icons.Default.Merge, contentDescription = "Merged Payloads")
             }

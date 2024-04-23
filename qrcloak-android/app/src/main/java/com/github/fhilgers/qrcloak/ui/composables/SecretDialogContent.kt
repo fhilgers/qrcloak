@@ -28,11 +28,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import uniffi.qrcloak_bindings.AgeIdentity
 
 @Composable
-fun SecretDialog(
+fun SecretDialogContent(
     secret: String,
     headlineText: String,
     onSecretChange: (String) -> Unit,
@@ -44,67 +43,64 @@ fun SecretDialog(
     supportingText: (@Composable () -> Unit)? = null,
 ) {
     var hide by remember { mutableStateOf(true) }
-    Dialog(
-        onDismissRequest = onDismiss,
-    ) {
-        Card(modifier = modifier, shape = MaterialTheme.shapes.extraLarge) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = headlineText,
-                    style =
-                        MaterialTheme.typography.headlineSmall.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
+    Card(modifier = modifier, shape = MaterialTheme.shapes.extraLarge) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = headlineText,
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+            )
 
-                OutlinedTextField(
-                    value = secret,
-                    onValueChange = onSecretChange,
-                    label = label,
-                    isError = isError,
-                    supportingText = supportingText,
-                    singleLine = true,
-                    trailingIcon = {
-                        IconButton(onClick = { hide = !hide }) {
-                            when (hide) {
-                                true ->
-                                    Icon(
-                                        imageVector = Icons.Default.Visibility,
-                                        contentDescription = "Show"
-                                    )
-                                false ->
-                                    Icon(
-                                        imageVector = Icons.Default.VisibilityOff,
-                                        contentDescription = "Hide"
-                                    )
-                            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = secret,
+                onValueChange = onSecretChange,
+                label = label,
+                isError = isError,
+                supportingText = supportingText,
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = { hide = !hide }) {
+                        when (hide) {
+                            true ->
+                                Icon(
+                                    imageVector = Icons.Default.Visibility,
+                                    contentDescription = "Show"
+                                )
+                            false ->
+                                Icon(
+                                    imageVector = Icons.Default.VisibilityOff,
+                                    contentDescription = "Hide"
+                                )
                         }
-                    },
-                    visualTransformation =
-                        if (hide) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onDismiss) { Text(text = "Cancel") }
-                    TextButton(onClick = onSuccess, enabled = !isError && secret.isNotEmpty()) {
-                        Text(text = "Decrypt")
                     }
+                },
+                visualTransformation =
+                    if (hide) {
+                        PasswordVisualTransformation()
+                    } else {
+                        VisualTransformation.None
+                    }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onDismiss) { Text(text = "Cancel") }
+                TextButton(onClick = onSuccess, enabled = !isError && secret.isNotEmpty()) {
+                    Text(text = "Decrypt")
                 }
             }
         }
@@ -125,7 +121,7 @@ fun SecretDialogPreview() {
 
     var parsed by remember { mutableStateOf<ParsedOrError<AgeIdentity>?>(null) }
 
-    SecretDialog(
+    SecretDialogContent(
         secret = rawSecret,
         headlineText = "Enter Secret Key",
         onSecretChange = { it ->

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,17 +29,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.github.fhilgers.qrcloak.ui.composables.ScrollableOutlinedBase64Text
-import com.github.fhilgers.qrcloak.ui.composables.SecretDialog
+import com.github.fhilgers.qrcloak.ui.composables.SecretDialogContent
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
@@ -48,6 +53,8 @@ import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
 import com.github.fhilgers.qrcloak.utils.dataString
 import com.github.fhilgers.qrcloak.utils.tag
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 import uniffi.qrcloak_bindings.AgeIdentity
@@ -129,13 +136,15 @@ fun CompletePayloadDetailScreenPreview() {
 data class CompleteDetailScreenModel(private val payload: CompletePayload) :
     StateScreenModel<CompleteDetailScreenModel.State>(State.Encoded) {
 
+    sealed interface DialogState {}
+
     sealed interface State {
         data object Encoded : State
 
         data class KeyEntering(
             private val isError: ((String) -> String?)? = null,
             val dialogHeadline: String,
-        ) : State {
+        ) : State, DialogState {
             private val _secret: MutableState<String> = mutableStateOf("")
 
             val error: MutableState<String?> = mutableStateOf(null)
@@ -148,7 +157,7 @@ data class CompleteDetailScreenModel(private val payload: CompletePayload) :
                 }
         }
 
-        data object Decoding : State
+        data object Decoding : State, DialogState
 
         data object Plain : State
 
@@ -178,23 +187,25 @@ data class CompleteDetailScreenModel(private val payload: CompletePayload) :
 
         mutableState.value = current
 
-        try {
-            val identity = AgeIdentity.tryFromString(previous.secret)
-            val decompression = getDecompression()
+        screenModelScope.launch(Dispatchers.Default) {
+            try {
+                val identity = AgeIdentity.tryFromString(previous.secret)
+                val decompression = getDecompression()
 
-            val plain =
-                PayloadExtractor()
-                    .withDecryption(Decryption.AgeKey(listOf(identity)))
-                    .withDecompression(decompression)
-                    .extract(payload)
+                val plain =
+                    PayloadExtractor()
+                        .withDecryption(Decryption.AgeKey(listOf(identity)))
+                        .withDecompression(decompression)
+                        .extract(payload)
 
-            // TODO utf8
-            cachedPlain = String(plain)
+                // TODO utf8
+                cachedPlain = String(plain)
 
-            mutableState.value = State.Plain
-        } catch (e: Exception) {
-            previous.error.value = e.message
-            mutableState.value = previous
+                mutableState.value = State.Plain
+            } catch (e: Exception) {
+                previous.error.value = e.message
+                mutableState.value = previous
+            }
         }
     }
 
@@ -215,24 +226,26 @@ data class CompleteDetailScreenModel(private val payload: CompletePayload) :
 
         mutableState.value = current
 
-        try {
-            val decompression = getDecompression()
+        screenModelScope.launch(Dispatchers.Default) {
+            try {
+                val decompression = getDecompression()
 
-            val plain =
-                PayloadExtractor()
-                    .withDecryption(
-                        Decryption.AgePassphrase(passphrase = Passphrase(previous.secret))
-                    )
-                    .withDecompression(decompression)
-                    .extract(payload)
+                val plain =
+                    PayloadExtractor()
+                        .withDecryption(
+                            Decryption.AgePassphrase(passphrase = Passphrase(previous.secret))
+                        )
+                        .withDecompression(decompression)
+                        .extract(payload)
 
-            // TODO utf8
-            cachedPlain = String(plain)
+                // TODO utf8
+                cachedPlain = String(plain)
 
-            mutableState.value = State.Plain
-        } catch (e: Exception) {
-            previous.error.value = e.message
-            mutableState.value = previous
+                mutableState.value = State.Plain
+            } catch (e: Exception) {
+                previous.error.value = e.message
+                mutableState.value = previous
+            }
         }
     }
 
@@ -316,6 +329,33 @@ fun CompletePayloadDetailFab(
 }
 
 @Composable
+fun EntryDialog(
+    state: CompleteDetailScreenModel.DialogState,
+    onDismissDecoding: () -> Unit,
+    onStartDecoding: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismissDecoding) {
+        when (state) {
+            is CompleteDetailScreenModel.State.KeyEntering -> {
+                SecretDialogContent(
+                    secret = state.secret,
+                    headlineText = state.dialogHeadline,
+                    onSecretChange = { state.secret = it },
+                    isError = state.error.value != null,
+                    supportingText = state.error.value?.let { { Text(text = it) } },
+                    onDismiss = onDismissDecoding,
+                    onSuccess = onStartDecoding
+                )
+            }
+            is CompleteDetailScreenModel.State.Decoding -> {
+                (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0.3f)
+                CircularProgressIndicator()
+            }
+        }
+    }
+}
+
+@Composable
 fun CompletePayloadDetail(
     text: String,
     encryption: EncryptionSpec,
@@ -326,6 +366,7 @@ fun CompletePayloadDetail(
     onShow: () -> Unit,
     onDismissDecoding: () -> Unit,
     onStartDecoding: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     CompletePayloadDetailFab(
         state = state,
@@ -333,26 +374,21 @@ fun CompletePayloadDetail(
         onShow = onShow,
         onStartKeyEntry = onStartKeyEntry,
     )
-    when (state) {
-        is CompleteDetailScreenModel.State.KeyEntering -> {
-            SecretDialog(
-                secret = state.secret,
-                headlineText = state.dialogHeadline,
-                onSecretChange = { state.secret = it },
-                isError = state.error.value != null,
-                supportingText = state.error.value?.let { { Text(text = it) } },
-                onDismiss = onDismissDecoding,
-                onSuccess = onStartDecoding
+
+    Box(modifier = modifier) {
+        if (state is CompleteDetailScreenModel.DialogState) {
+            EntryDialog(
+                state = state,
+                onDismissDecoding = onDismissDecoding,
+                onStartDecoding = onStartDecoding
             )
         }
-        else -> {}
+        CompleteDetails(
+            text = text,
+            encryption = encryption,
+            compression = compression,
+        )
     }
-
-    CompleteDetails(
-        text = text,
-        encryption = encryption,
-        compression = compression,
-    )
 }
 
 @Parcelize

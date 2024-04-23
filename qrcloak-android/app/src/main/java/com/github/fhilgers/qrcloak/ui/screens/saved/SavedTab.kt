@@ -33,7 +33,14 @@ object SavedTab : Tab, Parcelable {
     override fun Content() {
 
         Navigator(screen = HistoryScreen(qrCodes = listOf())) { navigator ->
-            LaunchedEffect(this) { navigator.replaceAll(HistoryScreen(qrCodes = makeDummyList())) }
+            val current = navigator.lastItem as? HistoryScreen
+            LaunchedEffect(current) {
+                current?.also {
+                    if (it.qrCodes.isEmpty()) {
+                        navigator.replaceAll(HistoryScreen(qrCodes = makeDummyList()))
+                    }
+                }
+            }
 
             CurrentScreen()
         }

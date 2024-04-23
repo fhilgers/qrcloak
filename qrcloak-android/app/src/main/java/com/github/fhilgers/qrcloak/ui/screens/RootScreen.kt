@@ -84,10 +84,10 @@ val LocalTopAppBarProvider = compositionLocalOf { TopAppBarData() }
 val LocalFabProvider = compositionLocalOf { mutableStateStackOf<@Composable () -> Unit>() }
 
 @Composable
-fun SetFab(content: @Composable () -> Unit) {
+fun SetFab(key: Any? = null, content: @Composable () -> Unit) {
     val fabProvider = LocalFabProvider.current
 
-    DisposableEffect(content) {
+    DisposableEffect(key, content) {
         val previous = fabProvider.lastItemOrNull
         fabProvider.push(content)
 

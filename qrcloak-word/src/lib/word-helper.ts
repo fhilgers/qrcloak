@@ -15,7 +15,7 @@ export async function insertImage(b64Image: string) {
   return await Word.run(async (context) => {
     context.document.body.insertInlinePictureFromBase64(
       replaced,
-      Word.InsertLocation.start,
+      Word.InsertLocation.end,
     );
     return await context.sync();
   });

@@ -1,11 +1,12 @@
 {
-  "name": "example-bare",
+  "name": "qrcloak-word",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
-    "serve": "vinxi serve --dir .output/public"
+    "serve": "vinxi serve --dir .output/public",
+    "validate": "office-addin-manifest validate manifest.xml"
   },
   "dependencies": {
     "@material/web": "^1.4.1",
@@ -20,6 +21,7 @@
     "@types/office-runtime": "^1.0.35",
     "@types/qrcode": "^1.5.5",
     "autoprefixer": "^10.4.19",
+    "generator-office": "^2.0.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "vite-plugin-top-level-await": "^1.4.1",

@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
-  <Id>3ca5b053-4b3f-46a1-85dd-41f5a56cd904</Id>
-  <Version>0.0.0.1</Version>
+  <Id>d321b4a8-da29-4ca9-b92e-c9595c7b1ba5</Id>
+  <Version>1.0.0.0</Version>
   <ProviderName>Felix Hilgers</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="QRCloak"/>
   <Description DefaultValue="A plugin to create encrypted QRCodes"/>
-  <IconUrl DefaultValue="https://localhost:3000/src/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/src/assets/icon-64.png"/>
+  <IconUrl DefaultValue="https://localhost:3000/src/assets/icon-32.jpg"/>
+  <HighResolutionIconUrl DefaultValue="https://localhost:3000/src/assets/icon-64.jpg"/>
+  <SupportUrl DefaultValue="https://localhost:3000/help.html"/>
   <Hosts>
     <Host Name="Document"/>
   </Hosts>
   <DefaultSettings>
     <SourceLocation DefaultValue="https://localhost:3000/index.html"/>
   </DefaultSettings>
-  <Permissions>WriteDocument</Permissions>
+  <Permissions>ReadWriteDocument</Permissions>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Hosts>
       <Host xsi:type="Document">

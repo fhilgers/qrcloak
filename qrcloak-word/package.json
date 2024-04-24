@@ -9,9 +9,10 @@
     "validate": "office-addin-manifest validate manifest.xml"
   },
   "dependencies": {
+    "@fhilgers/qrcloak": "../qrcloak-bindings/languages/qrcloak-js",
+    "@fontsource/roboto": "^5.0.13",
     "@material/web": "^1.4.1",
     "@solidjs/start": "^1.0.0-rc.0",
-    "@fhilgers/qrcloak": "../qrcloak-bindings/languages/qrcloak-js",
     "qrcode": "^1.5.3",
     "solid-js": "^1.8.16",
     "vinxi": "^0.3.11"

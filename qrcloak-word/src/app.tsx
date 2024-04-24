@@ -6,6 +6,10 @@ import "@material/web/select/select-option";
 import "@material/web/slider/slider";
 import "@material/web/button/filled-tonal-button";
 
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
 import "./app.css";
 
 import { wordReady, insertImage } from "~/lib/word-helper";

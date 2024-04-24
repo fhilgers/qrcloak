@@ -3,7 +3,7 @@ use std::process::Command;
 #[test]
 pub fn test_js() {
     let output = Command::new("just")
-        .arg("test_js")
+        .arg("test-js")
         .output()
         .expect("js test failed");
 

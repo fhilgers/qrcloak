@@ -20,7 +20,7 @@ import {
   PayloadEncoder,
   Payloads,
   PayloadSplitter,
-} from "qrcloak";
+} from "@fhilgers/qrcloak";
 
 const EncryptionOptions = [
   "No Encryption",

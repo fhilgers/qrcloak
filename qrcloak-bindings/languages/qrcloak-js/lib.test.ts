@@ -6,7 +6,7 @@ import {
   PayloadGenerator,
   PayloadMerger,
   PayloadSplitter,
-} from "./lib";
+} from ".";
 
 import { expect, test } from "bun:test";
 

@@ -1,19 +1,22 @@
-
-wasm: 
+wasm:
   #!/usr/bin/env sh
-  find ./src -type f -exec sha256sum {} \; > ./.sha256.new
-  
-  diff ./.sha256 ./.sha256.new > /dev/null
+  cargo build --package=qrcloak-bindings --release --target=wasm32-unknown-unknown
 
-  if [[ $? -ne 0 ]]; then 
-    mv ./.sha256.new ./.sha256
-    wasm-pack build --target nodejs --release
-  else 
-    rm ./.sha256.new
-  fi
+  wasm-bindgen --target nodejs --out-dir languages/qrcloak-js/pkg/nodejs ../target/wasm32-unknown-unknown/release/qrcloak_bindings.wasm
+  wasm-bindgen --target bundler --out-dir languages/qrcloak-js/pkg/bundler ../target/wasm32-unknown-unknown/release/qrcloak_bindings.wasm
 
-test_js: wasm
+  wasm-opt languages/qrcloak-js/pkg/nodejs/qrcloak_bindings_bg.wasm -o languages/qrcloak-js/pkg/nodejs/qrcloak_bindings_bg.wasm -Oz
+  wasm-opt languages/qrcloak-js/pkg/bundler/qrcloak_bindings_bg.wasm -o languages/qrcloak-js/pkg/bundler/qrcloak_bindings_bg.wasm -Oz
+
+  echo -n "*" > languages/qrcloak-js/pkg/.gitignore
+
+test-js: wasm
   #!/usr/bin/env sh
   cd ./languages/qrcloak-js
   bun test
+
+publish-js: wasm test-js
+  #!/usr/bin/env sh
+  cd ./languages/qrcloak-js
+  npm publish
   

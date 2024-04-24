@@ -11,7 +11,7 @@
   "dependencies": {
     "@material/web": "^1.4.1",
     "@solidjs/start": "^1.0.0-rc.0",
-    "qrcloak": "file:../qrcloak-bindings/pkg",
+    "@fhilgers/qrcloak": "../qrcloak-bindings/languages/qrcloak-js",
     "qrcode": "^1.5.3",
     "solid-js": "^1.8.16",
     "vinxi": "^0.3.11"

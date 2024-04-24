@@ -16,6 +16,8 @@
     "vinxi": "^0.3.11"
   },
   "devDependencies": {
+    "@types/office-js": "^1.0.383",
+    "@types/office-runtime": "^1.0.35",
     "@types/qrcode": "^1.5.5",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",

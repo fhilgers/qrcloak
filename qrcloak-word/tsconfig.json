@@ -10,7 +10,7 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "types": ["vinxi/types/client"],
+    "types": ["vinxi/types/client", "office-js", "office-runtime"],
     "isolatedModules": true,
     "paths": {
       "~/*": ["./src/*"],

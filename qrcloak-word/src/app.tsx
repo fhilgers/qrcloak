@@ -8,6 +8,8 @@ import "@material/web/button/filled-tonal-button";
 
 import "./app.css";
 
+import { wordReady, insertImage } from "~/lib/word-helper";
+
 import {
   AgeRecipient,
   Passphrase,
@@ -123,6 +125,18 @@ export default function App() {
 
   const [imageSrcs, setImageSrcs] = createSignal<string[]>([]);
 
+  const [ready, setReady] = createSignal(false);
+
+  createEffect(() => {
+    console.log("waiting");
+    wordReady()
+      .then(() => {
+        console.log("ready");
+        setReady(true);
+      })
+      .catch(console.error);
+  });
+
   createEffect(async () => {
     let newSrcs = await Promise.all(
       encodedPayloads().map(async (encodedPayload) => {
@@ -134,86 +148,95 @@ export default function App() {
   });
 
   return (
-    <div class="flex flex-col items-center w-full p-8 gap-8">
-      <md-outlined-text-field
-        class="w-full max-w-screen-sm"
-        prop:type="textarea"
-        prop:value={text()}
-        onChange={(e) => setText(e.currentTarget.value)}
-      ></md-outlined-text-field>
-
-      <div class="flex flex-row w-full max-w-screen-sm gap-8 justify-between">
-        <md-outlined-select
-          class="flex-1"
-          prop:label="Encryption"
-          prop:value={currentEncryption()}
-          onChange={(e) =>
-            setCurrentEncryption(e.currentTarget.value as Encryption)
-          }
-        >
-          {encryptionOptions.map((e) => (
-            <md-select-option prop:value={e}>{e}</md-select-option>
-          ))}
-        </md-outlined-select>
-
-        <md-outlined-select
-          class="flex-1"
-          prop:label="Compression"
-          prop:value={currentCompression()}
-          onChange={(e) =>
-            setCurrentCompression(e.currentTarget.value as Compression)
-          }
-        >
-          {compressionOptions.map((e) => (
-            <md-select-option prop:value={e}>{e}</md-select-option>
-          ))}
-        </md-outlined-select>
-      </div>
-
-      <md-slider
-        class="w-full max-w-screen-sm"
-        prop:ticks={true}
-        prop:step={1}
-        prop:min={0}
-        prop:max={8}
-        prop:labeled={true}
-        prop:value={splits()}
-        onChange={(e) => setSplits(e.currentTarget.value as number)}
-      ></md-slider>
-
-      <Show when={visible()}>
+    <main>
+      <div class="flex flex-col items-center w-full h-full min-h-screen p-8 gap-8 bg-slate-50">
         <md-outlined-text-field
           class="w-full max-w-screen-sm"
-          prop:type="password"
-          prop:value={secret()}
-          onChange={(e) => setSecret(e.currentTarget.value)}
+          prop:type="textarea"
+          prop:value={text()}
+          onChange={(e) => setText(e.currentTarget.value)}
         ></md-outlined-text-field>
-      </Show>
 
-      <md-filled-tonal-button
-        class="w-full max-w-screen-sm"
-        onClick={() => {
-          let payloads = createPayloads(
-            text(),
-            secret(),
-            splits(),
-            currentEncryption(),
-            currentCompression(),
-          );
-          let encoded = encodePayloads(payloads);
-          setEncodedPayloads(encoded);
-        }}
-      >
-        Generate
-      </md-filled-tonal-button>
+        <div class="flex flex-row w-full max-w-screen-sm gap-8 justify-between">
+          <md-outlined-select
+            class="flex-1"
+            prop:label="Encryption"
+            prop:value={currentEncryption()}
+            onChange={(e) =>
+              setCurrentEncryption(e.currentTarget.value as Encryption)
+            }
+          >
+            {encryptionOptions.map((e) => (
+              <md-select-option prop:value={e}>{e}</md-select-option>
+            ))}
+          </md-outlined-select>
 
-      <div class="w-full max-w-screen-sm">
-        <div class="grid grid-cols-2 gap-8 w-full">
-          {imageSrcs().map((src, i) => (
-            <img class="w-full" src={src} alt="QR Code" />
-          ))}
+          <md-outlined-select
+            class="flex-1"
+            prop:label="Compression"
+            prop:value={currentCompression()}
+            onChange={(e) =>
+              setCurrentCompression(e.currentTarget.value as Compression)
+            }
+          >
+            {compressionOptions.map((e) => (
+              <md-select-option prop:value={e}>{e}</md-select-option>
+            ))}
+          </md-outlined-select>
+        </div>
+
+        <md-slider
+          class="w-full max-w-screen-sm"
+          prop:ticks={true}
+          prop:step={1}
+          prop:min={0}
+          prop:max={8}
+          prop:labeled={true}
+          prop:value={splits()}
+          onChange={(e) => setSplits(e.currentTarget.value as number)}
+        ></md-slider>
+
+        <Show when={visible()}>
+          <md-outlined-text-field
+            class="w-full max-w-screen-sm"
+            prop:type="password"
+            prop:value={secret()}
+            onChange={(e) => setSecret(e.currentTarget.value)}
+          ></md-outlined-text-field>
+        </Show>
+
+        <md-filled-tonal-button
+          class="w-full max-w-screen-sm"
+          onClick={() => {
+            let payloads = createPayloads(
+              text(),
+              secret(),
+              splits(),
+              currentEncryption(),
+              currentCompression(),
+            );
+            let encoded = encodePayloads(payloads);
+            setEncodedPayloads(encoded);
+          }}
+        >
+          Generate
+        </md-filled-tonal-button>
+
+        <div class="w-full max-w-screen-sm">
+          <div class="grid grid-cols-2 gap-8 w-full">
+            {imageSrcs().map((src, i) => (
+              <div class="flex flex-col items-center">
+                <md-filled-tonal-button
+                  onClick={async () => await insertImage(src)}
+                >
+                  Insert
+                </md-filled-tonal-button>
+                <img class="w-full" src={src} alt="QR Code" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

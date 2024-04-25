@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fhilgers/qrcloak": "../qrcloak-bindings/languages/qrcloak-js",
+    "@fontsource/material-icons-outlined": "^5.0.12",
     "@fontsource/roboto": "^5.0.13",
     "@material/web": "^1.4.1",
     "@solidjs/start": "^1.0.0-rc.0",

@@ -10,13 +10,18 @@ export function wordReady() {
   });
 }
 
-export async function insertImage(b64Image: string) {
-  const replaced = b64Image.replace(/^data:image\/png;base64,/, "");
+export async function insertImages(b64Images: string[]) {
+  const replaced = b64Images.map((i) =>
+    i.replace(/^data:image\/png;base64,/, ""),
+  );
   return await Word.run(async (context) => {
-    context.document.body.insertInlinePictureFromBase64(
-      replaced,
-      Word.InsertLocation.end,
-    );
+    replaced.forEach((element) => {
+      context.document.body.insertInlinePictureFromBase64(
+        element,
+        Word.InsertLocation.end,
+      );
+    });
+
     return await context.sync();
   });
 }

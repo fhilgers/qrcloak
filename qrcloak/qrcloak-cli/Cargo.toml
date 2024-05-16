@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "qrcloak-cli"
+version.workspace = true
+
+[dependencies]
+age = "0.10.0"
+clap = { version = "4.5.4", features = ["derive", "env"] }
+clap-stdin = "0.4.0"
+clap_complete = "4.5.2"
+miette = { version = "7.2.0", features = ["fancy"] }
+qrcloak-core = { workspace = true, features = ["extract", "generate"] }
+serde = "1.0.197"
+serde_json = "1.0.115"

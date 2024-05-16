@@ -1,0 +1,21 @@
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
+load("@crates//:defs.bzl", "all_crate_deps")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sources",
+    srcs = glob([
+        "Cargo.toml",
+        "src/**/*.rs",
+    ]),
+)
+
+rust_proc_macro(
+    name = "wasm-bindgen-brand",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True),
+)

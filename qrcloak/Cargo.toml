@@ -1,0 +1,36 @@
+[workspace]
+members = [
+  "qrcloak-bindings",
+  "qrcloak-cli",
+  "qrcloak-core",
+  "qrcloak-pandoc",
+  "qrcodegen",
+  "wasm-bindgen-brand",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.0.1"
+
+[workspace.dependencies]
+qrcloak-core = { path = "./qrcloak-core" }
+qrcodegen = { path = "./qrcodegen" }
+uniffi = "=0.27.1"
+wasm-bindgen-brand = { path = "./wasm-bindgen-brand" }
+
+
+[profile.test.package.insta]
+opt-level = 3
+
+[profile.test.package.similar]
+opt-level = 3
+
+[profile.test.package.proptest]
+opt-level = 3
+
+[profile.test.package.rand_chacha]
+opt-level = 3
+
+[profile.test.package.qrcodegen]
+opt-level = 3

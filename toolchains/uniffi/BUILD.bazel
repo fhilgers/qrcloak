@@ -1,0 +1,24 @@
+load("//:uniffi.bzl", "uniffi_toolchain")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_shared_library")
+
+rust_binary(
+    name = "uniffi-bindgen",
+    srcs = ["uniffi-bindgen.rs"],
+    deps = [
+        "@spec-crates//:uniffi",
+    ],
+)
+
+toolchain_type(name = "toolchain_type")
+
+uniffi_toolchain(
+    name = "uniffi",
+    cargo = "@rust_host_tools//:cargo",
+    uniffi_cli = ":uniffi-bindgen",
+)
+
+toolchain(
+    name = "uniffi_toolchain",
+    toolchain = ":uniffi",
+    toolchain_type = ":toolchain_type",
+)

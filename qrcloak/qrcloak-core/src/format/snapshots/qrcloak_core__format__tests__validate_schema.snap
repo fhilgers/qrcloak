@@ -1,0 +1,228 @@
+---
+source: qrcloak-core/src/format/mod.rs
+expression: schema
+---
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Payload",
+  "description": "The payload format, being either a complete or partial payload.",
+  "anyOf": [
+    {
+      "description": "A complete payload that is not split accross multiple partial ones.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CompletePayload"
+        }
+      ]
+    },
+    {
+      "description": "A partial payload that is split accross multiple partial ones.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/PartialPayload"
+        }
+      ]
+    }
+  ],
+  "definitions": {
+    "CompletePayload": {
+      "description": "A complete payload, meaning a payload that is not split accross multiple partial ones.",
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "compression": {
+          "description": "The compression to be used for the payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CompressionSpec"
+            }
+          ]
+        },
+        "data": {
+          "description": "The data of the payload.",
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "encryption": {
+          "description": "The encryption to be used for the payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EncryptionSpec"
+            }
+          ]
+        }
+      }
+    },
+    "CompressionSpec": {
+      "description": "The specification of the compression to be used for the payload.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "Gzip"
+          ]
+        },
+        {
+          "description": "No compression is used.",
+          "type": "string",
+          "enum": [
+            "NoCompression"
+          ]
+        }
+      ]
+    },
+    "EncryptionSpec": {
+      "description": "The specification of the encryption to be used for the payload.",
+      "oneOf": [
+        {
+          "description": "No encryption is used.",
+          "type": "string",
+          "enum": [
+            "NoEncryption"
+          ]
+        },
+        {
+          "description": "The payload is encrypted with a passphrase using [`age`].",
+          "type": "string",
+          "enum": [
+            "AgePassphrase"
+          ]
+        },
+        {
+          "description": "The payload is encrypted with a x25519 key using [`age`].",
+          "type": "string",
+          "enum": [
+            "AgeKey"
+          ]
+        }
+      ]
+    },
+    "Index": {
+      "description": "The index of a partial payload.",
+      "type": "object",
+      "required": [
+        "id",
+        "index",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "description": "The id to match multiple partial payloads together",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "index": {
+          "description": "The index in the group",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "size": {
+          "description": "The total size of the group",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "PartialPayload": {
+      "description": "A partial payload",
+      "oneOf": [
+        {
+          "description": "The head of the group of partial payloads.",
+          "type": "object",
+          "required": [
+            "Head"
+          ],
+          "properties": {
+            "Head": {
+              "$ref": "#/definitions/PartialPayloadHead"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "The following partial payloads in the group.",
+          "type": "object",
+          "required": [
+            "Tail"
+          ],
+          "properties": {
+            "Tail": {
+              "$ref": "#/definitions/PartialPayloadTail"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PartialPayloadHead": {
+      "description": "A partial payload head, meaning the first partial payload in a group. This payload carries additional information about encryption and compression.",
+      "type": "object",
+      "required": [
+        "data",
+        "index"
+      ],
+      "properties": {
+        "compression": {
+          "description": "The compression to be used for the group of partial payloads.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CompressionSpec"
+            }
+          ]
+        },
+        "data": {
+          "description": "The data of the payload.",
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "encryption": {
+          "description": "The encryption to be used for the group of partial payloads.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EncryptionSpec"
+            }
+          ]
+        },
+        "index": {
+          "description": "The index of the payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Index"
+            }
+          ]
+        }
+      }
+    },
+    "PartialPayloadTail": {
+      "description": "A partial payload tail, meaning any partial payload that is not the head (the first).",
+      "type": "object",
+      "required": [
+        "data",
+        "index"
+      ],
+      "properties": {
+        "data": {
+          "description": "The data of the payload.",
+          "type": "string",
+          "format": "base45",
+          "pattern": "^[0-9A-Z\\s\\$%\\*\\+\\-\\.\\/:]*$"
+        },
+        "index": {
+          "description": "The index of the payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Index"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

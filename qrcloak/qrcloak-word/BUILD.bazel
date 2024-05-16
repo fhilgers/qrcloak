@@ -1,0 +1,85 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary", "js_run_devserver")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_bazel_lib//lib:directory_path.bzl", "directory_path")
+
+SOURCES = glob([
+    "src/**/*",
+    "package.json",
+    "pnpm-lock.yaml",
+    "app.config.ts",
+    "tsconfig.json",
+    "tailwind.config.js",
+    "postcss.config.js",
+])
+
+DEPS = [
+    ":node_modules/@fhilgers/qrcloak",
+    ":node_modules/@fontsource/material-icons-outlined",
+    ":node_modules/@fontsource/roboto",
+    ":node_modules/@material/web",
+    ":node_modules/@solidjs/start",
+    ":node_modules/qrcode",
+    ":node_modules/solid-js",
+    ":node_modules/vinxi",
+
+    #dev
+    ":node_modules/@types/office-js",
+    ":node_modules/@types/office-runtime",
+    ":node_modules/@types/qrcode",
+    ":node_modules/autoprefixer",
+    ":node_modules/generator-office",
+    ":node_modules/postcss",
+    ":node_modules/rollup",
+    ":node_modules/tailwindcss",
+    ":node_modules/vite-plugin-mkcert",
+    ":node_modules/vite-plugin-top-level-await",
+    ":node_modules/vite-plugin-wasm",
+]
+
+directory_path(
+    # A unique name for this target.
+    name = "vinxi-cli",
+    # a TreeArtifact (ctx.actions.declare_directory)
+    directory = ":node_modules/vinxi/dir",
+    # path relative to the directory
+    path = "bin/cli.mjs",
+)
+
+js_binary(
+    name = "vinxi",
+    data = DEPS,
+    entry_point = ":vinxi-cli",
+)
+
+exports_files(
+    srcs = [
+        "package.json",
+        "pnpm-lock.yaml",
+    ],
+)
+
+npm_link_all_packages(name = "node_modules")
+
+js_run_devserver(
+    name = "dev",
+    args = ["dev"],
+    chdir = package_name(),
+    command = "./node_modules/vinxi/bin/cli.mjs",
+    data = DEPS + SOURCES,
+)
+
+js_run_binary(
+    name = "build",
+    srcs = SOURCES,
+    args = ["build"],
+    chdir = package_name(),
+    env = dict(
+        PATH = "/usr/bin:/bin",
+    ),
+    include_declarations = True,
+    out_dirs = [
+        ".output",
+    ],
+    tool = ":vinxi",
+)

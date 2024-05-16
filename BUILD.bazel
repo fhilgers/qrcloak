@@ -1,0 +1,78 @@
+load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+
+kt_compiler_plugin(
+    name = "jetpack_compose_compiler_plugin",
+    id = "androidx.compose.compiler",
+    target_embedded_compiler = True,
+    visibility = ["//visibility:public"],
+    deps = ["@maven//:androidx_compose_compiler_compiler"],
+)
+
+platform(
+    name = "linux-x86-64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "x86_64-android",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:x86_64",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "aarch64-android",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:aarch64",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "i686-android",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:x86_32",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "armv7-android",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:armv7",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "x86_64",
+    actual = ":x86_64-android",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "x86",
+    actual = "i686-android",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "arm64-v8a",
+    actual = "aarch64-android",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "armeabi-v7a",
+    actual = "armv7-android",
+    visibility = ["//visibility:public"],
+)

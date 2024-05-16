@@ -1,0 +1,21 @@
+[package]
+edition.workspace = true
+name = "qrcloak-bindings"
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib", "staticlib"]
+
+[dependencies]
+age = { version = "0.10.0", features = ["web-sys"] }
+bytes = "1.6.0"
+getrandom = { version = "0.2.14", features = ["js"] }
+js-sys = "0.3.68"
+qrcloak-core = { workspace = true, features = ["json", "uniffi", "wasm"] }
+serde = { version = "1.0.197", features = ["derive"] }
+thiserror = "1.0.58"
+tsify-next = { version = "0.5.2", features = ["js"] }
+uniffi = { workspace = true }
+wasm-bindgen = "=0.2.91"
+wasm-bindgen-brand = { workspace = true }
+wasm-bindgen-derive = "0.2.1"

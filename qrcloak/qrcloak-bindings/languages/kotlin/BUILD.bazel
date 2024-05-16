@@ -1,0 +1,41 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+load("//:uniffi.bzl", "uniffi_bindgen")
+
+uniffi_bindgen(
+    name = "uniffi-sources",
+    srcs = [
+        "//qrcloak:sources",
+    ],
+    basedir = "qrcloak",
+    language = "kotlin",
+    library = "//qrcloak/qrcloak-bindings",
+)
+
+load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
+
+# THIS IS A MASSIVE HACK, WE RENAME WITH .kt TO TRICK THE RULES
+copy_directory(
+    name = "uniffi-sources.kt",
+    src = ":uniffi-sources",
+    out = "sources.kt",
+)
+
+java_library(
+    name = "native",
+    runtime_deps = [
+        "//qrcloak/qrcloak-bindings",
+    ],
+)
+
+kt_android_library(
+    name = "qrcloak-kotlin",
+    srcs = [
+        ":uniffi-sources.kt",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":native",
+        #"//qrcloak/qrcloak-bindings:qrcloak-bindings",
+        "@maven//:net_java_dev_jna_jna",
+    ],
+)

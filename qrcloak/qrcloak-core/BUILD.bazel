@@ -1,0 +1,57 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sources",
+    srcs = glob([
+        "Cargo.toml",
+        "src/**/*.rs",
+    ]),
+)
+
+rust_library(
+    name = "qrcloak-core",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    compile_data = [
+        ":Cargo.toml",
+    ],
+    crate_features = [
+        "wasm",
+        "uniffi",
+        "serde",
+        "json",
+        "generate",
+        "extract",
+    ],
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True) + [
+        "//qrcloak/qrcodegen",
+    ],
+)
+
+rust_test(
+    name = "qrcloak-core-test",
+    crate = ":qrcloak-core",
+    crate_features = [
+        "wasm",
+        "uniffi",
+        "serde",
+        "json",
+        "generate",
+        "extract",
+    ],
+    data = glob([
+        "src/**/*.snap",
+    ]),
+    env = dict(
+        INSTA_WORKSPACE_ROOT = "",
+    ),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(
+        normal_dev = True,
+    ),
+)

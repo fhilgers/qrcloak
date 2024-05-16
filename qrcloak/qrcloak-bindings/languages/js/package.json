@@ -1,0 +1,21 @@
+{
+  "name": "@fhilgers/qrcloak",
+  "version": "0.0.1-rc.23",
+  "files": [
+    "qrcloak-bindings-wasm-bundler.js",
+    "qrcloak-bindings-wasm-bundler_bg.js",
+    "qrcloak-bindings-wasm-bundler.d.ts",
+    "qrcloak-bindings-wasm-bundler_bg.wasm.d.ts",
+    "qrcloak-bindings-wasm-bundler_bg.wasm",
+    "qrcloak-bindings-wasm-nodejs.d.ts",
+    "qrcloak-bindings-wasm-nodejs.js",
+    "qrcloak-bindings-wasm-nodejs_bg.wasm"
+  ],
+  "scripts": {},
+  "main": "qrcloak-bindings-wasm-nodejs.js",
+  "module": "qrcloak-bindings-wasm-bundler.js",
+  "sideEffects": [
+    "qrcloak-bindings-wasm-bundler.js",
+    "qrcloak-bindings-wasm-nodejs.js"
+  ]
+}

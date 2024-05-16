@@ -1,0 +1,4 @@
+third-party/rules
+.direnv
+qrcloak/target
+qrcloak/qrcloak-word/node_modules

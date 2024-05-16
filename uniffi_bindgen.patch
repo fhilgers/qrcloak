@@ -1,0 +1,12 @@
+diff --git a/uniffi_bindgen/src/library_mode.rs b/uniffi_bindgen/src/library_mode.rs
+index d7749e167..1de987197 100644
+--- src/library_mode.rs
++++ src/library_mode.rs
+@@ -63,6 +63,7 @@ pub fn generate_external_bindings<T: BindingGenerator>(
+     try_format_code: bool,
+ ) -> Result<Vec<Source<T::Config>>> {
+     let cargo_metadata = MetadataCommand::new()
++        .no_deps()
+         .exec()
+         .context("error running cargo metadata")?;
+     let cdylib_name = calc_cdylib_name(library_path);

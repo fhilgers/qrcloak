@@ -1,0 +1,38 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_shared_library")
+load("@rules_rust//wasm_bindgen:defs.bzl", "rust_wasm_bindgen")
+load("@rules_rust//wasm_bindgen/rules_js:defs.bzl", "js_rust_wasm_bindgen")
+load("@crates//:defs.bzl", "all_crate_deps")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_rust//wasm_bindgen/rules_js:defs.bzl", "js_rust_wasm_bindgen")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sources",
+    srcs = glob([
+        "Cargo.toml",
+        "src/**/*.rs",
+    ]),
+)
+
+rust_shared_library(
+    name = "qrcloak-bindings",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    compile_data = [
+        ":Cargo.toml",
+    ],
+    proc_macro_deps = all_crate_deps(proc_macro = True) + [
+        "//qrcloak/wasm-bindgen-brand:wasm-bindgen-brand",
+    ],
+    deps = all_crate_deps(normal = True) + [
+        "//qrcloak/qrcloak-core",
+    ],
+)
+
+js_rust_wasm_bindgen(
+    name = "qrcloak-bindings-wasm-bundler",
+    target = "bundler",
+    wasm_file = ":qrcloak-bindings",
+)

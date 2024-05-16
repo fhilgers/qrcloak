@@ -1,0 +1,34 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test")
+load("@crates//:defs.bzl", "all_crate_deps")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sources",
+    srcs = glob([
+        "Cargo.toml",
+        "src/**/*.rs",
+    ]),
+)
+
+rust_binary(
+    name = "qrcloak-cli",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True) + [
+        "//qrcloak/qrcloak-core",
+    ],
+)
+
+rust_test(
+    name = "qrcloak-cli-test",
+    srcs = ["tests/integration_test.rs"],
+    data = [
+        ":qrcloak-cli",
+    ],
+    deps = [
+        "@crates//:age",
+    ],
+)

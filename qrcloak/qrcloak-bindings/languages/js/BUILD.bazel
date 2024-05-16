@@ -1,0 +1,32 @@
+#load("@rules_rust//wasm_bindgen/rules_js:defs.bzl", "js_rust_wasm_bindgen")
+load("@rules_rust//wasm_bindgen:defs.bzl", "rust_wasm_bindgen")
+load("@aspect_rules_js//npm:defs.bzl", "npm_package")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_wasm_bindgen(
+    name = "qrcloak-bindings-wasm-bundler",
+    target = "bundler",
+    wasm_file = "//qrcloak/qrcloak-bindings:qrcloak-bindings",
+)
+
+rust_wasm_bindgen(
+    name = "qrcloak-bindings-wasm-nodejs",
+    target = "nodejs",
+    wasm_file = "//qrcloak/qrcloak-bindings:qrcloak-bindings",
+)
+
+npm_package(
+    name = "js",
+    srcs = [
+        "package.json",
+        ":qrcloak-bindings-wasm-bundler",
+        ":qrcloak-bindings-wasm-nodejs",
+    ],
+)
+
+exports_files(
+    srcs = [
+        "package.json",
+    ],
+)

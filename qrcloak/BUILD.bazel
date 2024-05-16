@@ -1,0 +1,37 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_shared_library")
+load("//:uniffi.bzl", "uniffi_bindgen")
+
+filegroup(
+    name = "sources",
+    srcs = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "//qrcloak/qrcloak-bindings:sources",
+        "//qrcloak/qrcloak-cli:sources",
+        "//qrcloak/qrcloak-core:sources",
+        "//qrcloak/qrcloak-pandoc:sources",
+        "//qrcloak/qrcodegen:sources",
+        "//qrcloak/wasm-bindgen-brand:sources",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# uniffi_bindgen(
+#     name = "qrcloak-bindings-kotlin",
+#     library = "//qrcloak/qrcloak-bindings:qrcloak-bindings",
+#     srcs = [
+#       ":sources"
+#     ],
+#     basedir = package_name(),
+#     language = "kotlin"
+# )
+#
+#uniffi_bindgen(
+#    name = "qrcloak-bindings-python",
+#    library = "//qrcloak/qrcloak-bindings:qrcloak-bindings",
+#    srcs = [
+#      ":sources"
+#    ],
+#    basedir = package_name(),
+#    language = "python"
+#)

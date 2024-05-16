@@ -1,0 +1,50 @@
+load("@rules_android//:prereqs.bzl", "rules_android_prereqs")
+
+rules_android_prereqs()
+
+load("@rules_android//:defs.bzl", "rules_android_workspace")
+
+rules_android_workspace()
+
+load("@rules_android//rules:rules.bzl", "android_sdk_repository")
+
+android_sdk_repository(
+    name = "androidsdk",
+    api_level = 34,
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_android_ndk",
+    sha256 = "f238b4b0323f1e0028a4a3f1093574d70f087867f4b29626469a11eaaf9fd63f",
+    strip_prefix = "rules_android_ndk-1ed5be3498d20c8120417fe73b6a5f2b4a3438cc",
+    url = "https://github.com/bazelbuild/rules_android_ndk/archive/1ed5be3498d20c8120417fe73b6a5f2b4a3438cc.zip",
+)
+
+load("@rules_android_ndk//:rules.bzl", "android_ndk_repository")
+
+android_ndk_repository(
+    name = "androidndk",
+    api_level = 26,
+)  # Or a later commit
+
+register_toolchains("@androidndk//:all")
+
+http_archive(
+    name = "io_buildbuddy_buildbuddy_toolchain",
+    sha256 = "a3492ce5357425eedd4ba0af0571f6b7e70d9c343319fe49f98ef24291e62649",
+    strip_prefix = "buildbuddy-toolchain-5b47b1252d6bff48d1087c3ebebc798247ea2635",
+    urls = ["https://github.com/buildbuddy-io/buildbuddy-toolchain/archive/5b47b1252d6bff48d1087c3ebebc798247ea2635.tar.gz"],
+)
+
+load("@io_buildbuddy_buildbuddy_toolchain//:deps.bzl", "buildbuddy_deps")
+
+buildbuddy_deps()
+
+load("@io_buildbuddy_buildbuddy_toolchain//:rules.bzl", "UBUNTU20_04_IMAGE", "buildbuddy")
+
+buildbuddy(
+    name = "buildbuddy_toolchain",
+    container_image = UBUNTU20_04_IMAGE,
+)

@@ -1,4 +1,7 @@
 name: Setup
+inputs:
+  buildbuddy_api_key:
+    required: true
 runs:
   using: composite
   steps:
@@ -10,7 +13,7 @@ runs:
         external-cache: true
         repository-cache: true
         baselrc: |
-          common --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
+          common --remote_header=x-buildbuddy-api-key=${{ inputs.buildbuddy_api_key }}
     - name: Mount android cache
       uses: actions/cache@v4
       with:

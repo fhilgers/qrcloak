@@ -12,7 +12,7 @@ runs:
         disk-cache: true
         external-cache: true
         repository-cache: true
-        baselrc: |
+        bazelrc: |
           common --remote_header=x-buildbuddy-api-key=${{ inputs.buildbuddy_api_key }}
     - name: Mount android cache
       uses: actions/cache@v4

@@ -1,0 +1,6 @@
+exports_files(
+    srcs = [
+        "rules_kotlin.patch",
+        "uniffi_bindgen.patch",
+    ],
+)

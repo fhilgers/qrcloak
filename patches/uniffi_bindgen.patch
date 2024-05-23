@@ -1,7 +1,7 @@
-diff --git a/uniffi_bindgen/src/library_mode.rs b/uniffi_bindgen/src/library_mode.rs
-index d7749e167..1de987197 100644
---- src/library_mode.rs
-+++ src/library_mode.rs
+diff --git a/src/library_mode.rs b/src/library_mode.rs
+index c460c03d9..acf329c90 100644
+--- a/src/library_mode.rs
++++ b/src/library_mode.rs
 @@ -63,6 +63,7 @@ pub fn generate_external_bindings<T: BindingGenerator>(
      try_format_code: bool,
  ) -> Result<Vec<Source<T::Config>>> {

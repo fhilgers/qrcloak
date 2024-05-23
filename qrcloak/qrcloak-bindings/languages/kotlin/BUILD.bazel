@@ -1,5 +1,5 @@
 load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
-load("//:uniffi.bzl", "uniffi_bindgen")
+load("//toolchains/uniffi:uniffi.bzl", "uniffi_bindgen")
 
 uniffi_bindgen(
     name = "uniffi-sources",
@@ -35,7 +35,6 @@ kt_android_library(
     visibility = ["//visibility:public"],
     deps = [
         ":native",
-        #"//qrcloak/qrcloak-bindings:qrcloak-bindings",
         "@maven//:net_java_dev_jna_jna",
     ],
 )

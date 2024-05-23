@@ -7,6 +7,7 @@ use std::{env, str::FromStr};
 
 use age::x25519::Identity;
 use indoc::formatdoc;
+use miette::Result;
 use qrcloak_core::payload::{AgeKeyDecryption, Decryption, PayloadExtractor, PayloadMerger};
 use tempfile::TempDir;
 
@@ -44,10 +45,23 @@ pub fn cargo_dir() -> PathBuf {
         .expect("could not find executable path")
 }
 
+pub fn pandoc() -> Result<String> {
+    let p = match std::env::var("PANDOC") {
+        Ok(p) => p,
+        Err(_) => "pandoc".to_owned(),
+    };
+
+    if std::process::Command::new(&p).spawn().is_ok() {
+        Ok(p)
+    } else {
+        Err(miette::miette!("pandoc not found"))
+    }
+}
+
 #[test]
-fn test_filter() {
+fn test_filter() -> Result<()> {
     let filter_bin = env!("CARGO_BIN_EXE_qrcloak-pandoc");
-    let pandoc_bin = env!("PANDOC");
+    let pandoc_bin = pandoc()?;
 
     let age_public_key = "age1ny7dkv07ftpvu3tfxfjkaf5smuhdvs9uhjlptejte5ruadlw44psqhgzsw";
     let age_private_key =
@@ -119,4 +133,6 @@ fn test_filter() {
             qrcode_path.display()
         )
     );
+
+    Ok(())
 }

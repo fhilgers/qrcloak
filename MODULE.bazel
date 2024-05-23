@@ -1,44 +1,40 @@
+# Deps
+
 bazel_dep(name = "platforms", version = "0.0.10")
 bazel_dep(name = "rules_kotlin", version = "1.9.5")
-bazel_dep(name = "rules_java", version = "7.5.0")
-bazel_dep(name = "bazel_skylib", version = "1.5.0")
+bazel_dep(name = "rules_java", version = "7.6.0")
+bazel_dep(name = "bazel_skylib", version = "1.6.1")
 bazel_dep(name = "rules_jvm_external", version = "6.1")
 bazel_dep(name = "rules_rust", version = "0.44.0")
 bazel_dep(name = "aspect_bazel_lib", version = "2.7.3")
 bazel_dep(name = "rules_nodejs", version = "6.1.0")
 bazel_dep(name = "rules_cc", version = "0.0.9")
-bazel_dep(name = "aspect_rules_js", version = "1.42.0")
+bazel_dep(name = "aspect_rules_js", version = "1.42.1")
 bazel_dep(name = "rules_android", version = "0.2.0")
+bazel_dep(name = "rules_buildbuddy", version = "0.0.1")
+git_override(
+    module_name = "rules_buildbuddy",
+    commit = "821a76d320b3f65084b6223eaf48f6c5c3224ec4",
+    remote = "https://github.com/fhilgers/buildbuddy-toolchain",
+)
 
-local_path_override(
+git_override(
     module_name = "rules_kotlin",
-    path = "third-party/rules/rules_kotlin/",
+    commit = "09495433797f89f00790306fad021e8265c1de99",
+    patches = ["//patches:rules_kotlin.patch"],
+    remote = "https://github.com/bazelbuild/rules_kotlin",
 )
 
-local_path_override(
+git_override(
     module_name = "rules_android",
-    path = "third-party/rules/rules_android/",
+    commit = "f23bfb0df4815d19cab7cab2d30f3ab2bff99413",
+    remote = "https://github.com/fhilgers/rules_android",
 )
 
-local_path_override(
+git_override(
     module_name = "rules_jvm_external",
-    path = "third-party/rules/rules_jvm_external/",
-)
-
-java = use_extension("@rules_java//java:extensions.bzl", "toolchains")
-use_repo(java, "remotejdk17_linux_toolchain_config_repo")
-
-register_toolchains(
-    "@remotejdk17_linux_toolchain_config_repo//:toolchain",
-    "@remotejdk17_linux_toolchain_config_repo//:bootstrap_runtime_toolchain",
-)
-
-remote_android_extensions = use_extension("@bazel_tools//tools/android:android_extensions.bzl", "remote_android_tools_extensions")
-use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
-
-register_toolchains(
-    "@rules_android//toolchains/android:android_default_toolchain",
-    "@rules_android//toolchains/android_sdk:android_sdk_tools",
+    commit = "71e08c82709b24d12e2d1040d86caa05bf6a8399",
+    remote = "https://github.com/bazelbuild/rules_jvm_external",
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
@@ -49,7 +45,6 @@ versions = dict(
     camera = "1.4.0-alpha05",
     compose_bom = "2024.05.00",
     compose_compiler = "1.5.13",
-    #compose_compiler = "1.5.10",
     concurrent = "1.1.0",
     core = "1.13.1",
     datastore = "1.1.0",
@@ -162,8 +157,6 @@ maven.install(
 )
 use_repo(maven, "maven", "unpinned_maven")
 
-register_toolchains("@rules_rust//wasm_bindgen:default_wasm_bindgen_toolchain")
-
 rust = use_extension(
     "@rules_rust//rust:extensions.bzl",
     "rust",
@@ -193,10 +186,6 @@ rust.toolchain(
 use_repo(rust, "rust_toolchains")
 
 use_repo(rust_host_tools, "rust_host_tools")
-
-register_toolchains("@rust_toolchains//:all")
-
-register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
 
 crate = use_extension(
     "@rules_rust//crate_universe:extension.bzl",
@@ -233,14 +222,12 @@ crate.spec(
     ],
     git = "https://github.com/mozilla/uniffi-rs",
     package = "uniffi",
+    tag = "v0.27.1",
 )
 crate.annotation(
     crate = "uniffi_testing",
     data = [
         "@rust_host_tools//:cargo",
-    ],
-    patches = [
-        #"uniffi.patch"
     ],
     repositories = ["spec-crates"],
     rustc_env = dict(
@@ -252,8 +239,9 @@ crate.annotation(
     data = [
         "@rust_host_tools//:cargo",
     ],
+    patch_args = ["-p1"],
     patches = [
-        "uniffi_bindgen.patch",
+        "//patches:uniffi_bindgen.patch",
     ],
     repositories = ["spec-crates"],
 )
@@ -280,8 +268,6 @@ alias(
     strip_prefix = "pandoc-3.2",
     urls = ["https://github.com/jgm/pandoc/releases/download/3.2/pandoc-3.2-linux-amd64.tar.gz"],
 )
-
-register_toolchains("//toolchains/uniffi:uniffi_toolchain")
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain()
@@ -310,3 +296,22 @@ use_repo(npm, "npm")
 
 bun = use_extension("//tools:bun.bzl", "bun")
 use_repo(bun, "bun")
+
+buildbuddy = use_extension("@rules_buildbuddy//:extensions.bzl", "buildbuddy", dev_dependency = True)
+buildbuddy.toolchain(
+    name = "buildbuddy_toolchain",
+)
+use_repo(buildbuddy, "buildbuddy_toolchain")
+
+register_toolchains("@rust_toolchains//:all")
+
+register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
+
+register_toolchains("//toolchains/uniffi:uniffi_toolchain")
+
+register_toolchains(
+    "@rules_android//toolchains/android:all",
+    "@rules_android//toolchains/android_sdk:all",
+)
+
+register_toolchains("@rules_rust//wasm_bindgen:default_wasm_bindgen_toolchain")

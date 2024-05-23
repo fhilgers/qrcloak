@@ -1,0 +1,31 @@
+name: Setup
+runs:
+  using: composite
+  steps:
+    - uses: bazel-contrib/setup-bazel@0.8.4
+      with:
+        bazelisk-version: "1.20.0"
+        bazelisk-cache: true
+        disk-cache: true
+        external-cache: true
+        repository-cache: true
+        baselrc: |
+          common --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
+    - name: Mount android cache
+      uses: actions/cache@v4
+      with:
+        path: "~/.android"
+        key: android
+    - uses: actions/setup-java@v4
+      with:
+        distribution: "zulu"
+        java-version: "21"
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        log-accepted-android-sdk-licenses: "false"
+        packages: "build-tools;34.0.0 ndk;26.3.11579264 platform-tools platforms;android-34 tools"
+    - name: Set Env
+      run: |
+        echo "ANDROID_HOME=$HOME/.android/sdk" >> "$GITHUB_ENV"
+        echo "ANDROID_NDK_HOME=$HOME/.android/sdk/ndk/26.3.11579264" >> "$GITHUB_ENV"

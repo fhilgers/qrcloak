@@ -1,7 +1,4 @@
 /.direnv
-/bazel-out
-/bazel-bin
-/bazel-testlogs
-/bazel-qrcloak-bazel
+/bazel-*
 /.pre-commit-config.yaml
 .idea

@@ -1,3 +1,5 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 def _uniffi_bindgen_impl(ctx):
     toolchain = ctx.toolchains["//toolchains/uniffi:toolchain_type"]
 
@@ -13,9 +15,11 @@ cd {basedir} && $CARGO $@
 
     output_dir = ctx.actions.declare_directory(ctx.label.name)
 
-    inputs = depset()
+    inputs = []
     for src in ctx.attr.srcs:
-        inputs = depset(transitive = [inputs, src[DefaultInfo].files])
+        inputs.append(src[DefaultInfo].files)
+
+    inputs = depset(transitive = inputs)
 
     library_files = ctx.attr.library[DefaultInfo].files.to_list()
     if len(library_files) != 1:

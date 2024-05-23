@@ -1,4 +1,4 @@
-load("//:uniffi.bzl", "uniffi_toolchain")
+load(":uniffi.bzl", "uniffi_toolchain")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_shared_library")
 
 rust_binary(

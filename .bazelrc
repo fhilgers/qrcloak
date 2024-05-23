@@ -4,22 +4,21 @@ common --experimental_enable_android_migration_apis
 common --android_platforms=//:x86_64,//:x86,//:arm64-v8a,//:armeabi-v7a
 
 # Flags to enable mobile-install v3
-# mobile-install --mode=skylark --mobile_install_aspect=@rules_android//mobile_install:mi.bzl --mobile_install_supported_rules=android_binary
+mobile-install --mode=skylark --mobile_install_aspect=@rules_android//mobile_install:mi.bzl --mobile_install_supported_rules=android_binary
 # Required to invoke the Studio deployer jar
-# mobile-install --tool_java_runtime_version=17 
+mobile-install --tool_java_runtime_version=17 
 
 build --bes_results_url=https://app.buildbuddy.io/invocation/
 build --bes_backend=grpcs://remote.buildbuddy.io
 build --remote_cache=grpcs://remote.buildbuddy.io
 build --remote_timeout=3600
-build --spawn_strategy=remote
+build --spawn_strategy=remote,sandboxed
 build --remote_executor=grpcs://remote.buildbuddy.io
 
 build --host_platform=@buildbuddy_toolchain//:platform
 build --platforms=@buildbuddy_toolchain//:platform
 build --extra_execution_platforms=@buildbuddy_toolchain//:platform
 build --crosstool_top=@buildbuddy_toolchain//:toolchain
-build --android_crosstool_top=@buildbuddy_toolchain//:toolchain
 build --extra_toolchains=@buildbuddy_toolchain//:cc_toolchain
 build --java_language_version=11
 build --tool_java_language_version=11
@@ -27,7 +26,8 @@ build --java_runtime_version=remotejdk_11
 build --tool_java_runtime_version=remotejdk_11
 build --define=EXECUTOR=remote
 build --jobs=50
-build --experimental_remote_cache_compression
+
+build --remote_cache_compression
 build --noslim_profile --experimental_profile_include_target_label --experimental_profile_include_primary_output
 build --nolegacy_important_outputs
 build --noremote_local_fallback

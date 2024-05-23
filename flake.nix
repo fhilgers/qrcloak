@@ -67,6 +67,8 @@
             pkgs.ktfmt
             pkgs.openjdk11
             pkgs.static-web-server
+            pkgs.bazel-buildtools
+            pkgs.act
             (pkgs.buildFHSEnv {
               name = "ibazel";
               targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 bazel-watcher stdenv.cc openjdk11 python3 unzip zip]);

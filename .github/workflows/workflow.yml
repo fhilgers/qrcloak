@@ -8,7 +8,5 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           buildbuddy_api_key: ${{ secrets.BUILDBUDDY_API_KEY }}
-      - run: ls $HOME/.android/sdk
-        shell: bash
-      - name: Bazel Fetch
+      - name: Bazel Test
         run: bazel test //...

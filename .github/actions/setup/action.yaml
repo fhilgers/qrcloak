@@ -15,11 +15,11 @@ runs:
       with:
         bazelisk-version: "1.20.0"
         bazelisk-cache: true
-        disk-cache: true
-        external-cache: true
+        disk-cache: ${{ github.workflow }}
         repository-cache: true
         bazelrc: |
           common --remote_header=x-buildbuddy-api-key=${{ inputs.buildbuddy_api_key }}
+          common --remote_download_outputs=minimal
     - name: Mount android cache
       uses: actions/cache@v4
       with:

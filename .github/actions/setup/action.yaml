@@ -5,6 +5,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Set Env
+      shell: bash
+      run: |
+        echo "ANDROID_SDK_ROOT=$HOME/.android/sdk" >> "$GITHUB_ENV"
+        echo "ANDROID_HOME=$HOME/.android/sdk" >> "$GITHUB_ENV"
+        echo "ANDROID_NDK_HOME=$HOME/.android/sdk/ndk/26.3.11579264" >> "$GITHUB_ENV"
     - uses: bazel-contrib/setup-bazel@0.8.4
       with:
         bazelisk-version: "1.20.0"
@@ -28,10 +34,5 @@ runs:
       with:
         log-accepted-android-sdk-licenses: "false"
         packages: "build-tools;34.0.0 ndk;26.3.11579264 platform-tools platforms;android-34 tools"
-    - name: Set Env
-      shell: bash
-      run: |
-        echo "ANDROID_HOME=$HOME/.android/sdk" >> "$GITHUB_ENV"
-        echo "ANDROID_NDK_HOME=$HOME/.android/sdk/ndk/26.3.11579264" >> "$GITHUB_ENV"
     - run: ls $HOME/.android/sdk
       shell: bash

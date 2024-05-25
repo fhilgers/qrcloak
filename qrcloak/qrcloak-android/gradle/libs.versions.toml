@@ -1,67 +1,162 @@
 [versions]
 accompanist = "0.35.0-alpha"
-activityCompose = "1.9.0"
+activity = "1.9.0"
 agp = "8.5.0-alpha06"
 camera = "1.4.0-alpha05"
-composeBom = "2024.05.00"
-coreKtx = "1.13.1"
+collection = "1.4.0"
+compose_bom = "2024.05.00"
+compose_compiler = "1.5.13"
+concurrent = "1.1.0"
+core = "1.13.1"
 datastore = "1.1.0"
-espressoCore = "3.5.1"
-junit = "4.13.2"
-junitVersion = "1.1.5"
+fragment = "1.7.0"
+jna = "5.14.0"
 kotlin = "1.9.23"
-lifecycleRuntimeKtx = "2.7.0"
+lifecycle = "2.7.0"
 mlkit = "17.2.0"
-qrcloak-core = "1.0-SNAPSHOT"
 qrose = "1.0.1"
 voyager = "1.0.0"
 
 [libraries]
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
+# BOMS
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose_bom" }
 
-androidx-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+# BOM PACKAGES
+androidx-compose-animation-animation = { group = "androidx.compose.animation", name = "animation" }
+androidx-compose-animation-animation-core = { group = "androidx.compose.animation", name = "animation-core" }
+androidx-compose-animation-animation-graphics = { group = "androidx.compose.animation", name = "animation-graphics" }
+androidx-compose-foundation-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-foundation-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
+androidx-compose-material-material = { group = "androidx.compose.material", name = "material" }
+androidx-compose-material-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-compose-material-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-compose-material-material-icons-extended-android = { group = "androidx.compose.material", name = "material-icons-extended-android" }
+androidx-compose-material-material-ripple = { group = "androidx.compose.material", name = "material-ripple" }
+androidx-compose-material3-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3-material3-window-size = { group = "androidx.compose.material3", name = "material3-window-size-class" }
+androidx-compose-runtime-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-compose-runtime-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
+androidx-compose-runtime-runtime-rxjava2 = { group = "androidx.compose.runtime", name = "runtime-rxjava2" }
+androidx-compose-runtime-runtime-rxjava3 = { group = "androidx.compose.runtime", name = "runtime-rxjava3" }
+androidx-compose-runtime-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable" }
+androidx-compose-ui-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-ui-geometry = { group = "androidx.compose.ui", name = "ui-geometry" }
+androidx-compose-ui-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-ui-test = { group = "androidx.compose.ui", name = "ui-test" }
+androidx-compose-ui-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-ui-text = { group = "androidx.compose.ui", name = "ui-text" }
+androidx-compose-ui-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
+androidx-compose-ui-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-ui-tooling-data = { group = "androidx.compose.ui", name = "ui-tooling-data" }
+androidx-compose-ui-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-ui-unit = { group = "androidx.compose.ui", name = "ui-unit" }
+androidx-compose-ui-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
+androidx-compose-ui-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding" }
 
-qrcloak-core = { group = "com.github.fhilgers", name = "qrcloak-core", version.ref = "qrcloak-core" }
-qrcloak-core-libs = { group = "com.github.fhilgers", name = "qrcloak-jvm-libs", version.ref = "qrcloak-core" }
+# ARTIFACTS
+androidx-activity-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-activity-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+androidx-activity-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+androidx-activity-activity-ktx-aar = { group = "androidx.activity", name = "activity-ktx:aar", version.ref = "activity" }
+androidx-camera-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera" }
+androidx-camera-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camera" }
+androidx-camera-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camera" }
+androidx-camera-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
+androidx-camera-camera-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camera" }
+androidx-camera-camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camera" }
+androidx-camera-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
+androidx-collection-collection = { group = "androidx.collection", name = "collection", version.ref = "collection" }
+androidx-collection-collection-jvm = { group = "androidx.collection", name = "collection-jvm", version.ref = "collection" }
+androidx-collection-collection-ktx = { group = "androidx.collection", name = "collection-ktx", version.ref = "collection" }
+androidx-compose-compiler-compiler = { group = "androidx.compose.compiler", name = "compiler", version.ref = "compose_compiler" }
+androidx-concurrent-concurrent-futures = { group = "androidx.concurrent", name = "concurrent-futures", version.ref = "concurrent" }
+androidx-concurrent-concurrent-futures-ktx = { group = "androidx.concurrent", name = "concurrent-futures-ktx", version.ref = "concurrent" }
+androidx-core-core = { group = "androidx.core", name = "core", version.ref = "core" }
+androidx-core-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
+androidx-datastore-datastore-preferences-android = { group = "androidx.datastore", name = "datastore-preferences-android", version.ref = "datastore" }
+androidx-fragment-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+androidx-fragment-fragment-compose = { group = "androidx.fragment", name = "fragment-compose", version.ref = "fragment" }
+androidx-fragment-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
+androidx-fragment-fragment-ktx-aar = { group = "androidx.fragment", name = "fragment-ktx:aar", version.ref = "fragment" }
+androidx-fragment-fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment" }
+androidx-fragment-fragment-testing-manifest = { group = "androidx.fragment", name = "fragment-testing-manifest", version.ref = "fragment" }
+androidx-lifecycle-lifecycle-common = { group = "androidx.lifecycle", name = "lifecycle-common", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-common-java8 = { group = "androidx.lifecycle", name = "lifecycle-common-java8", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-compiler = { group = "androidx.lifecycle", name = "lifecycle-compiler", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-livedata-core-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-core-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-reactivestreams-ktx = { group = "androidx.lifecycle", name = "lifecycle-reactivestreams-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime:aar", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-runtime-testing = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-savedstate", version.ref = "lifecycle" }
+cafe-adriel-voyager-voyager-navigator-android = { group = "cafe.adriel.voyager", name = "voyager-navigator-android", version.ref = "voyager" }
+cafe-adriel-voyager-voyager-screenmodel-android = { group = "cafe.adriel.voyager", name = "voyager-screenmodel-android", version.ref = "voyager" }
+cafe-adriel-voyager-voyager-tab-navigator-android = { group = "cafe.adriel.voyager", name = "voyager-tab-navigator-android", version.ref = "voyager" }
+cafe-adriel-voyager-voyager-transitions = { group = "cafe.adriel.voyager", name = "voyager-transitions", version.ref = "voyager" }
+com-google-accompanist-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
+com-google-mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit" }
+io-github-alexzhirkevich-qrose = { group = "io.github.alexzhirkevich", name = "qrose", version.ref = "qrose" }
+net-java-dev-jna-jna = { group = "net.java.dev.jna", name = "jna:aar", version.ref = "jna" }
+org-jetbrains-kotlin-kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+org-jetbrains-kotlin-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+org-jetbrains-kotlin-kotlin-stdlib-jdk7 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk7", version.ref = "kotlin" }
+org-jetbrains-kotlin-kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
 
-qrose = { group = "io.github.alexzhirkevich", name = "qrose", version.ref = "qrose" }
-
-androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera" }
-androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camera" }
-androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "camera" }
-androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera" }
-androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "camera" }
-androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "camera" }
-androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
-
-mlkit-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkit" }
-
-voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
-voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyager" }
-voyager-kodein = { module = "cafe.adriel.voyager:voyager-kodein", version.ref = "voyager" }
-voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
-voyager-rxjava = { module = "cafe.adriel.voyager:voyager-rxjava", version.ref = "voyager" }
-voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
-voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
-voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
-
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
-
-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+# androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+# androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityCompose" }
+# androidx-activity-ktx-aar = { group = "androidx.activity", name = "activity-ktx:aar", version.ref = "activityCompose" }
+# androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activityCompose" }
+#
+# androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+# androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+# androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+# androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+# androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+# androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+# androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+# androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+# androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+# androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+# androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+# junit = { group = "junit", name = "junit", version.ref = "junit" }
+#
+# androidx-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+#
+# qrcloak-core = { group = "com.github.fhilgers", name = "qrcloak-core", version.ref = "qrcloak-core" }
+# qrcloak-core-libs = { group = "com.github.fhilgers", name = "qrcloak-jvm-libs", version.ref = "qrcloak-core" }
+#
+# qrose = { group = "io.github.alexzhirkevich", name = "qrose", version.ref = "qrose" }
+#
+# androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera" }
+# androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camera" }
+# androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "camera" }
+# androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera" }
+# androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "camera" }
+# androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "camera" }
+# androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
+#
+# mlkit-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkit" }
+#
+# voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
+# voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyager" }
+# voyager-kodein = { module = "cafe.adriel.voyager:voyager-kodein", version.ref = "voyager" }
+# voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
+# voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
+# voyager-rxjava = { module = "cafe.adriel.voyager:voyager-rxjava", version.ref = "voyager" }
+# voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
+# voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
+# voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
+#
+# datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+#
+# accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

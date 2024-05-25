@@ -1,0 +1,15 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "utils",
+    srcs = glob(["*.kt"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "//qrcloak/qrcloak-android:parcelize",
+        "//qrcloak/qrcloak-android/app/src/main:resources",
+        "//qrcloak/qrcloak-bindings/languages/kotlin:qrcloak-kotlin",
+        "@maven//:androidx_compose_ui_ui",
+        "@maven//:androidx_datastore_datastore_preferences_android",
+    ],
+)

@@ -24,14 +24,17 @@ import androidx.compose.ui.unit.dp
 data class TagData(val text: String, val icon: ImageVector)
 
 @Composable
-fun Tag(tag: TagData, modifier: Modifier = Modifier) {
+fun Tag(
+    tag: TagData,
+    modifier: Modifier = Modifier,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
             modifier
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
-                .padding(4.dp)
+                .padding(4.dp),
     ) {
         Icon(imageVector = tag.icon, contentDescription = tag.text, modifier = Modifier.size(12.dp))
         Spacer(modifier = Modifier.width(4.dp))
@@ -41,11 +44,14 @@ fun Tag(tag: TagData, modifier: Modifier = Modifier) {
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-fun TagRow(modifier: Modifier = Modifier, content: @Composable FlowRowScope.() -> Unit) {
+fun TagRow(
+    modifier: Modifier = Modifier,
+    content: @Composable FlowRowScope.() -> Unit,
+) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = modifier.padding(vertical = 4.dp)
+        modifier = modifier.padding(vertical = 4.dp),
     ) {
         content()
     }

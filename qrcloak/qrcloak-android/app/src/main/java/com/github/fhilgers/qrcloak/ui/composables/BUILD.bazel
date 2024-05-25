@@ -1,0 +1,15 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "composables",
+    srcs = glob(["*.kt"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "//qrcloak/qrcloak-bindings/languages/kotlin:qrcloak-kotlin",
+        "@maven//:androidx_compose_material3_material3",
+        "@maven//:androidx_compose_material_material_icons_extended_android",
+        "@maven//:androidx_compose_ui_ui",
+        "@maven//:androidx_compose_ui_ui_tooling",
+    ],
+)

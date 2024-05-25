@@ -1,0 +1,11 @@
+load("@rules_android//android:rules.bzl", "android_library")
+
+android_library(
+    name = "ui",
+    visibility = ["//visibility:public"],
+    exports = [
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/composables",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/screens",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/theme",
+    ],
+)

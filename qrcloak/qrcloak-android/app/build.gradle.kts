@@ -24,7 +24,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -40,9 +40,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.qrcloak.core)
-    implementation(libs.qrcloak.core.libs)
+    // implementation(libs.qrcloak.core)
+    // implementation(libs.qrcloak.core.libs)
 
+    /*
     implementation(libs.voyager.navigator)
     implementation(libs.voyager.tabNavigator)
     implementation(libs.voyager.screenModel)
@@ -61,9 +62,9 @@ dependencies {
 
     implementation(libs.androidx.icons.extended)
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    //implementation(libs.androidx.core.ktx)
+    //implementation(libs.androidx.lifecycle.runtime.ktx)
+    //implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -76,4 +77,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+     */
 }

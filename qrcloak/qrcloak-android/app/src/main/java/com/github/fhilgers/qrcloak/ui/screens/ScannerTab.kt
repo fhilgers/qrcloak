@@ -57,8 +57,8 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.github.fhilgers.qrcloak.R
-import com.github.fhilgers.qrcloak.RAW_KEY
-import com.github.fhilgers.qrcloak.dataStore
+import com.github.fhilgers.qrcloak.utils.RAW_KEY
+import com.github.fhilgers.qrcloak.utils.dataStore
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -120,7 +120,6 @@ data class ScannerScreenModel(
     var hapticFeedback: HapticFeedback,
     var snackbarHostState: SnackbarHostState,
 ) : Consumer<MlKitAnalyzer.Result>, ScreenModel {
-
     val timedMap: MutableMap<String, TimeSource.Monotonic.ValueTimeMark> = mutableMapOf()
 
     override fun accept(value: MlKitAnalyzer.Result) {
@@ -134,30 +133,30 @@ data class ScannerScreenModel(
             ?.filter { region.contains(it.boundingBox!!) }
             ?.filter { it.rawValue != null }
             ?.forEach {
-                val value = it.rawValue!!
+                val rawData = it.rawValue!!
 
-                val oldTime = timedMap[value]
+                val oldTime = timedMap[rawData]
 
                 if (oldTime == null || now - oldTime > 1.seconds) {
                     screenModelScope.launch {
                         snackbarHostState.currentSnackbarData?.dismiss()
 
                         snackbarHostState.showSnackbar(
-                            message = value,
+                            message = rawData,
                             duration = SnackbarDuration.Short,
-                            withDismissAction = true
+                            withDismissAction = true,
                         )
 
                         dataStore.edit {
                             val old = it[RAW_KEY] ?: emptySet()
 
-                            it[RAW_KEY] = old + value
+                            it[RAW_KEY] = old + rawData
                         }
                     }
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
 
-                timedMap[value] = now
+                timedMap[rawData] = now
             }
     }
 }
@@ -168,7 +167,6 @@ fun CameraWithOverlay(
     consumer: Consumer<MlKitAnalyzer.Result>,
     modifier: Modifier = Modifier,
 ) {
-
     var init by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -193,7 +191,7 @@ fun CameraWithOverlay(
                         listOf(barcodeScanner),
                         ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
                         executor,
-                        consumer
+                        consumer,
                     )
 
                 setImageAnalysisAnalyzer(executor, inner)
@@ -246,7 +244,6 @@ fun CameraWithOverlay(
 }
 
 object ScannerTab : Tab {
-
     private fun readResolve(): Any = ScannerTab
 
     override val options: TabOptions
@@ -278,8 +275,8 @@ object ScannerTab : Tab {
                     .clip(
                         MaterialTheme.shapes.medium.copy(
                             topStart = ZeroCornerSize,
-                            topEnd = ZeroCornerSize
-                        )
+                            topEnd = ZeroCornerSize,
+                        ),
                     ),
         )
     }

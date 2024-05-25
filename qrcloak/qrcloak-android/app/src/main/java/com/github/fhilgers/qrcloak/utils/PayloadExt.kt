@@ -205,21 +205,26 @@ object EncryptionSpecParceler : Parceler<EncryptionSpec> {
     override fun create(parcel: Parcel): EncryptionSpec =
         EncryptionSpec.valueOf(parcel.readString()!!)
 
-    override fun EncryptionSpec.write(parcel: Parcel, flags: Int) = parcel.writeString(this.name)
+    override fun EncryptionSpec.write(
+        parcel: Parcel,
+        flags: Int,
+    ) = parcel.writeString(this.name)
 }
 
 object CompressionSpecParceler : Parceler<CompressionSpec> {
     override fun create(parcel: Parcel): CompressionSpec =
         CompressionSpec.valueOf(parcel.readString()!!)
 
-    override fun CompressionSpec.write(parcel: Parcel, flags: Int) = parcel.writeString(this.name)
+    override fun CompressionSpec.write(
+        parcel: Parcel,
+        flags: Int,
+    ) = parcel.writeString(this.name)
 }
 
 object PartialPayloadParceler : Parceler<PartialPayload> {
-
     enum class VARIANT {
         HEAD,
-        TAIL
+        TAIL,
     }
 
     override fun create(parcel: Parcel): PartialPayload {
@@ -231,7 +236,10 @@ object PartialPayloadParceler : Parceler<PartialPayload> {
         }
     }
 
-    override fun PartialPayload.write(parcel: Parcel, flags: Int) {
+    override fun PartialPayload.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         when (this) {
             is PartialPayload.Head -> {
                 parcel.writeInt(VARIANT.HEAD.ordinal)
@@ -246,10 +254,9 @@ object PartialPayloadParceler : Parceler<PartialPayload> {
 }
 
 object OptionalPartialPayloadParceler : Parceler<PartialPayload?> {
-
     enum class VARIANT {
         SOME,
-        NONE
+        NONE,
     }
 
     override fun create(parcel: Parcel): PartialPayload? {
@@ -261,7 +268,10 @@ object OptionalPartialPayloadParceler : Parceler<PartialPayload?> {
         }
     }
 
-    override fun PartialPayload?.write(parcel: Parcel, flags: Int) {
+    override fun PartialPayload?.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         if (this == null) {
             parcel.writeInt(VARIANT.NONE.ordinal)
         } else {
@@ -283,11 +293,14 @@ object PartialPayloadHeadParceler : Parceler<PartialPayloadHead> {
             data = data,
             compression = CompressionSpecParceler.create(parcel),
             encryption = EncryptionSpecParceler.create(parcel),
-            index = IndexParceler.create(parcel)
+            index = IndexParceler.create(parcel),
         )
     }
 
-    override fun PartialPayloadHead.write(parcel: Parcel, flags: Int) {
+    override fun PartialPayloadHead.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeInt(this.data.size)
         parcel.writeByteArray(this.data)
         compression.write(parcel, flags)
@@ -305,7 +318,10 @@ object PartialPayloadTailParceler : Parceler<PartialPayloadTail> {
         return PartialPayloadTail(data = data, index = IndexParceler.create(parcel))
     }
 
-    override fun PartialPayloadTail.write(parcel: Parcel, flags: Int) {
+    override fun PartialPayloadTail.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeInt(this.data.size)
         parcel.writeByteArray(this.data)
         index.write(parcel, flags)
@@ -317,10 +333,13 @@ object IndexParceler : Parceler<Index> {
         Index(
             id = parcel.readInt().toUInt(),
             index = parcel.readInt().toUInt(),
-            size = parcel.readInt().toUInt()
+            size = parcel.readInt().toUInt(),
         )
 
-    override fun Index.write(parcel: Parcel, flags: Int) {
+    override fun Index.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeInt(this.id.toInt())
         parcel.writeInt(this.index.toInt())
         parcel.writeInt(this.size.toInt())
@@ -336,11 +355,14 @@ object CompletePayloadParceler : Parceler<CompletePayload> {
         return CompletePayload(
             data = data,
             encryption = EncryptionSpecParceler.create(parcel),
-            compression = CompressionSpecParceler.create(parcel)
+            compression = CompressionSpecParceler.create(parcel),
         )
     }
 
-    override fun CompletePayload.write(parcel: Parcel, flags: Int) {
+    override fun CompletePayload.write(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeInt(this.data.size)
         parcel.writeByteArray(this.data)
         this.encryption.write(parcel, flags)

@@ -20,7 +20,7 @@ fun ScrollableOutlinedBase64Text(
     text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
-    isError: Boolean = false
+    isError: Boolean = false,
 ) {
     Box(
         modifier =

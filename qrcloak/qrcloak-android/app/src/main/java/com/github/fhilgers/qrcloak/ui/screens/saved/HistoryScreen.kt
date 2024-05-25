@@ -45,23 +45,23 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.github.fhilgers.qrcloak.COMPLETE_KEY
-import com.github.fhilgers.qrcloak.GROUP_KEY
-import com.github.fhilgers.qrcloak.NORMAL_KEY
 import com.github.fhilgers.qrcloak.R
-import com.github.fhilgers.qrcloak.RAW_KEY
-import com.github.fhilgers.qrcloak.dataStore
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
-import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
-import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.GroupDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.NormalDetailScreen
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetFab
+import com.github.fhilgers.qrcloak.utils.COMPLETE_KEY
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
+import com.github.fhilgers.qrcloak.utils.GROUP_KEY
+import com.github.fhilgers.qrcloak.utils.NORMAL_KEY
 import com.github.fhilgers.qrcloak.utils.OptionalPartialPayloadParceler
+import com.github.fhilgers.qrcloak.utils.RAW_KEY
 import com.github.fhilgers.qrcloak.utils.compressionTag
+import com.github.fhilgers.qrcloak.utils.dataStore
 import com.github.fhilgers.qrcloak.utils.dataString
 import com.github.fhilgers.qrcloak.utils.encryptionTag
 import com.github.fhilgers.qrcloak.utils.id
@@ -98,7 +98,6 @@ import uniffi.qrcloak_core.PartialPayload
 import uniffi.qrcloak_core.Payload
 
 class HistoryScreenModel(dataStore: DataStore<Preferences>) : ScreenModel {
-
     val qrCodes: MutableState<List<QrCode>> = mutableStateOf(listOf())
 
     init {
@@ -108,10 +107,8 @@ class HistoryScreenModel(dataStore: DataStore<Preferences>) : ScreenModel {
 
 @Parcelize
 data object HistoryScreen : Screen, Parcelable {
-
     @Composable
     override fun Content() {
-
         val dataStore = LocalContext.current.dataStore
         val model =
             rememberScreenModel<HistoryScreenModel> { HistoryScreenModel(dataStore = dataStore) }
@@ -135,14 +132,13 @@ data object HistoryScreen : Screen, Parcelable {
                     is QrCode.Normal -> navigator.push(NormalDetailScreen(data = it.data))
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
 
 @Parcelize
 sealed interface QrCode : Parcelable {
-
     @Parcelize data class Normal(val data: String) : QrCode
 
     @Parcelize
@@ -168,7 +164,7 @@ fun QrCode.Companion.fromStore(dataStore: DataStore<Preferences>): Flow<List<QrC
         val leftOver = mutableSetOf<String>()
         val rawPayloads = mutableSetOf<Payload>()
 
-        raw.forEach() {
+        raw.forEach {
             try {
                 val payload = decoder.decode(it)[0]
 
@@ -252,17 +248,21 @@ suspend fun List<QrCode>.save(dataStore: DataStore<Preferences>) {
 }
 
 @Composable
-fun NoPayloadListItem(data: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun NoPayloadListItem(
+    data: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ListItem(
         overlineContent = { Text(text = stringResource(id = R.string.no_payload_tag)) },
         headlineContent = { Text(text = data, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.NavigateNext,
-                contentDescription = "NavigateNext"
+                contentDescription = "NavigateNext",
             )
         },
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick),
     )
 }
 
@@ -288,10 +288,10 @@ fun CompletePayloadListItem(
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.NavigateNext,
-                contentDescription = "NavigateNext"
+                contentDescription = "NavigateNext",
             )
         },
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick),
     )
 }
 
@@ -324,21 +324,25 @@ fun GroupPayloadListItem(
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.NavigateNext,
-                contentDescription = "NavigateNext"
+                contentDescription = "NavigateNext",
             )
         },
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick),
     )
 }
 
 @Composable
-fun QrCodeListItem(qrCode: QrCode, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun QrCodeListItem(
+    qrCode: QrCode,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     when (qrCode) {
         is QrCode.Complete ->
             CompletePayloadListItem(
                 payload = qrCode.payload,
                 onClick = onClick,
-                modifier = modifier
+                modifier = modifier,
             )
         is QrCode.Normal ->
             NoPayloadListItem(data = qrCode.data, onClick = onClick, modifier = modifier)
@@ -348,7 +352,11 @@ fun QrCodeListItem(qrCode: QrCode, onClick: () -> Unit, modifier: Modifier = Mod
 }
 
 @Composable
-fun QrCodeList(qrCodes: List<QrCode>, onClick: (QrCode) -> Unit, modifier: Modifier = Modifier) {
+fun QrCodeList(
+    qrCodes: List<QrCode>,
+    onClick: (QrCode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.Top,
@@ -383,7 +391,7 @@ suspend fun makeDummyList(): List<QrCode> = coroutineScope {
         async(newSingleThreadContext("Key Derivation")) {
                 PayloadGenerator()
                     .withEncryption(
-                        Encryption.AgePassphrase(passphrase = Passphrase("hello world"))
+                        Encryption.AgePassphrase(passphrase = Passphrase("hello world")),
                     )
                     .generate("arosetin")
             }
@@ -410,7 +418,6 @@ suspend fun makeDummyList(): List<QrCode> = coroutineScope {
 @Preview
 @Composable
 fun PreviewQrCodeList() {
-
     var qrCodes by remember { mutableStateOf(listOf<QrCode>()) }
 
     LaunchedEffect(Unit) { qrCodes = makeDummyList() }

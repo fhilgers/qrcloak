@@ -62,13 +62,13 @@ import androidx.compose.ui.window.DialogWindowProvider
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.github.fhilgers.qrcloak.dataStore
 import com.github.fhilgers.qrcloak.ui.composables.SecretTextField
-import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
-import com.github.fhilgers.qrcloak.ui.screens.SetFab
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.CompleteDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.GroupDetailScreen
 import com.github.fhilgers.qrcloak.ui.screens.saved.detail.NormalDetailScreen
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetFab
+import com.github.fhilgers.qrcloak.utils.dataStore
 import com.github.fhilgers.qrcloak.utils.id
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -113,7 +113,11 @@ sealed interface CompressionType : SelectionName {
 }
 
 @Composable
-fun QRCodeTextField(text: String, onTextChange: (String) -> Unit, modifier: Modifier = Modifier) {
+fun QRCodeTextField(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     OutlinedTextField(
         value = text,
         onValueChange = onTextChange,
@@ -128,9 +132,8 @@ fun QRCodeSecretField(
     password: String,
     passwordError: String? = null,
     onPasswordChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     var hide by remember { mutableStateOf(true) }
 
     SecretTextField(
@@ -157,14 +160,14 @@ fun <T : SelectionName> DropDown(
     selectedOption: T,
     label: @Composable () -> Unit,
     onSelectionChange: (T) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier
+        modifier = modifier,
     ) {
         OutlinedTextField(
             // The `menuAnchor` modifier must be passed to the text field for correctness.
@@ -180,7 +183,7 @@ fun <T : SelectionName> DropDown(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.exposedDropdownSize(true)
+            modifier = Modifier.exposedDropdownSize(true),
         ) {
             options.forEach { selectionOption ->
                 DropdownMenuItem(
@@ -305,14 +308,14 @@ fun CreateQRCodeScreenPreview() {
                 AnimatedVisibility(
                     visible = createQRCodeData.createEnabled,
                     enter = scaleIn(),
-                    exit = scaleOut()
+                    exit = scaleOut(),
                 ) {
                     CreateQRCodeDefaults.FloatingActionButton(
                         onClick = { /*TODO*/},
                         modifier =
                             Modifier.consumeWindowInsets(WindowInsets.navigationBars)
                                 .consumeWindowInsets(PaddingValues(vertical = 80.dp))
-                                .imePadding()
+                                .imePadding(),
                     )
                 }
             },
@@ -324,7 +327,7 @@ fun CreateQRCodeScreenPreview() {
                     Modifier.padding(paddingValues)
                         .consumeWindowInsets(paddingValues)
                         .imePadding()
-                        .padding(12.dp)
+                        .padding(12.dp),
             )
         }
     }
@@ -332,30 +335,36 @@ fun CreateQRCodeScreenPreview() {
 
 object CreateQRCodeDefaults {
     @Composable
-    fun FloatingActionButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    fun FloatingActionButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
         ExtendedFloatingActionButton(
             text = { Text(text = "Create") },
             icon = {
                 Icon(imageVector = Icons.Default.QrCode, contentDescription = "Create QRCode")
             },
             onClick = onClick,
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }
 
 @Composable
-fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
+fun CreateQRCode(
+    data: CreateQRCodeData,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(16.dp),
-        modifier = modifier
+        modifier = modifier,
     ) {
         item {
             QRCodeTextField(
                 text = data.text,
                 onTextChange = { data.text = it },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -374,7 +383,7 @@ fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
                     listOf(
                         EncryptionType.NoEncryption,
                         EncryptionType.AgeKey,
-                        EncryptionType.AgePassphrase
+                        EncryptionType.AgePassphrase,
                     ),
                 selectedOption = data.selectedEncryption,
                 onSelectionChange = { data.changeEncryption(it) },
@@ -386,13 +395,13 @@ fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
                     Text(text = "Split", style = MaterialTheme.typography.bodyLarge)
                     Text(
                         text = "Split the QR code into multiple parts",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
@@ -406,7 +415,7 @@ fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
                 value = data.sliderPosition,
                 onValueChange = { data.changeSlider(it) },
                 steps = 7,
-                valueRange = 1f..8f
+                valueRange = 1f..8f,
             )
         }
 
@@ -414,13 +423,13 @@ fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
             AnimatedVisibility(
                 visible = data.selectedEncryption !is EncryptionType.NoEncryption,
                 enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
+                exit = fadeOut() + shrinkVertically(),
             ) {
                 QRCodeSecretField(
                     password = data.password,
                     onPasswordChange = { data.changePassword(it) },
                     passwordError = data.passwordError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -431,7 +440,6 @@ fun CreateQRCode(data: CreateQRCodeData, modifier: Modifier = Modifier) {
 data object CreateScreen : Screen, Parcelable {
     @Composable
     override fun Content() {
-
         val navigator = LocalNavigator.currentOrThrow
 
         SetAppBar(
@@ -440,11 +448,11 @@ data object CreateScreen : Screen, Parcelable {
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "Navigate Back"
+                        contentDescription = "Navigate Back",
                     )
                 }
             },
-            actions = {}
+            actions = {},
         )
 
         val createQRCodeData = remember { CreateQRCodeData() }
@@ -469,8 +477,8 @@ data object CreateScreen : Screen, Parcelable {
                                     navigator.push(
                                         GroupDetailScreen(
                                             id = qrCode.id,
-                                            payloads = qrCode.payloads
-                                        )
+                                            payloads = qrCode.payloads,
+                                        ),
                                     )
                                 }
                                 is QrCode.Complete -> {

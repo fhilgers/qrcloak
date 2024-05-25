@@ -48,9 +48,9 @@ import com.github.fhilgers.qrcloak.ui.composables.SecretDialogContent
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
-import com.github.fhilgers.qrcloak.ui.screens.CurrentFab
-import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
-import com.github.fhilgers.qrcloak.ui.screens.SetFab
+import com.github.fhilgers.qrcloak.ui.screens.shared.CurrentFab
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetFab
 import com.github.fhilgers.qrcloak.utils.CompletePayloadParceler
 import com.github.fhilgers.qrcloak.utils.dataString
 import com.github.fhilgers.qrcloak.utils.tag
@@ -76,7 +76,7 @@ fun CompleteDetails(
     text: String,
     encryption: EncryptionSpec,
     compression: CompressionSpec,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth().padding(16.dp)) {
         TagRow(modifier = Modifier.fillMaxWidth()) {
@@ -94,7 +94,6 @@ fun CompleteDetails(
 @Preview
 @Composable
 fun CompleteDetailsPreview() {
-
     val completePayload =
         PayloadGenerator()
             .withEncryption(Encryption.AgeKey(listOf(AgeIdentity.generate().toPublic())))
@@ -104,7 +103,7 @@ fun CompleteDetailsPreview() {
         CompleteDetails(
             text = completePayload.dataString,
             encryption = completePayload.encryption,
-            compression = completePayload.compression
+            compression = completePayload.compression,
         )
     }
 }
@@ -112,7 +111,6 @@ fun CompleteDetailsPreview() {
 @Preview
 @Composable
 fun CompletePayloadDetailScreenPreview() {
-
     val idStr = "AGE-SECRET-KEY-1AJ3YAE7ZZU4N9NHU33NG2QJHRNUXVKYWMS97H28CEG6ETNCQWGJS3AFW6P"
     val id = AgeIdentity.tryFromString(idStr)
 
@@ -136,8 +134,7 @@ fun CompletePayloadDetailScreenPreview() {
 
 data class CompleteDetailScreenModel(private val payload: CompletePayload) :
     StateScreenModel<CompleteDetailScreenModel.State>(State.Encoded) {
-
-    sealed interface DialogState {}
+    sealed interface DialogState
 
     sealed interface State {
         data object Encoded : State
@@ -234,7 +231,7 @@ data class CompleteDetailScreenModel(private val payload: CompletePayload) :
                 val plain =
                     PayloadExtractor()
                         .withDecryption(
-                            Decryption.AgePassphrase(passphrase = Passphrase(previous.secret))
+                            Decryption.AgePassphrase(passphrase = Passphrase(previous.secret)),
                         )
                         .withDecompression(decompression)
                         .extract(payload)
@@ -269,7 +266,7 @@ data class CompleteDetailScreenModel(private val payload: CompletePayload) :
                             } catch (e: Exception) {
                                 e.message
                             }
-                        }
+                        },
                     )
         }
     }
@@ -302,7 +299,6 @@ fun CompletePayloadDetailFab(
     onStartKeyEntry: () -> Unit,
     onShow: () -> Unit,
 ) {
-
     when (state) {
         CompleteDetailScreenModel.State.Plain -> {
             SetFab {
@@ -345,7 +341,7 @@ fun EntryDialog(
                     isError = state.error.value != null,
                     supportingText = state.error.value?.let { { Text(text = it) } },
                     onDismiss = onDismissDecoding,
-                    onSuccess = onStartDecoding
+                    onSuccess = onStartDecoding,
                 )
             }
             is CompleteDetailScreenModel.State.Decoding -> {
@@ -367,7 +363,7 @@ fun CompletePayloadDetail(
     onShow: () -> Unit,
     onDismissDecoding: () -> Unit,
     onStartDecoding: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CompletePayloadDetailFab(
         state = state,
@@ -381,7 +377,7 @@ fun CompletePayloadDetail(
             EntryDialog(
                 state = state,
                 onDismissDecoding = onDismissDecoding,
-                onStartDecoding = onStartDecoding
+                onStartDecoding = onStartDecoding,
             )
         }
         CompleteDetails(
@@ -397,7 +393,6 @@ fun CompletePayloadDetail(
 data class CompleteDetailScreen(val payload: CompletePayload) : Screen, Parcelable {
     @Composable
     override fun Content() {
-
         val screenModel =
             rememberScreenModel(tag = payload.toString()) { CompleteDetailScreenModel(payload) }
 
@@ -411,11 +406,11 @@ data class CompleteDetailScreen(val payload: CompletePayload) : Screen, Parcelab
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "Navigate Back"
+                        contentDescription = "Navigate Back",
                     )
                 }
             },
-            actions = {}
+            actions = {},
         )
 
         CompletePayloadDetail(
@@ -427,7 +422,7 @@ data class CompleteDetailScreen(val payload: CompletePayload) : Screen, Parcelab
             onStartKeyEntry = { screenModel.startKeyEntry() },
             onShow = { screenModel.showDecoded() },
             onDismissDecoding = { screenModel.dismissDecoding() },
-            onStartDecoding = { screenModel.startDecoding() }
+            onStartDecoding = { screenModel.startDecoding() },
         )
     }
 }

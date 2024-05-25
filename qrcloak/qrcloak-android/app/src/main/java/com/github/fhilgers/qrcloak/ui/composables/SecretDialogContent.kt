@@ -64,7 +64,7 @@ fun SecretTextField(
             } else {
                 VisualTransformation.None
             },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -92,8 +92,8 @@ fun SecretDialogContent(
                 text = headlineText,
                 style =
                     MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -113,7 +113,7 @@ fun SecretDialogContent(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(onClick = onDismiss) { Text(text = "Cancel") }
                 TextButton(onClick = onSuccess, enabled = !isError && secret.isNotEmpty()) {
@@ -133,7 +133,6 @@ sealed interface ParsedOrError<T> {
 @Preview
 @Composable
 fun SecretDialogPreview() {
-
     var rawSecret by remember { mutableStateOf("") }
 
     var parsed by remember { mutableStateOf<ParsedOrError<AgeIdentity>?>(null) }
@@ -162,6 +161,6 @@ fun SecretDialogPreview() {
                     Text(text = "*required")
                 }
             }
-        }
+        },
     )
 }

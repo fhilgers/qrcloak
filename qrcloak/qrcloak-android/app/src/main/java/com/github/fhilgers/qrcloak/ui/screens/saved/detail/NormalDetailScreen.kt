@@ -20,11 +20,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.github.fhilgers.qrcloak.ui.composables.ScrollableOutlinedBase64Text
-import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetAppBar
 import kotlinx.parcelize.Parcelize
 
 @Composable
-fun NormalDetail(text: String, modifier: Modifier = Modifier) {
+fun NormalDetail(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier.fillMaxWidth().padding(16.dp)) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -36,7 +39,6 @@ fun NormalDetail(text: String, modifier: Modifier = Modifier) {
 data class NormalDetailScreen(val data: String) : Screen, Parcelable {
     @Composable
     override fun Content() {
-
         val navigator = LocalNavigator.currentOrThrow
 
         SetAppBar(
@@ -45,11 +47,11 @@ data class NormalDetailScreen(val data: String) : Screen, Parcelable {
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "Navigate Back"
+                        contentDescription = "Navigate Back",
                     )
                 }
             },
-            actions = {}
+            actions = {},
         )
 
         NormalDetail(text = data)

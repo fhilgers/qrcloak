@@ -1,0 +1,22 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "detail",
+    srcs = glob(["*.kt"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "//qrcloak/qrcloak-android:parcelize",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/composables",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/screens/shared",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/utils",
+        "//qrcloak/qrcloak-bindings/languages/kotlin:qrcloak-kotlin",
+        "@maven//:androidx_compose_material3_material3",
+        "@maven//:androidx_compose_material_material_icons_extended_android",
+        "@maven//:androidx_compose_ui_ui",
+        "@maven//:androidx_compose_ui_ui_tooling",
+        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
+        "@maven//:cafe_adriel_voyager_voyager_screenmodel_android",
+        "@maven//:cafe_adriel_voyager_voyager_tab_navigator_android",
+    ],
+)

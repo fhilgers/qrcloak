@@ -1,0 +1,14 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "qrcloak",
+    srcs = glob(["*.kt"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/screens",
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/theme",
+        "@maven//:androidx_activity_activity",
+        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
+    ],
+)

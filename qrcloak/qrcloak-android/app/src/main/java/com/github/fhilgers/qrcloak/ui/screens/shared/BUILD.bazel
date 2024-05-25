@@ -1,0 +1,15 @@
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "shared",
+    srcs = glob(["*.kt"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "@maven//:androidx_compose_animation_animation",
+        "@maven//:androidx_compose_foundation_foundation",
+        "@maven//:androidx_compose_material3_material3",
+        "@maven//:androidx_compose_ui_ui",
+        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
+    ],
+)

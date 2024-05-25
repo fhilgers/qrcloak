@@ -30,7 +30,6 @@ object SavedTab : Tab, Parcelable {
 
     @Composable
     override fun Content() {
-
         Navigator(screen = HistoryScreen) { _ -> CurrentScreen() }
     }
 }

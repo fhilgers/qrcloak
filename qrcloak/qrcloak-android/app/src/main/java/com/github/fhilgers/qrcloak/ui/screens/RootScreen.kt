@@ -48,13 +48,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 object RootScreen : Screen, Parcelable {
-
     private fun readResolve(): Any = RootScreen
 
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     override fun Content() {
-
         val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
         LaunchedEffect(cameraPermissionState.status) {
@@ -86,16 +84,16 @@ object RootScreen : Screen, Parcelable {
                         modifier =
                             Modifier.consumeWindowInsets(WindowInsets.navigationBars)
                                 .consumeWindowInsets(PaddingValues(vertical = 80.dp))
-                                .imePadding()
+                                .imePadding(),
                     )
                 },
-                contentWindowInsets = WindowInsets.navigationBars
+                contentWindowInsets = WindowInsets.navigationBars,
             ) { contentPadding ->
                 Box(
                     modifier =
                         Modifier.padding(contentPadding)
                             .consumeWindowInsets(contentPadding)
-                            .imePadding()
+                            .imePadding(),
                 ) {
                     CurrentScreen()
                 }
@@ -107,7 +105,12 @@ object RootScreen : Screen, Parcelable {
 data class TopAppBarData(
     val title: SnapshotStateStack<@Composable () -> Unit> = mutableStateStackOf(),
     val navigationIcon: SnapshotStateStack<@Composable () -> Unit> = mutableStateStackOf(),
-    val actions: SnapshotStateStack<@Composable() (RowScope.() -> Unit)> = mutableStateStackOf()
+    val actions:
+        SnapshotStateStack<
+            @Composable()
+            (RowScope.() -> Unit),
+        > =
+        mutableStateStackOf(),
 )
 
 val LocalSnackbarHostState = compositionLocalOf { SnackbarHostState() }
@@ -115,7 +118,10 @@ val LocalTopAppBarProvider = compositionLocalOf { TopAppBarData() }
 val LocalFabProvider = compositionLocalOf { mutableStateStackOf<@Composable () -> Unit>() }
 
 @Composable
-fun SetFab(key: Any? = null, content: @Composable () -> Unit) {
+fun SetFab(
+    key: Any? = null,
+    content: @Composable () -> Unit,
+) {
     val fabProvider = LocalFabProvider.current
 
     DisposableEffect(key, content) {
@@ -133,7 +139,7 @@ fun CurrentFab(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
         transitionSpec = { scaleIn().togetherWith(scaleOut()).using(SizeTransform(clip = false)) },
         label = "CurrentFab",
-        modifier = modifier
+        modifier = modifier,
     ) {
         when (it) {
             null -> {}
@@ -146,7 +152,7 @@ fun CurrentFab(modifier: Modifier = Modifier) {
 fun SetAppBar(
     title: @Composable () -> Unit,
     navigationIcon: @Composable () -> Unit,
-    actions: @Composable RowScope.() -> Unit
+    actions: @Composable RowScope.() -> Unit,
 ) {
     val provider = LocalTopAppBarProvider.current
 
@@ -170,7 +176,6 @@ fun SetAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentAppBar() {
-
     val provider = LocalTopAppBarProvider.current
 
     val title = provider.title.lastItemOrNull
@@ -181,15 +186,13 @@ fun CurrentAppBar() {
         MediumTopAppBar(
             title = { title() },
             navigationIcon = { navigation() },
-            actions = { actions() }
+            actions = { actions() },
         )
     }
 }
 
 @Composable
-private fun BottomNavigation(
-    content: @Composable RowScope.() -> Unit,
-) {
+private fun BottomNavigation(content: @Composable RowScope.() -> Unit) {
     NavigationBar(content = content)
 }
 

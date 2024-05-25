@@ -26,7 +26,7 @@ fun SingleLineSnackbar(snackbarData: SnackbarData) {
                 TextButton(
                     colors =
                         ButtonDefaults.textButtonColors(
-                            contentColor = SnackbarDefaults.actionColor
+                            contentColor = SnackbarDefaults.actionColor,
                         ),
                     onClick = { snackbarData.performAction() },
                     content = { Text(actionLabel) },

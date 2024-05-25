@@ -1,0 +1,10 @@
+load("@rules_android//rules:rules.bzl", "android_binary")
+
+android_binary(
+    name = "app",
+    manifest = "AndroidManifest.xml",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak",
+    ],
+)

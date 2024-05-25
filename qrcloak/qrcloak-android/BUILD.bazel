@@ -1,7 +1,12 @@
 load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
 load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load("@rules_android//rules:rules.bzl", "android_binary", "android_library")
+
+exports_files(
+    srcs = [
+        "maven.MODULE.bazel",
+    ],
+)
 
 kt_compiler_plugin(
     name = "parcelize_plugin",
@@ -46,52 +51,5 @@ kt_jvm_library(
     visibility = ["//visibility:public"],
     exports = [
         "@maven//:androidx_compose_runtime_runtime",
-    ],
-)
-
-kt_android_library(
-    name = "lib",
-    srcs = glob([
-        "app/src/main/java/**/*.kt",
-    ]),
-    manifest = "app/src/main/AndroidManifest.xml",
-    resource_files = glob(["app/src/main/res/**"]),
-    visibility = ["//visibility:public"],
-    deps = [
-        ":compose",
-        ":parcelize",
-        "//qrcloak/qrcloak-bindings/languages/kotlin:qrcloak-kotlin",
-        "@maven//:androidx_camera_camera_camera2",
-        "@maven//:androidx_camera_camera_core",
-        "@maven//:androidx_camera_camera_extensions",
-        "@maven//:androidx_camera_camera_lifecycle",
-        "@maven//:androidx_camera_camera_mlkit_vision",
-        "@maven//:androidx_camera_camera_video",
-        "@maven//:androidx_camera_camera_view",
-        "@maven//:androidx_compose_material3_material3",
-        "@maven//:androidx_compose_material_material_icons_extended_android",
-        "@maven//:androidx_compose_ui_ui",
-        "@maven//:androidx_compose_ui_ui_tooling",
-        "@maven//:androidx_datastore_datastore_preferences_android",
-        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
-        "@maven//:cafe_adriel_voyager_voyager_screenmodel_android",
-        "@maven//:cafe_adriel_voyager_voyager_tab_navigator_android",
-        "@maven//:com_google_accompanist_accompanist_permissions",
-        "@maven//:com_google_mlkit_barcode_scanning",
-        "@maven//:io_github_alexzhirkevich_qrose",
-        "@maven//:net_java_dev_jna_jna",
-    ],
-)
-
-android_binary(
-    name = "app",
-    custom_package = "com.github.fhilgers.qrcloak",
-    dex_shards = 5,
-    incremental_dexing = 1,
-    manifest = "app/src/main/AndroidManifest.xml",
-    multidex = "native",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":lib",
     ],
 )

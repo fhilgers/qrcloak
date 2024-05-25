@@ -36,8 +36,8 @@ import com.github.fhilgers.qrcloak.ui.composables.ScrollableOutlinedBase64Text
 import com.github.fhilgers.qrcloak.ui.composables.Tag
 import com.github.fhilgers.qrcloak.ui.composables.TagData
 import com.github.fhilgers.qrcloak.ui.composables.TagRow
-import com.github.fhilgers.qrcloak.ui.screens.SetAppBar
-import com.github.fhilgers.qrcloak.ui.screens.SetFab
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetAppBar
+import com.github.fhilgers.qrcloak.ui.screens.shared.SetFab
 import com.github.fhilgers.qrcloak.utils.OptionalPartialPayloadParceler
 import com.github.fhilgers.qrcloak.utils.compressionTag
 import com.github.fhilgers.qrcloak.utils.dataString
@@ -57,9 +57,8 @@ fun GroupDetails(
     encryptionTag: String,
     compressionTag: String,
     onMerge: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     val pagerState = rememberPagerState { texts.size }
 
     val total = texts.count()
@@ -77,7 +76,7 @@ fun GroupDetails(
         TagRow(modifier = Modifier.fillMaxWidth()) {
             Tag(TagData(text = "$there/$total", icon = Icons.Default.Inventory2))
 
-            Tag(TagData(text = "${id}", icon = Icons.Default.Numbers))
+            Tag(TagData(text = "$id", icon = Icons.Default.Numbers))
 
             Tag(TagData(text = encryptionTag, icon = Icons.Default.EnhancedEncryption))
 
@@ -97,7 +96,7 @@ fun GroupDetails(
                     ScrollableOutlinedBase64Text(
                         text = "",
                         isError = true,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
                 else -> {
@@ -114,7 +113,6 @@ data class GroupDetailScreen(val id: UInt, val payloads: List<PartialPayload?>) 
     Screen, Parcelable {
     @Composable
     override fun Content() {
-
         val navigator = LocalNavigator.currentOrThrow
 
         val isIncomplete = payloads.contains(null)
@@ -132,11 +130,11 @@ data class GroupDetailScreen(val id: UInt, val payloads: List<PartialPayload?>) 
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "Navigate Back"
+                        contentDescription = "Navigate Back",
                     )
                 }
             },
-            actions = {}
+            actions = {},
         )
 
         GroupDetails(
@@ -150,7 +148,7 @@ data class GroupDetailScreen(val id: UInt, val payloads: List<PartialPayload?>) 
                 val merged = PayloadMerger().merge(payloads)
 
                 navigator.push(CompleteDetailScreen(payload = merged.complete[0]))
-            }
+            },
         )
     }
 }

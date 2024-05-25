@@ -1,4 +1,3 @@
 .direnv
-rules_kotlin
 qrcloak/target
 qrcloak/qrcloak-word/node_modules

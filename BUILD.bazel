@@ -1,4 +1,5 @@
 load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain")
 
 kt_compiler_plugin(
     name = "jetpack_compose_compiler_plugin",
@@ -75,4 +76,9 @@ alias(
     name = "armeabi-v7a",
     actual = "armv7-android",
     visibility = ["//visibility:public"],
+)
+
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    experimental_use_abi_jars = True,
 )

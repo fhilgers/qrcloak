@@ -315,3 +315,5 @@ register_toolchains(
 )
 
 register_toolchains("@rules_rust//wasm_bindgen:default_wasm_bindgen_toolchain")
+
+register_toolchains("//:kotlin_toolchain")

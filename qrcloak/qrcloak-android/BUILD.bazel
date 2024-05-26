@@ -24,7 +24,7 @@ kt_compiler_plugin(
     target_embedded_compiler = True,
     visibility = ["//visibility:public"],
     deps = [
-        "@maven//:androidx_compose_compiler_compiler",
+        "@maven_deps//:androidx_compose_compiler_compiler",
     ],
 )
 
@@ -50,6 +50,6 @@ kt_jvm_library(
     ],
     visibility = ["//visibility:public"],
     exports = [
-        "@maven//:androidx_compose_runtime_runtime",
+        "@maven_deps//:androidx_compose_runtime_runtime",
     ],
 )

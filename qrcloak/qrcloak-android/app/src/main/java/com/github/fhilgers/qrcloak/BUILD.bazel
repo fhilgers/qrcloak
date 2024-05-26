@@ -8,7 +8,7 @@ kt_android_library(
         "//qrcloak/qrcloak-android:compose",
         "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/screens",
         "//qrcloak/qrcloak-android/app/src/main/java/com/github/fhilgers/qrcloak/ui/theme",
-        "@maven//:androidx_activity_activity",
-        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
+        "@maven_deps//:androidx_activity_activity",
+        "@maven_deps//:cafe_adriel_voyager_voyager_navigator_android",
     ],
 )

@@ -6,10 +6,10 @@ kt_android_library(
     visibility = ["//visibility:public"],
     deps = [
         "//qrcloak/qrcloak-android:compose",
-        "@maven//:androidx_compose_animation_animation",
-        "@maven//:androidx_compose_foundation_foundation",
-        "@maven//:androidx_compose_material3_material3",
-        "@maven//:androidx_compose_ui_ui",
-        "@maven//:cafe_adriel_voyager_voyager_navigator_android",
+        "@maven_deps//:androidx_compose_animation_animation",
+        "@maven_deps//:androidx_compose_foundation_foundation",
+        "@maven_deps//:androidx_compose_material3_material3",
+        "@maven_deps//:androidx_compose_ui_ui",
+        "@maven_deps//:cafe_adriel_voyager_voyager_navigator_android",
     ],
 )

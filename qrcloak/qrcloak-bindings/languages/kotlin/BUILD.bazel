@@ -35,6 +35,6 @@ kt_android_library(
     visibility = ["//visibility:public"],
     deps = [
         ":native",
-        "@maven//:net_java_dev_jna_jna",
+        "@maven_deps//:net_java_dev_jna_jna",
     ],
 )

@@ -7,9 +7,9 @@ kt_android_library(
     deps = [
         "//qrcloak/qrcloak-android:compose",
         "//qrcloak/qrcloak-bindings/languages/kotlin:qrcloak-kotlin",
-        "@maven//:androidx_compose_material3_material3",
-        "@maven//:androidx_compose_material_material_icons_extended_android",
-        "@maven//:androidx_compose_ui_ui",
-        "@maven//:androidx_compose_ui_ui_tooling",
+        "@maven_deps//:androidx_compose_material3_material3",
+        "@maven_deps//:androidx_compose_material_material_icons_extended_android",
+        "@maven_deps//:androidx_compose_ui_ui",
+        "@maven_deps//:androidx_compose_ui_ui_tooling",
     ],
 )

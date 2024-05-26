@@ -5,7 +5,7 @@
   >
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-sdk android:minSdkVersion="21"
+    <uses-sdk android:minSdkVersion="26"
               android:targetSdkVersion="34"/>
 
     <application

@@ -12,5 +12,4 @@ actions:
       disk: 50G
     bazel_commands:
       - "bazel run //tools/workflow:workflow_setup"
-      - "bazel clean --expunge"
       - "bazel --bazelrc=ci.bazelrc test //..."

@@ -11,5 +11,6 @@ actions:
     resource_requests:
       disk: 50G
     bazel_commands:
-      - "run --noenable_bzlmod //tools/workflow:workflow_setup"
-      - "test --config=remote --repo_env=ANDROID_HOME=/home/buildbuddy/workspace/.home/.android/sdk/ --repo_env=ANDROID_NDK_HOME=/home/buildbuddy/workspace/.home/.android/sdk/ndk/26.3.11579264/ //..."
+      - "bazel run //tools/workflow:workflow_setup"
+      - "bazel clean --expunge"
+      - "bazel --bazelrc=ci.bazelrc test //..."

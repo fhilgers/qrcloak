@@ -794,32 +794,6 @@
         ]
       }
     },
-    "@@buildozer~//:buildozer_binary.bzl%buildozer_binary": {
-      "general": {
-        "bzlTransitiveDigest": "EleDU/FQ1+e/RgkW3aIDmdaxZEthvoWQhsqFTxiSgMI=",
-        "usagesDigest": "hxw0DOI5uj9VGmLCZhN8VXkjHv/p+F6B1t1NyQTGnO8=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "buildozer_binary": {
-            "bzlFile": "@@buildozer~//private:buildozer_binary.bzl",
-            "ruleClassName": "_buildozer_binary_repo",
-            "attributes": {
-              "sha256": {
-                "darwin-amd64": "6286bbbcb5314d675fcb4ede30edf397a68c611005412c937b2cc0c4bf4b714b",
-                "darwin-arm64": "0a2f70aa7b864de9bf71d1aac39659017b7a84169506e350d9ec77c609265212",
-                "linux-amd64": "9a7424aca7ca911c85cfedeadf065f0d95c492e80f0e29bd07ea98f6eb087259",
-                "linux-arm64": "07c8ed5ca3efea7e20756e9060660b7e658c781953c60650a1b99cd8bb857fcf",
-                "windows-amd64": "edad2e85cc691b064de9675db8e732b2c5a4ada0b32282ecdf4b18692cc8d3fe"
-              },
-              "version": "7.1.1"
-            }
-          }
-        },
-        "recordedRepoMappingEntries": []
-      }
-    },
     "@@gazelle~//:extensions.bzl%go_deps": {
       "general": {
         "bzlTransitiveDigest": "GcORnMRuGfVe3k82WRc8e8tLQilhh2DtNoXjc1yQAr8=",
@@ -1241,32 +1215,6 @@
           }
         },
         "recordedRepoMappingEntries": []
-      }
-    },
-    "@@rules_android~//bzlmod_extensions:apksig.bzl%apksig_extension": {
-      "general": {
-        "bzlTransitiveDigest": "Sy1ZQH9AkBizKp+wlesv2xPKHYYzGIR255bq0P+wIVk=",
-        "usagesDigest": "enNK0rsS1qMnRfLKIv3M75A5yV03sdVXrOxrVhIvWS8=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "apksig": {
-            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
-            "ruleClassName": "http_archive",
-            "attributes": {
-              "url": "https://android.googlesource.com/platform/tools/apksig/+archive/24e3075e68ebe17c0b529bb24bfda819db5e2f3b.tar.gz",
-              "build_file": "@@rules_android~//bzlmod_extensions:apksig.BUILD"
-            }
-          }
-        },
-        "recordedRepoMappingEntries": [
-          [
-            "rules_android~",
-            "bazel_tools",
-            "bazel_tools"
-          ]
-        ]
       }
     },
     "@@rules_android~//rules/android_sdk_repository:rule.bzl%android_sdk_repository_extension": {
@@ -10224,94 +10172,6 @@
             "rules_rust~",
             "rust_host_tools",
             "rules_rust~~rust_host_tools~rust_host_tools"
-          ]
-        ]
-      }
-    },
-    "@@rules_rust~//crate_universe/private/module_extensions:cargo_bazel_bootstrap.bzl%cargo_bazel_bootstrap": {
-      "general": {
-        "bzlTransitiveDigest": "PP0G3b0jeRiyHDJ2hCVXTFOQvnSbAJk4fWnI1XFEnCQ=",
-        "usagesDigest": "QTf0DUM5DaUqwbKMZgxwt/9gNIZKEUvR0UpUwb2lO2o=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "cargo_bazel_bootstrap": {
-            "bzlFile": "@@rules_rust~//cargo/private:cargo_bootstrap.bzl",
-            "ruleClassName": "cargo_bootstrap_repository",
-            "attributes": {
-              "srcs": [
-                "@@rules_rust~//crate_universe:src/api.rs",
-                "@@rules_rust~//crate_universe:src/api/lockfile.rs",
-                "@@rules_rust~//crate_universe:src/cli.rs",
-                "@@rules_rust~//crate_universe:src/cli/generate.rs",
-                "@@rules_rust~//crate_universe:src/cli/query.rs",
-                "@@rules_rust~//crate_universe:src/cli/splice.rs",
-                "@@rules_rust~//crate_universe:src/cli/vendor.rs",
-                "@@rules_rust~//crate_universe:src/config.rs",
-                "@@rules_rust~//crate_universe:src/context.rs",
-                "@@rules_rust~//crate_universe:src/context/crate_context.rs",
-                "@@rules_rust~//crate_universe:src/context/platforms.rs",
-                "@@rules_rust~//crate_universe:src/lib.rs",
-                "@@rules_rust~//crate_universe:src/lockfile.rs",
-                "@@rules_rust~//crate_universe:src/main.rs",
-                "@@rules_rust~//crate_universe:src/metadata.rs",
-                "@@rules_rust~//crate_universe:src/metadata/dependency.rs",
-                "@@rules_rust~//crate_universe:src/metadata/metadata_annotation.rs",
-                "@@rules_rust~//crate_universe:src/rendering.rs",
-                "@@rules_rust~//crate_universe:src/rendering/template_engine.rs",
-                "@@rules_rust~//crate_universe:src/rendering/templates/module_bzl.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/partials/header.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/partials/module/aliases_map.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/partials/module/deps_map.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/partials/module/repo_git.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/partials/module/repo_http.j2",
-                "@@rules_rust~//crate_universe:src/rendering/templates/vendor_module.j2",
-                "@@rules_rust~//crate_universe:src/rendering/verbatim/alias_rules.bzl",
-                "@@rules_rust~//crate_universe:src/select.rs",
-                "@@rules_rust~//crate_universe:src/splicing.rs",
-                "@@rules_rust~//crate_universe:src/splicing/cargo_config.rs",
-                "@@rules_rust~//crate_universe:src/splicing/crate_index_lookup.rs",
-                "@@rules_rust~//crate_universe:src/splicing/splicer.rs",
-                "@@rules_rust~//crate_universe:src/test.rs",
-                "@@rules_rust~//crate_universe:src/utils.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/glob.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/label.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/select.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/select_dict.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/select_list.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/select_scalar.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/select_set.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/serialize.rs",
-                "@@rules_rust~//crate_universe:src/utils/starlark/target_compatible_with.rs",
-                "@@rules_rust~//crate_universe:src/utils/target_triple.rs"
-              ],
-              "binary": "cargo-bazel",
-              "cargo_lockfile": "@@rules_rust~//crate_universe:Cargo.lock",
-              "cargo_toml": "@@rules_rust~//crate_universe:Cargo.toml",
-              "version": "1.78.0",
-              "timeout": 900,
-              "rust_toolchain_cargo_template": "@rust_host_tools//:bin/{tool}",
-              "rust_toolchain_rustc_template": "@rust_host_tools//:bin/{tool}"
-            }
-          }
-        },
-        "recordedRepoMappingEntries": [
-          [
-            "rules_rust~",
-            "bazel_skylib",
-            "bazel_skylib~"
-          ],
-          [
-            "rules_rust~",
-            "bazel_tools",
-            "bazel_tools"
-          ],
-          [
-            "rules_rust~",
-            "rules_rust",
-            "rules_rust~"
           ]
         ]
       }

@@ -1,5 +1,6 @@
 exports_files(
     srcs = [
+        "rules_android_ndk.patch",
         "rules_kotlin.patch",
         "rules_robolectric.patch",
         "uniffi_bindgen.patch",

@@ -1,20 +1,10 @@
 load("@rules_android//rules:rules.bzl", "android_sdk_repository")
+load("@rules_android_ndk//:rules.bzl", "android_ndk_repository")
 
 android_sdk_repository(
     name = "androidsdk",
     api_level = 34,
 )
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "rules_android_ndk",
-    sha256 = "f238b4b0323f1e0028a4a3f1093574d70f087867f4b29626469a11eaaf9fd63f",
-    strip_prefix = "rules_android_ndk-1ed5be3498d20c8120417fe73b6a5f2b4a3438cc",
-    url = "https://github.com/bazelbuild/rules_android_ndk/archive/1ed5be3498d20c8120417fe73b6a5f2b4a3438cc.zip",
-)
-
-load("@rules_android_ndk//:rules.bzl", "android_ndk_repository")
 
 android_ndk_repository(
     name = "androidndk",

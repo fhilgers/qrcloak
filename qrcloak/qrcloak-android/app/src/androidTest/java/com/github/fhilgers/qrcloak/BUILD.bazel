@@ -1,0 +1,25 @@
+load("@rules_android//android:rules.bzl", "android_local_test")
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "example_lib",
+    srcs = [
+        "MyComposeTest.kt",
+    ],
+    deps = [
+        "//qrcloak/qrcloak-android:compose",
+        "@maven_deps//:androidx_compose_material3_material3",
+        "@maven_deps//:androidx_compose_ui_ui_test_junit4",
+        "@maven_deps//:androidx_compose_ui_ui_test_manifest",
+        "@maven_deps//:org_robolectric_robolectric",
+    ],
+)
+
+android_local_test(
+    name = "example",
+    test_class = "com.github.fhilgers.qrcloak.MyComposeTest",
+    deps = [
+        ":example_lib",
+        "@rules_robolectric//bazel:android-all",
+    ],
+)

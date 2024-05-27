@@ -9,6 +9,7 @@ maven_boms = {boms}
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
+    name = "maven_deps",
     artifacts = maven_artifacts,
     boms = maven_boms,
     fail_if_repin_required = True,
@@ -21,7 +22,7 @@ maven.install(
     use_starlark_android_rules = True,
     aar_import_bzl_label = "@rules_android//android:rules.bzl",
 )
-use_repo(maven, "maven", "unpinned_maven")
+use_repo(maven, "maven_deps")
 """.strip()
 
 def quote(s):

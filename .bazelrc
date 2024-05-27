@@ -1,3 +1,5 @@
+--digest_function=blake3
+
 common --experimental_google_legacy_api
 common --experimental_enable_android_migration_apis
 
@@ -23,7 +25,6 @@ build --extra_execution_platforms=@buildbuddy_toolchain//:platform
 build --crosstool_top=@buildbuddy_toolchain//:toolchain
 build --extra_toolchains=@buildbuddy_toolchain//:cc_toolchain
 build --define=EXECUTOR=remote
-build --jobs=30
 
 build --remote_cache_compression
 build --noslim_profile --experimental_profile_include_target_label --experimental_profile_include_primary_output
@@ -43,3 +44,10 @@ build --incompatible_strict_action_env
 # inputs to copy_directory actions.
 # Docs: https://bazel.build/reference/command-line-reference#flag--host_jvm_args
 startup --host_jvm_args=-DBAZEL_TRACK_SOURCE_DIRECTORIES=1
+
+common --nolegacy_important_outputs
+common --remote_build_event_upload=minimal
+common --experimental_remote_cache_async
+common --noremote_upload_local_results
+common --remote_cache_compression
+common --jobs=50

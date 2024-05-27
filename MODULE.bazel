@@ -12,6 +12,12 @@ bazel_dep(name = "rules_cc", version = "0.0.9")
 bazel_dep(name = "aspect_rules_js", version = "1.42.1")
 bazel_dep(name = "rules_android", version = "0.2.0")
 bazel_dep(name = "rules_buildbuddy", version = "0.0.1")
+bazel_dep(name = "rules_robolectric", version = "4.11.1")
+single_version_override(
+    module_name = "rules_robolectric",
+    patches = ["//patches:rules_robolectric.patch"],
+)
+
 git_override(
     module_name = "rules_buildbuddy",
     commit = "821a76d320b3f65084b6223eaf48f6c5c3224ec4",

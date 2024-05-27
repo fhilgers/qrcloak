@@ -15,6 +15,7 @@ kotlin = "1.9.23"
 lifecycle = "2.7.0"
 mlkit = "17.2.0"
 qrose = "1.0.1"
+robolectric = "4.11.1"
 voyager = "1.0.0"
 
 [libraries]
@@ -107,6 +108,8 @@ org-jetbrains-kotlin-kotlin-reflect = { group = "org.jetbrains.kotlin", name = "
 org-jetbrains-kotlin-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 org-jetbrains-kotlin-kotlin-stdlib-jdk7 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk7", version.ref = "kotlin" }
 org-jetbrains-kotlin-kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
+
+org-roboelectric-roboelectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 # androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 # androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityCompose" }

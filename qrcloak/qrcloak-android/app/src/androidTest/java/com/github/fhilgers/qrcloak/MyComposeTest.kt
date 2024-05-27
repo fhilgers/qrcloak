@@ -26,6 +26,7 @@ class MyComposeTest {
         composeTestRule.setContent {
             var showWelcome by remember { mutableStateOf(false) }
             Column {
+                Text("Hello")
                 Button(onClick = { showWelcome = !showWelcome }) { Text("Continue") }
                 if (showWelcome) {
                     Text("Welcome")

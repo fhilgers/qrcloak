@@ -1,12 +1,12 @@
 actions:
   - name: "Test all targets"
     triggers:
-    push:
-      branches:
-        - "main" # <-- replace "main" with your main branch name
-    pull_request:
-      branches:
-        - "*"
+      push:
+        branches:
+          - "main" # <-- replace "main" with your main branch name
+      pull_request:
+        branches:
+          - "*"
     container_image: "ubuntu-20.04" # <-- add this line
     resource_requests:
       disk: 50G

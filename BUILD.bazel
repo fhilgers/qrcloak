@@ -81,4 +81,5 @@ alias(
 define_kt_toolchain(
     name = "kotlin_toolchain",
     experimental_use_abi_jars = True,
+    jvm_target = "17",
 )

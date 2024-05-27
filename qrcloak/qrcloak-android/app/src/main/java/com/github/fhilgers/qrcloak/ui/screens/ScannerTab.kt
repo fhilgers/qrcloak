@@ -57,6 +57,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.github.fhilgers.qrcloak.R
+import com.github.fhilgers.qrcloak.ui.screens.shared.LocalSnackbarHostState
 import com.github.fhilgers.qrcloak.utils.RAW_KEY
 import com.github.fhilgers.qrcloak.utils.dataStore
 import com.google.accompanist.permissions.ExperimentalPermissionsApi

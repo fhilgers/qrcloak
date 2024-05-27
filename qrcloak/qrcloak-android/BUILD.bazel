@@ -30,11 +30,7 @@ kt_compiler_plugin(
 
 kt_jvm_library(
     name = "parcelize",
-    srcs = [],
     exported_compiler_plugins = [":parcelize_plugin"],
-    plugins = [
-        ":parcelize_plugin",
-    ],
     visibility = ["//visibility:public"],
     exports = [
         "@rules_kotlin//kotlin/compiler:parcelize-runtime",
@@ -43,11 +39,7 @@ kt_jvm_library(
 
 kt_jvm_library(
     name = "compose",
-    srcs = [],
     exported_compiler_plugins = [":jetpack_compose_compiler_plugin"],
-    plugins = [
-        ":jetpack_compose_compiler_plugin",
-    ],
     visibility = ["//visibility:public"],
     exports = [
         "@maven_deps//:androidx_compose_runtime_runtime",

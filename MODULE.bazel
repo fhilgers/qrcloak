@@ -27,7 +27,7 @@ git_override(
 
 git_override(
     module_name = "rules_android",
-    commit = "f23bfb0df4815d19cab7cab2d30f3ab2bff99413",
+    commit = "1e637900e7ca29cc2c5df97156ac0d51b59b7eeb",
     remote = "https://github.com/fhilgers/rules_android",
 )
 

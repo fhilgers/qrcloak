@@ -9,8 +9,8 @@ from textwrap import dedent
 custom_bar_format = '[{bar:39}] {percentage:3.0f}% {desc}'
 
 def install_jre():
-    subprocess.run(['apt-get', 'update'], check=True)
-    subprocess.run(['apt-get', 'install', '--yes', 'openjdk-17-jre'], check=True)
+    subprocess.run(['sudo', 'apt-get', 'update'], check=True)
+    subprocess.run(['sudo', 'apt-get', 'install', '--yes', 'openjdk-17-jre'], check=True)
 
 def check_sha256(filename, expected_sha256):
     sha256_hash = hashlib.sha256()

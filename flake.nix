@@ -108,7 +108,10 @@
             alejandra.enable = true;
             rustfmt.enable = true;
             biome.enable = true;
-            ruff.enable = true;
+            ruff = {
+              check = true;
+              format = true;
+            };
             shfmt.enable = true;
             buildifier = {
               enable = true;

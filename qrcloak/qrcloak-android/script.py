@@ -24,15 +24,19 @@ maven.install(
 use_repo(maven, "maven_deps")
 """.strip()
 
+
 def quote(s):
-    return f"\"{s}\""
+    return f'"{s}"'
+
 
 def ident(s, by):
     return f"{by}{s}"
 
+
 def format(ss):
     joined = ",\n".join(ss)
     return f"[\n{joined}\n]"
+
 
 def format_versions(mv):
     lines = []
@@ -41,6 +45,7 @@ def format_versions(mv):
 
     joined = ",\n".join(lines)
     return f"dict(\n{joined}\n)"
+
 
 boms = []
 artifacts = []
@@ -61,12 +66,21 @@ with open("./gradle/libs.versions.toml", "rb") as f:
         version_ref = library.get("version", {}).get("ref")
         version = versions.get(version_ref) if version_ref else None
 
-        full = f"    \"{module}:{{}}\".format(maven_versions[\"{version_ref}\"])" if version_ref else f"    \"{module}\""
+        full = (
+            f'    "{module}:{{}}".format(maven_versions["{version_ref}"])'
+            if version_ref
+            else f'    "{module}"'
+        )
 
         if module == "androidx.compose:compose-bom":
             boms.append(full)
         else:
             artifacts.append(full)
 
-print(TEMPLATE.format(artifacts = format(artifacts), boms = format(boms), versions = format_versions(versions)))
-
+print(
+    TEMPLATE.format(
+        artifacts=format(artifacts),
+        boms=format(boms),
+        versions=format_versions(versions),
+    )
+)

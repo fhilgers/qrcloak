@@ -1,17 +1,17 @@
 versions = dict(
-    accompanist = "0.35.0-alpha",
-    activity = "1.9.0",
-    camera = "1.4.0-alpha05",
-    compose_bom = "2024.05.00",
-    compose_compiler = "1.5.13",
-    concurrent = "1.1.0",
-    core = "1.13.1",
-    datastore = "1.1.0",
-    fragment = "1.7.0",
-    lifecycle = "2.7.0",
-    mlkit = "17.2.0",
-    qrose = "1.0.1",
-    voyager = "1.0.0",
+    accompanist="0.35.0-alpha",
+    activity="1.9.0",
+    camera="1.4.0-alpha05",
+    compose_bom="2024.05.00",
+    compose_compiler="1.5.13",
+    concurrent="1.1.0",
+    core="1.13.1",
+    datastore="1.1.0",
+    fragment="1.7.0",
+    lifecycle="2.7.0",
+    mlkit="17.2.0",
+    qrose="1.0.1",
+    voyager="1.0.0",
 )
 
 artifacts = [
@@ -83,7 +83,9 @@ artifacts = [
     "androidx.lifecycle:lifecycle-service:{}".format(versions["lifecycle"]),
     "androidx.lifecycle:lifecycle-viewmodel-ktx:{}".format(versions["lifecycle"]),
     "androidx.lifecycle:lifecycle-viewmodel-compose:{}".format(versions["lifecycle"]),
-    "androidx.lifecycle:lifecycle-viewmodel-savedstate:{}".format(versions["lifecycle"]),
+    "androidx.lifecycle:lifecycle-viewmodel-savedstate:{}".format(
+        versions["lifecycle"]
+    ),
     "io.github.alexzhirkevich:qrose:{}".format(versions["qrose"]),
     "androidx.camera:camera-camera2:{}".format(versions["camera"]),
     "androidx.camera:camera-core:{}".format(versions["camera"]),
@@ -104,17 +106,21 @@ boms = [
     "androidx.compose:compose-bom:{}".format(versions["compose_bom"]),
 ]
 
+
 def get_aar(splits):
     return "aar" if len(splits) > 2 and splits[2] == "aar" else None
 
+
 def get_key(group, name):
     return f"{group}-{name}".replace(":", "-").replace(".", "-")
+
 
 def get_version(splits):
     if get_aar(splits):
         return splits[3] if len(splits) > 3 else None
     else:
         return splits[2] if len(splits) > 2 else None
+
 
 def get_version_ref(version):
     if not version:
@@ -126,11 +132,12 @@ def get_version_ref(version):
 
     return None
 
+
 def format_version(version, version_ref):
     if version_ref:
-        return f", version.ref = \"{version_ref}\""
+        return f', version.ref = "{version_ref}"'
     elif version:
-        return f", version = \"{version}\""
+        return f', version = "{version}"'
     else:
         return ""
 
@@ -139,7 +146,7 @@ for artifact in artifacts:
     splits = artifact.split(":")
     group = splits[0]
     name = splits[1]
-    
+
     aar = get_aar(splits)
     key = get_key(group, name)
     version = get_version(splits)
@@ -147,9 +154,6 @@ for artifact in artifacts:
 
     name = f"{name}:{aar}" if aar else name
     formatted_version = format_version(version, version_ref)
-    value = f"{{ group = \"{group}\", name = \"{name}\"{formatted_version} }}"
+    value = f'{{ group = "{group}", name = "{name}"{formatted_version} }}'
 
     print(f"{key} = {value}")
-
-
-

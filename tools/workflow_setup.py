@@ -6,11 +6,15 @@ import zipfile
 from tqdm import tqdm
 from textwrap import dedent
 
-custom_bar_format = '[{bar:39}] {percentage:3.0f}% {desc}'
+custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
+
 
 def install_jre():
-    subprocess.run(['sudo', 'apt-get', 'update'], check=True)
-    subprocess.run(['sudo', 'apt-get', 'install', '--yes', 'openjdk-17-jre'], check=True)
+    subprocess.run(["sudo", "apt-get", "update"], check=True)
+    subprocess.run(
+        ["sudo", "apt-get", "install", "--yes", "openjdk-17-jre"], check=True
+    )
+
 
 def check_sha256(filename, expected_sha256):
     sha256_hash = hashlib.sha256()
@@ -19,25 +23,36 @@ def check_sha256(filename, expected_sha256):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest() == expected_sha256
 
+
 class DownloadProgressBar(tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):
         if tsize is not None:
             self.total = tsize
-        
+
         previous = self.n
         current = min(b * bsize, tsize)
 
         self.update(current - previous)
 
+
 def download_with_progress(url, filename):
-    with DownloadProgressBar(desc=filename, bar_format=custom_bar_format, ascii=" =") as t:
+    with DownloadProgressBar(
+        desc=filename, bar_format=custom_bar_format, ascii=" ="
+    ) as t:
         urllib.request.urlretrieve(url, filename, reporthook=t.update_to)
         t.close()
 
+
 def unzip_with_progress(zip_file, extract_to):
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_file, "r") as zip_ref:
         total_files = len(zip_ref.infolist())
-        with tqdm(total=total_files, unit='file', desc='Unzipping', bar_format=custom_bar_format, ascii=" =") as t:
+        with tqdm(
+            total=total_files,
+            unit="file",
+            desc="Unzipping",
+            bar_format=custom_bar_format,
+            ascii=" =",
+        ) as t:
             for file in zip_ref.infolist():
                 zip_ref.extract(file, extract_to)
                 file_path = os.path.join(extract_to, file.filename)
@@ -46,8 +61,9 @@ def unzip_with_progress(zip_file, extract_to):
                 os.chmod(file_path, perm)
                 t.update(1)
 
+
 def main():
-    os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
+    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     install_jre()
 
     VERSION_LONG = "10406996"
@@ -58,30 +74,49 @@ def main():
     if not os.path.isdir(ANDROID_SDK_ROOT):
         url = f"https://dl.google.com/android/repository/{FILENAME}"
         download_with_progress(url, FILENAME)
-        
+
         if not check_sha256(FILENAME, SHA256):
             raise ValueError("SHA256 checksum does not match")
 
         os.makedirs(f"{ANDROID_SDK_ROOT}/cmdline-tools/", exist_ok=True)
-        
+
         unzip_with_progress(FILENAME, f"{ANDROID_SDK_ROOT}/tmp")
 
-        os.rename(f"{ANDROID_SDK_ROOT}/tmp/cmdline-tools", f"{ANDROID_SDK_ROOT}/cmdline-tools/latest")
+        os.rename(
+            f"{ANDROID_SDK_ROOT}/tmp/cmdline-tools",
+            f"{ANDROID_SDK_ROOT}/cmdline-tools/latest",
+        )
 
-    subprocess.run([f"{ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager", "--licenses"], input=b'y\n' * 100, capture_output=True, check=True)
-    subprocess.run([f"{ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager", "ndk;26.3.11579264", "build-tools;34.0.0", "platforms;android-34"], check=True)
+    subprocess.run(
+        [f"{ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager", "--licenses"],
+        input=b"y\n" * 100,
+        capture_output=True,
+        check=True,
+    )
+    subprocess.run(
+        [
+            f"{ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager",
+            "ndk;26.3.11579264",
+            "build-tools;34.0.0",
+            "platforms;android-34",
+        ],
+        check=True,
+    )
 
     ANDROID_HOME = ANDROID_SDK_ROOT
     ANDROID_NDK_HOME = f"{ANDROID_HOME}/ndk/26.3.11579264"
 
-    ci_bazelrc_content = dedent(f"""\
+    ci_bazelrc_content = dedent(
+        f"""\
     common --repo_env=ANDROID_HOME={ANDROID_HOME}
     common --repo_env=ANDROID_NDK_HOME={ANDROID_NDK_HOME}
-    """)
+    """
+    )
 
-    BUILD_WORKSPACE_DIRECTORY = os.getenv('BUILD_WORKSPACE_DIRECTORY', '.')
-    with open(os.path.join(BUILD_WORKSPACE_DIRECTORY, 'ci.bazelrc'), 'w') as f:
+    BUILD_WORKSPACE_DIRECTORY = os.getenv("BUILD_WORKSPACE_DIRECTORY", ".")
+    with open(os.path.join(BUILD_WORKSPACE_DIRECTORY, "ci.bazelrc"), "w") as f:
         f.write(ci_bazelrc_content)
+
 
 if __name__ == "__main__":
     main()

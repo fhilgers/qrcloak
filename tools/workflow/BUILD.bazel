@@ -1,4 +1,0 @@
-sh_binary(
-    name = "workflow_setup",
-    srcs = ["workflow_setup.sh"],
-)

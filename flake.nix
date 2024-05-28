@@ -70,41 +70,7 @@
             pkgs.bazel-buildtools
             pkgs.act
             (pkgs.buildFHSEnv {
-              name = "ibazel";
-              targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 bazel-watcher stdenv.cc openjdk11 python3 unzip zip]);
-              runScript = "ibazel";
-              unsharePid = false;
-              unshareUser = false;
-              unshareIpc = false;
-              unshareNet = false;
-              unshareUts = false;
-              unshareCgroup = false;
-            })
-            (pkgs.buildFHSEnv {
-              name = "dummy";
-              targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk libcxxabi.dev glibc]);
-              runScript = "bash";
-              unsharePid = false;
-              unshareUser = false;
-              unshareIpc = false;
-              unshareNet = false;
-              unshareUts = false;
-              unshareCgroup = false;
-            })
-            (pkgs.buildFHSEnv {
               name = "bazel";
-              targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk libcxxabi.dev]);
-              runScript = "/home/flyxi/.cache/bazelisk/downloads/sha256/0a96c4f0a121417e0aad666a3a3a1ef1d72de388463f9f4ddbb496b52e1a0232/bin/bazel";
-              multiPkgs = pkgs: (with pkgs; [glibc]);
-              unsharePid = false;
-              unshareUser = false;
-              unshareIpc = false;
-              unshareNet = false;
-              unshareUts = false;
-              unshareCgroup = false;
-            })
-            (pkgs.buildFHSEnv {
-              name = "bazelisk";
               targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk android-tools]);
               runScript = "bazelisk";
               unsharePid = false;
@@ -141,21 +107,16 @@
           programs = {
             alejandra.enable = true;
             rustfmt.enable = true;
-            prettier = {
+            biome.enable = true;
+            ruff.enable = true;
+            shfmt.enable = true;
+            buildifier = {
               enable = true;
+              includes = ["BUILD" "WORKSPACE" "MODULE" "*.bzl" "*.bazel" "*.bzlmod"];
             };
           };
 
           settings.formatter = {
-            buf = {
-              command = pkgs.writeShellScriptBin "buf.sh" ''
-                for f in $@; do
-                  ${pkgs.buf}/bin/buf format --exit-code > /dev/null "$f" || ${pkgs.buf}/bin/buf format -w "$f"
-                done
-              '';
-              includes = ["*.proto"];
-            };
-
             taplo = {
               command = "${pkgs.taplo}/bin/taplo";
               options = [
@@ -175,11 +136,6 @@
               ];
               includes = ["*.kt" "*.kts"];
             };
-
-            buildifier = {
-              command = "${pkgs.bazel-buildtools}/bin/buildifier";
-              includes = ["BUILD" "WORKSPACE" "MODULE" "*.bzl" "*.bazel" "*.bzlmod"];
-            };
           };
 
           flakeCheck = false;
@@ -188,14 +144,6 @@
         pre-commit = {
           settings = {
             hooks.treefmt.enable = true;
-
-            hooks.buf-lint = {
-              enable = true;
-              name = "Buf Lint";
-              entry = "${pkgs.buf}/bin/buf lint";
-              types = ["proto"];
-              pass_filenames = false;
-            };
           };
         };
       };

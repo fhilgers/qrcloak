@@ -1,3 +1,11 @@
+load("@python_versions//3.12:defs.bzl", "py_binary")
+
+exports_files(
+    srcs = [
+        "requirements.txt",
+    ],
+)
+
 py_binary(
     name = "unzip_jars",
     srcs = ["unzip_jars.py"],
@@ -8,4 +16,13 @@ py_binary(
     name = "zip",
     srcs = ["zip.py"],
     visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "workflow_setup",
+    srcs = ["workflow_setup.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@pip_tool_deps//tqdm",
+    ],
 )

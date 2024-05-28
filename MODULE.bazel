@@ -14,6 +14,23 @@ bazel_dep(name = "rules_android", version = "0.2.0")
 bazel_dep(name = "rules_buildbuddy", version = "0.0.1")
 bazel_dep(name = "rules_robolectric", version = "4.11.1")
 bazel_dep(name = "rules_android_ndk", version = "0.1.0")
+bazel_dep(name = "aspect_rules_py", version = "0.7.3")
+bazel_dep(name = "rules_python", version = "0.32.2")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    python_version = "3.12",
+)
+use_repo(python, "python_versions")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pip_tool_deps",
+    python_version = "3.12",
+    requirements_lock = "//tools:requirements.txt",
+)
+use_repo(pip, "pip_tool_deps")
+
 git_override(
     module_name = "rules_android_ndk",
     commit = "1ed5be3498d20c8120417fe73b6a5f2b4a3438cc",

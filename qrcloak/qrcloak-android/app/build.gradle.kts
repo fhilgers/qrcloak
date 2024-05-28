@@ -40,6 +40,15 @@ android {
 }
 
 dependencies {
+    val f =
+        files(
+            fileTree("/home/flyxi/deps") {
+                include("**/*.jar")
+                include("**/*.aar")
+            }
+        )
+    implementation(f)
+    /*
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui.ui)
     implementation(libs.androidx.compose.ui.ui.graphics)
@@ -71,4 +80,6 @@ dependencies {
     androidTestImplementation(libs.org.roboelectric.roboelectric)
     androidTestImplementation(libs.androidx.compose.ui.ui.test.junit4)
     androidTestImplementation(libs.androidx.compose.ui.ui.test.manifest)
+
+     */
 }

@@ -1,8 +1,6 @@
 import os
 import zipfile
 import argparse
-import sys
-import re
 
 def unzip_files(jar_files, output_directory):
     if not os.path.exists(output_directory):

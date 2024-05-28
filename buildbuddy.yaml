@@ -11,5 +11,5 @@ actions:
     resource_requests:
       disk: 50G
     bazel_commands:
-      - "bazel run //tools/workflow:workflow_setup"
+      - "bazel run //tools:workflow_setup"
       - "bazel --bazelrc=ci.bazelrc test //..."

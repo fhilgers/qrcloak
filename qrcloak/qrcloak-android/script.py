@@ -1,5 +1,4 @@
 import tomllib
-import os
 
 TEMPLATE = """
 maven_versions = {versions}

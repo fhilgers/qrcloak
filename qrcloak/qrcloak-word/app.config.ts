@@ -7,19 +7,19 @@ import path from "path";
 import os from "os";
 
 export default defineConfig({
-  vite: {
-    plugins: [wasm(), topLevelAwait(), mkcert()],
-    server: {
-      fs: {
-        strict: false,
-      },
-    },
-  },
-  server: {
-    preset: "static",
-    https: {
-      cert: path.join(os.homedir(), ".vite-plugin-mkcert", "cert.pem"),
-      key: path.join(os.homedir(), ".vite-plugin-mkcert", "dev.pem"),
-    },
-  },
+	vite: {
+		plugins: [wasm(), topLevelAwait(), mkcert()],
+		server: {
+			fs: {
+				strict: false,
+			},
+		},
+	},
+	server: {
+		preset: "static",
+		https: {
+			cert: path.join(os.homedir(), ".vite-plugin-mkcert", "cert.pem"),
+			key: path.join(os.homedir(), ".vite-plugin-mkcert", "dev.pem"),
+		},
+	},
 });

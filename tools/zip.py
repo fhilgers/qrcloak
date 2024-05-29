@@ -1,10 +1,11 @@
 import os
 import re
+from typing import List
 import zipfile
 import argparse
 
 
-def should_exclude(file_path, excludes, base_directory):
+def should_exclude(file_path: str, excludes: List[str], base_directory: str):
     relative_path = os.path.relpath(file_path, base_directory)
     for pattern in excludes:
         if re.match(pattern, relative_path):
@@ -12,9 +13,9 @@ def should_exclude(file_path, excludes, base_directory):
     return False
 
 
-def zip_directory(directory, zip_filename, excludes):
+def zip_directory(directory: str, zip_filename: str, excludes: List[str]):
     with zipfile.ZipFile(zip_filename, "w", zipfile.ZIP_DEFLATED) as jar_file:
-        for root, dirs, files in os.walk(directory):
+        for root, _, files in os.walk(directory):
             for file in files:
                 file_path = os.path.join(root, file)
                 arcname = os.path.relpath(file_path, start=directory)

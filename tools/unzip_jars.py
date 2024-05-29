@@ -1,9 +1,10 @@
 import os
+from typing import List
 import zipfile
 import argparse
 
 
-def unzip_files(jar_files, output_directory):
+def unzip_files(jar_files: List[str], output_directory: str):
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
@@ -12,7 +13,7 @@ def unzip_files(jar_files, output_directory):
             zip_ref.extractall(output_directory)
 
 
-def rchmod(dir):
+def rchmod(dir: str):
     os.chmod(dir, 0o755)
 
     for root, dirs, files in os.walk(dir):

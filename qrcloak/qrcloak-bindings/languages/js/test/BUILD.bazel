@@ -1,26 +1,11 @@
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
+load(":bun.bzl", "bun_test")
 
-sh_binary(
-    name = "script",
-    srcs = [
-        "script.sh",
-    ],
-)
-
-sh_test(
+bun_test(
     name = "qrcloak-js-test",
-    srcs = [
-        "script.sh",
-    ],
     data = [
-        "lib.test.ts",
         "//qrcloak/qrcloak-bindings/languages/js",
-        "@bun//:bin",
     ],
-    env = {
-        "BUN": "$(location @bun//:bin)",
-        "TESTFILE": "$(location lib.test.ts)",
-        "QRCLOAK": "$(location //qrcloak/qrcloak-bindings/languages/js:js)",
-    },
+    entry_point = "lib.test.ts",
 )

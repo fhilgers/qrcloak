@@ -6,7 +6,6 @@ import {
 	PayloadGenerator,
 	PayloadMerger,
 	PayloadSplitter,
-	//} from "../../../bazel-out/k8-fastbuild/bin/qrcloak-word/node_modules/.aspect_rules_js/@fhilgers+qrcloak@0.0.0/node_modules/@fhilgers/qrcloak";
 } from "@fhilgers/qrcloak";
 
 import { expect, test } from "bun:test";

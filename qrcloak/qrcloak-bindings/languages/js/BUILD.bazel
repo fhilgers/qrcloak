@@ -23,6 +23,7 @@ npm_package(
         ":qrcloak-bindings-wasm-bundler",
         ":qrcloak-bindings-wasm-nodejs",
     ],
+    package = "@fhilgers/qrcloak",
 )
 
 exports_files(

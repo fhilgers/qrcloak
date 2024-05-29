@@ -5,6 +5,7 @@ import hashlib
 import zipfile
 from tqdm import tqdm
 from textwrap import dedent
+from typing import TYPE_CHECKING, NoReturn
 
 custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
 
@@ -16,7 +17,7 @@ def install_jre():
     )
 
 
-def check_sha256(filename, expected_sha256):
+def check_sha256(filename: str, expected_sha256: str):
     sha256_hash = hashlib.sha256()
     with open(filename, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -24,10 +25,9 @@ def check_sha256(filename, expected_sha256):
     return sha256_hash.hexdigest() == expected_sha256
 
 
-class DownloadProgressBar(tqdm):
-    def update_to(self, b=1, bsize=1, tsize=None):
-        if tsize is not None:
-            self.total = tsize
+class DownloadProgressBar(tqdm[NoReturn] if TYPE_CHECKING else tqdm):
+    def update_to(self, b: int, bsize: int, tsize: int):
+        self.total = tsize
 
         previous = self.n
         current = min(b * bsize, tsize)
@@ -35,7 +35,7 @@ class DownloadProgressBar(tqdm):
         self.update(current - previous)
 
 
-def download_with_progress(url, filename):
+def download_with_progress(url: str, filename: str):
     with DownloadProgressBar(
         desc=filename, bar_format=custom_bar_format, ascii=" ="
     ) as t:
@@ -43,7 +43,7 @@ def download_with_progress(url, filename):
         t.close()
 
 
-def unzip_with_progress(zip_file, extract_to):
+def unzip_with_progress(zip_file: str, extract_to: str):
     with zipfile.ZipFile(zip_file, "r") as zip_ref:
         total_files = len(zip_ref.infolist())
         with tqdm(

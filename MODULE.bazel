@@ -94,7 +94,7 @@ rust.toolchain(
         "armv7-linux-androideabi",
     ],
     versions = [
-        "1.78.0",
+        "1.79.0",
     ],
 )
 use_repo(rust, "rust_toolchains")

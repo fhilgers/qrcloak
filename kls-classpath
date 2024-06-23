@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+parent_path=$(
+	cd "$(dirname "${BASH_SOURCE[0]}")"
+	pwd -P
+)
+
+find $parent_path/deps -name "*.jar" -printf "%p:" | sed 's/:$//'
+echo

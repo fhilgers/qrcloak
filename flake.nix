@@ -70,8 +70,19 @@
             pkgs.bazel-buildtools
             pkgs.act
             (pkgs.buildFHSEnv {
+              name = "ibazel";
+              targetPkgs = pkgs: (with pkgs; [zlib.dev bazel-watcher libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk android-tools]);
+              runScript = "ibazel";
+              unsharePid = false;
+              unshareUser = false;
+              unshareIpc = false;
+              unshareNet = false;
+              unshareUts = false;
+              unshareCgroup = false;
+            })
+            (pkgs.buildFHSEnv {
               name = "bazel";
-              targetPkgs = pkgs: (with pkgs; [zlib.dev libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk android-tools]);
+              targetPkgs = pkgs: (with pkgs; [zlib.dev clang libxcrypt bazel_7 stdenv.cc openjdk11 python3 unzip pandoc zip bazelisk android-tools]);
               runScript = "bazelisk";
               unsharePid = false;
               unshareUser = false;

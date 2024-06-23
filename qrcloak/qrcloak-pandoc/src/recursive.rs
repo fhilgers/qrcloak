@@ -77,17 +77,18 @@ pub fn blocks<'a>(
             pandoc_ast::Block::LineBlock(_) => v.push(block),
             pandoc_ast::Block::CodeBlock(_, _) => v.push(block),
             pandoc_ast::Block::RawBlock(_, _) => v.push(block),
-            pandoc_ast::Block::BlockQuote(b) => v.extend(b),
-            pandoc_ast::Block::OrderedList(_, lb) => v.extend(lb.iter_mut().flatten()),
-            pandoc_ast::Block::BulletList(lb) => v.extend(lb.iter_mut().flatten()),
+            pandoc_ast::Block::BlockQuote(b) => v.extend(blocks(b.into_iter())),
+            pandoc_ast::Block::OrderedList(_, lb) => v.extend(blocks(lb.iter_mut().flatten())),
+            pandoc_ast::Block::BulletList(lb) => v.extend(blocks(lb.iter_mut().flatten())),
             pandoc_ast::Block::DefinitionList(abc) => {
-                v.extend(abc.iter_mut().flat_map(|(_, b)| b).flatten())
+                let flattened_blocks = abc.into_iter().flat_map(|(_, b)| b).flatten();
+                v.extend(flattened_blocks.into_iter());
             }
-            pandoc_ast::Block::Figure(_, _, b) => v.extend(b),
+            pandoc_ast::Block::Figure(_, _, b) => v.extend(blocks(b.into_iter())),
             pandoc_ast::Block::Header(_, _, _) => v.push(block),
             pandoc_ast::Block::HorizontalRule => v.push(block),
             pandoc_ast::Block::Table(_, _, _, _, _, _) => v.push(block), // TODO: handle table
-            pandoc_ast::Block::Div(_, b) => v.extend(b),
+            pandoc_ast::Block::Div(_, b) => v.extend(blocks(b.into_iter())),
             pandoc_ast::Block::Null => v.push(block),
         };
         v

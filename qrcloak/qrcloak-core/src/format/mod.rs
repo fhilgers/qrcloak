@@ -72,8 +72,12 @@ pub use partial::{PartialPayload, PartialPayloadHead, PartialPayloadTail};
 
 #[cfg(all(test, feature = "json"))]
 mod tests {
+    use std::io::{Read, Write};
+
+    use age::{Decryptor, Encryptor};
     use insta::assert_json_snapshot;
     use schemars::schema_for;
+    use secrecy::SecretString;
 
     use crate::format::Payload;
 
@@ -82,6 +86,50 @@ mod tests {
         let schema = schema_for!(Payload);
 
         assert_json_snapshot!(schema);
+    }
+
+    #[test]
+    fn roundtrip() {
+        let plaintext = b"Good Morning";
+        let passphrase = SecretString::new("insecure".to_owned());
+
+        let encrypted = {
+            // Create a new Encryptor with a passphrase
+            let encryptor = Encryptor::with_user_passphrase(passphrase.clone());
+
+            // Create a buffer to write the encrypted data to
+            let mut encrypted = vec![];
+            // Wrap the buffer with the encryptor
+            let mut writer = encryptor
+                .wrap_output(&mut encrypted)
+                .expect("failed to wrap");
+            writer.write_all(plaintext).expect("failed to write");
+            // Do not forget to call finish
+            writer.finish().expect("failed to write last chunk");
+
+            encrypted
+        };
+
+        let decrypted = {
+            // Create a new Decryptor from the encrypted data
+            let decryptor = match Decryptor::new(&encrypted[..]).expect("failed to parse header") {
+                // Data was encrypted with a passphrase
+                Decryptor::Passphrase(d) => d,
+                _ => unreachable!(),
+            };
+
+            // Create a buffer to write the decrypted data into
+            let mut decrypted = vec![];
+            let mut reader = decryptor
+                .decrypt(&passphrase, None)
+                .expect("wrong passphrase supplied");
+            reader.read_to_end(&mut decrypted).expect("failed to read");
+
+            decrypted
+        };
+
+        // Check whether input == output
+        assert_eq!(decrypted, plaintext);
     }
 }
 

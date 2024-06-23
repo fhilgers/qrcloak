@@ -1,4 +1,5 @@
 /.direnv
-/bazel-*
+bazel-*
 /.pre-commit-config.yaml
 .idea
+/deps

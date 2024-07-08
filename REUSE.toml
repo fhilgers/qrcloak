@@ -15,8 +15,11 @@ path = [
   "flake.lock",
   "manifest_install.json",
   "qrcloak/Cargo.lock",
+  "qrcloak/experiments/example.html",
   "qrcloak/qrcloak-bindings/languages/js/package.json",
   "qrcloak/qrcloak-core/src/format/snapshots/qrcloak_core__format__tests__validate_schema.snap",
+  "qrcloak/qrcloak-typst/my_secret.txt",
+  "qrcloak/qrcloak-typst/typst_sha256.wasm",
   "qrcloak/qrcloak-word/bun.lockb",
   "qrcloak/qrcloak-word/localhost.cert",
   "qrcloak/qrcloak-word/localhost.key",
@@ -27,6 +30,7 @@ path = [
   "tools/requirements.txt",
 ]
 precedence = "override"
+
 
 [[annotations]]
 SPDX-FileCopyrightText = "The Android Open Source Project"

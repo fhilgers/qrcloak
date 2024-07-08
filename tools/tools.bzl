@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 
 def _gather_jars_impl(ctx):

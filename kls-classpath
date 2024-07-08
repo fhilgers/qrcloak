@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 parent_path=$(
 	cd "$(dirname "${BASH_SOURCE[0]}")"
 	pwd -P

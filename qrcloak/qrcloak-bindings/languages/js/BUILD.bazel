@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 #load("@rules_rust//wasm_bindgen/rules_js:defs.bzl", "js_rust_wasm_bindgen")
 load("@rules_rust//wasm_bindgen:defs.bzl", "rust_wasm_bindgen")
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")

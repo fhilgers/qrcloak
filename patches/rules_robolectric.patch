@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 diff --git bazel/BUILD bazel/BUILD
 index e51ac36..ed1f45a 100644
 --- bazel/BUILD

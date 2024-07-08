@@ -8,5 +8,14 @@ version = 1
 [[annotations]]
 SPDX-FileCopyrightText = "Felix Hilgers <copyright@relay.fhilgers.com>"
 SPDX-License-Identifier = "CC0-1.0"
-path = ["qrcloak/Cargo.lock"]
+path = [
+  ".bazelversion",
+  ".github/**",
+  "MODULE.bazel.lock",
+  "flake.lock",
+  "manifest_install.json",
+  "qrcloak/Cargo.lock",
+  "rust-toolchain",
+  "tools/requirements.txt",
+]
 precedence = "override"

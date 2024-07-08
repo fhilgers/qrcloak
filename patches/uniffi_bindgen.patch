@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 diff --git a/src/library_mode.rs b/src/library_mode.rs
 index c460c03d9..acf329c90 100644
 --- a/src/library_mode.rs

@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load(":bun.bzl", "bun_test")

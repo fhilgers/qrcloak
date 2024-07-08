@@ -132,7 +132,7 @@
   "moduleExtensions": {
     "//tools:bun.bzl%bun": {
       "general": {
-        "bzlTransitiveDigest": "86gisowW0Tp0rhr0mZO3gjQbEwsp51viW/nsFA+U/bA=",
+        "bzlTransitiveDigest": "mp2kzhLB/OqlpLpPVtZbpHogE5X4OnJr8rEUt1Cm4ZA=",
         "usagesDigest": "E79kkPM1mJ0q/E/BO+1ifQ8py+WIKcitbkNaGbOTvME=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -3345,14 +3345,14 @@
         "usagesDigest": "w3jiywTHVV8rhFyf8p3wYi2dTwL+dgcg+BFKla0zhOo=",
         "recordedFileInputs": {
           "@@rules_rust~~rust_host_tools~rust_host_tools//bin/rustc": "edc2f0f23646c9877e3fb095a1e01d0e725b11daffa55c4851643f720666fc74",
-          "@@//qrcloak/Cargo.toml": "1027eb93f3eef06d5faea2776668252b8f891c1dc3c18776ff988058e8898656",
-          "@@//qrcloak/qrcloak-pandoc/Cargo.toml": "41be5e07fe9838cf04aa73ce81474f0625581dd4862694363c00be1ed77bf221",
-          "@@//qrcloak/qrcloak-core/Cargo.toml": "a89d62537483b0b507e97ebd463c440604bd50c7a79c67997a19447abfde5155",
+          "@@//qrcloak/Cargo.toml": "571e1e4cb48aa42718cd769b5567a63eea7efcff395124a96662d371dcd2bdb9",
+          "@@//qrcloak/qrcloak-pandoc/Cargo.toml": "47f2501dd8de5deaaaa2a49abc4a0193b0bcd1de85d9dee85b1267154fa76253",
+          "@@//qrcloak/qrcloak-core/Cargo.toml": "b902d94bee709227f1779f89cb232883c88aca116b0a5c4f9bc491ddb0ade866",
           "@@//qrcloak/Cargo.lock": "8d060b774230ea9e13994b743bdd22c8559c3d93cd485e9b6a51e9a6038d8c76",
-          "@@//qrcloak/qrcloak-bindings/Cargo.toml": "ff9be8b4167e4b73066b72e425a7bfdddbb96c4aafebde85284deaef045d593e",
-          "@@//qrcloak/qrcloak-cli/Cargo.toml": "9ae1848a1bc7de9ec0199e8e3fd400ae85d3f96727363387f0c2fe5e77c100c9",
-          "@@//qrcloak/qrcodegen/Cargo.toml": "d36faea5bbfa2c3f50952adad89a5df551fa5899c182ef24732bd2008ed5a853",
-          "@@//qrcloak/wasm-bindgen-brand/Cargo.toml": "904e0957751619cf0464507214f3ed5656f262b90915a68f680bf3e51e77e31d",
+          "@@//qrcloak/qrcloak-bindings/Cargo.toml": "059861dd3170201b325ddde3b03fab490dbf6d1d93a451fe913026a7086d85ea",
+          "@@//qrcloak/qrcloak-cli/Cargo.toml": "a3775df4b477733db984977f8f13c90d0c448194d4df3e07cb80e76d9b332b26",
+          "@@//qrcloak/qrcodegen/Cargo.toml": "f208ec8875c1ad6ccace7563d14588693f4ab644365e0705d2ff81b3f90a65a4",
+          "@@//qrcloak/wasm-bindgen-brand/Cargo.toml": "30bd08e313afe4035482669f7d5c7eef241d06b087aa442d3dd1c724f753f731",
           "@@rules_rust~~rust_host_tools~rust_host_tools//bin/cargo": "d0b4decf3683cbd306aafc2d4c4061168b30483d5db64dbe0c4f82fad425e783"
         },
         "recordedDirentsInputs": {},

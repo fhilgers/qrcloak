@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 /.direnv
 bazel-*
 /.pre-commit-config.yaml

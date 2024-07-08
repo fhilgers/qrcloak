@@ -1,13 +1,17 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 actions:
   - name: "Test all targets"
     triggers:
       push:
         branches:
-          - "main" # <-- replace "main" with your main branch name
+          - "main"
       pull_request:
         branches:
           - "*"
-    container_image: "ubuntu-20.04" # <-- add this line
+    container_image: "ubuntu-20.04"
     resource_requests:
       disk: 50G
     bazel_commands:

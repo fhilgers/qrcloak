@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary", "js_run_devserver")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")

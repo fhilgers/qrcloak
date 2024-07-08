@@ -15,7 +15,16 @@ path = [
   "flake.lock",
   "manifest_install.json",
   "qrcloak/Cargo.lock",
+  "qrcloak/qrcloak-core/src/format/snapshots/qrcloak_core__format__tests__validate_schema.snap",
   "rust-toolchain",
   "tools/requirements.txt",
 ]
 precedence = "override"
+
+[[annotations]]
+SPDX-FileCopyrightText = "The Android Open Source Project"
+SPDX-License-Identifier = "Apache-2.0"
+path = [
+  "qrcloak/qrcloak-android/app/proguard-rules.pro",
+  "qrcloak/qrcloak-android/app/src/main/res/**",
+]

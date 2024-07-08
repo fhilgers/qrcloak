@@ -15,7 +15,14 @@ path = [
   "flake.lock",
   "manifest_install.json",
   "qrcloak/Cargo.lock",
+  "qrcloak/qrcloak-bindings/languages/js/package.json",
   "qrcloak/qrcloak-core/src/format/snapshots/qrcloak_core__format__tests__validate_schema.snap",
+  "qrcloak/qrcloak-word/bun.lockb",
+  "qrcloak/qrcloak-word/localhost.cert",
+  "qrcloak/qrcloak-word/localhost.key",
+  "qrcloak/qrcloak-word/package.json",
+  "qrcloak/qrcloak-word/pnpm-lock.yaml",
+  "qrcloak/qrcloak-word/tsconfig.json",
   "rust-toolchain",
   "tools/requirements.txt",
 ]
@@ -28,3 +35,8 @@ path = [
   "qrcloak/qrcloak-android/app/proguard-rules.pro",
   "qrcloak/qrcloak-android/app/src/main/res/**",
 ]
+
+[[annotations]]
+SPDX-FileCopyrightText = "2021 Ryan Carniato"
+SPDX-License-Identifier = "MIT"
+path = ["qrcloak/qrcloak-word/public/favicon.ico"]

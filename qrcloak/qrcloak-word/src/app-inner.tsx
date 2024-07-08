@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 import { Show, createEffect, createSignal } from "solid-js";
 
 import "@material/web/button/elevated-button";

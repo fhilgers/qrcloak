@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 import { defineConfig } from "@solidjs/start/config";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";

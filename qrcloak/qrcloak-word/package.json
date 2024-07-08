@@ -1,5 +1,7 @@
 {
   "name": "qrcloak-word",
+  "author": "Felix Hilgers",
+  "license": "(MIT or Apache-2.0)",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",

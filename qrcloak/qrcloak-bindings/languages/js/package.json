@@ -1,5 +1,7 @@
 {
   "name": "@fhilgers/qrcloak",
+  "author": "Felix Hilgers",
+  "license": "(MIT or Apache-2.0)",
   "version": "0.0.1-rc.23",
   "files": [
     "qrcloak-bindings-wasm-bundler.js",

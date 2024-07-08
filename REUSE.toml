@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2024 Felix Hilgers <copyright@relay.fhilgers.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
+version = 1
+
+[[annotations]]
+SPDX-FileCopyrightText = "Felix Hilgers <copyright@relay.fhilgers.com>"
+SPDX-License-Identifier = "CC0-1.0"
+path = ["qrcloak/Cargo.lock"]
+precedence = "override"

@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use std::ops::{Deref, DerefMut};
 
 use qrcloak_core::format::{CompletePayload, PartialPayload, Payload};

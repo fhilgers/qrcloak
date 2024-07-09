@@ -13,25 +13,22 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, NoReturn
 
 custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
+install_jre_script = """\
+set -euo pipefail
 
+export TZ="Europe/Berlin"
+export DEBIAN_FRONTEND="noninteractive"
+
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+echo $TZ > /etc/timezone
+
+apt-get update
+apt-get install --yes openjdk-17-jre
+"""
 
 def install_jre():
-    e = { 
-        #"DEBIAN_FRONTEND": "noninteractive",
-    }
-    os.symlink("/usr/share/zoneinfo/Europe/Berlin", "/etc/localtime")
-    with open("/etc/timezone", "w") as tz:
-        tz.write("Europe/Berlin")
-
     subprocess.run(
-        ["sudo", "apt-get", "update"], 
-        check=True,
-        env=e
-    )
-    subprocess.run(
-        ["sudo", "apt-get", "install", "--yes", "openjdk-17-jre"],
-        check=True,
-        env=e
+        ["sudo", "sh", "-c", install_jre_script], check=True
     )
 
 

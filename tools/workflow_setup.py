@@ -28,12 +28,16 @@ apt-get install --yes openjdk-17-jre
 """
 
 def install_jre():
-    subprocess.run(
-        ["sudo", "sh", "-c", install_jre_script], 
-        check=True,
-        text=True,
-    )
-
+    try:
+        result = subprocess.run(
+            ["sudo", "sh", "-c", install_jre_script], 
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        print("Script executed successfully:", result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("Error executing script:", e.stderr)
 
 def check_sha256(filename: str, expected_sha256: str):
     sha256_hash = hashlib.sha256()

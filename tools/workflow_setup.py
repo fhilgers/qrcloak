@@ -17,9 +17,12 @@ custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
 
 def install_jre():
     e = { 
-        "DEBIAN_FRONTEND": "noninteractive",
-        "TZ": "Europe/Berlin"
+        #"DEBIAN_FRONTEND": "noninteractive",
     }
+    os.symlink("/usr/share/zoneinfo/Europe/Berlin", "/etc/localtime")
+    with open("/etc/timezone", "w") as tz:
+        tz.write("Europe/Berlin")
+
     subprocess.run(
         ["sudo", "apt-get", "update"], 
         check=True,

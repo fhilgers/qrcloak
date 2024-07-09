@@ -29,7 +29,9 @@ apt-get install --yes openjdk-17-jre
 
 def install_jre():
     subprocess.run(
-        ["sudo", "sh", "-c", install_jre_script], check=True
+        ["sudo", "sh", "-c", install_jre_script], 
+        check=True,
+        text=True,
     )
 
 

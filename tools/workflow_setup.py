@@ -8,6 +8,7 @@ import subprocess
 import urllib.request
 import hashlib
 import zipfile
+import sys
 from tqdm import tqdm
 from textwrap import dedent
 from typing import TYPE_CHECKING, NoReturn
@@ -37,6 +38,7 @@ def install_jre():
         print("Script executed successfully:", result.stdout)
     except subprocess.CalledProcessError as e:
         print("Error executing script:", e.stderr)
+        sys.exit(e.returncode)
 
 def check_sha256(filename: str, expected_sha256: str):
     sha256_hash = hashlib.sha256()

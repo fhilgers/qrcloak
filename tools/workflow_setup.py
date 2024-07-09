@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, NoReturn
 
 custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
 install_jre_script = """\
+#!/bin/sh
 set -euo pipefail
 
 export TZ="Europe/Berlin"

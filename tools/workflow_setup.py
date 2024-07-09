@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, NoReturn
 
 custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
 install_jre_script = """\
-#!/bin/sh
 set -euo pipefail
 
 export TZ="Europe/Berlin"
@@ -30,7 +29,7 @@ apt-get install --yes openjdk-17-jre
 def install_jre():
     try:
         result = subprocess.run(
-            ["sudo", "sh", "-c", install_jre_script], 
+            ["sudo", "bash", "-c", install_jre_script], 
             check=True,
             text=True,
             capture_output=True

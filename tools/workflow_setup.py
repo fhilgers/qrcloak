@@ -16,9 +16,16 @@ custom_bar_format = "[{bar:39}] {percentage:3.0f}% {desc}"
 
 
 def install_jre():
-    subprocess.run(["sudo", "apt-get", "update"], check=True)
+    e = { "DEBIAN_FRONTEND": "noninteractive" }
     subprocess.run(
-        ["sudo", "apt-get", "install", "--yes", "openjdk-17-jre"], check=True
+        ["sudo", "apt-get", "update"], 
+        check=True,
+        env=e
+    )
+    subprocess.run(
+        ["sudo", "apt-get", "install", "--yes", "openjdk-17-jre"],
+        check=True,
+        env=e
     )
 
 
@@ -68,7 +75,6 @@ def unzip_with_progress(zip_file: str, extract_to: str):
 
 
 def main():
-    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     install_jre()
 
     VERSION_LONG = "10406996"

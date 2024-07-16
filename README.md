@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC-BY-4.0
 
 [![REUSE status](https://api.reuse.software/badge/github.com/fhilgers/qrcloak)](https://api.reuse.software/info/github.com/fhilgers/qrcloak)
 
-QRCloak is a project for embedding encryption information 
+[QRCloak](https://github.com/fhilgers/qrcloak) is a project for embedding encryption information 
 inside of printed documents. 
 
 

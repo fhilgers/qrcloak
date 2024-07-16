@@ -1,4 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2024 Felix Hilgers <contact@fhilgers.com"
+
+SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # QRCloak
+
+[![REUSE status](https://api.reuse.software/badge/github.com/fhilgers/qrcloak)](https://api.reuse.software/info/github.com/fhilgers/qrcloak)
 
 QRCloak is a project for embedding encryption information 
 inside of printed documents. 
